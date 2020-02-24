@@ -16,4 +16,9 @@
         android:title="@string/menu_direction"
         android:orderInCategory="300"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_search"
+        android:title="@string/menu_search"
+        android:orderInCategory="400"
+        app:showAsAction="never" />
 </menu>
