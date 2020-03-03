@@ -19,13 +19,26 @@
         android:theme="@style/AppTheme">
         <activity android:name=".LoginActivity"></activity>
         <activity android:name=".SignUpActivity">
+        </activity>
+        <activity android:name=".SearchActivity" />
+
+        <activity
+            android:name=".EditGoals"
+            android:label="Edit Goals">
+        </activity>
+        <activity
+            android:name=".ViewCalendarGoals"
+            android:label="Goals">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SearchActivity" />
+        <activity
+            android:name=".FAQ"
+            android:label="@string/title_activity_faq">
+        </activity>
 
         <service
             android:name=".TrackingService"
@@ -48,13 +61,7 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="@string/title_activity_maps" />
     </application>
 
 </manifest>

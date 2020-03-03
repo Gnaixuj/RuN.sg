@@ -8,5 +8,7 @@
     <string name="menu_restart">RESTART</string>
     <string name="menu_track">TRACK LOCATION</string>
     <string name="menu_direction">SHOW DIRECTIONS</string>
+    <string name="title_activity_faq">FAQ</string>
+    <string name="action_settings">Settings</string>
     <string name="menu_search">SEARCH POINTS</string>
 </resources>
