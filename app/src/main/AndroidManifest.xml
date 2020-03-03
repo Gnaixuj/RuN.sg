@@ -17,28 +17,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".SignUpActivity">
-        </activity>
-        <activity android:name=".SearchActivity" />
-
-        <activity
-            android:name=".EditGoals"
-            android:label="Edit Goals">
-        </activity>
-        <activity
-            android:name=".ViewCalendarGoals"
-            android:label="Goals">
+        <activity android:name=".StartActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".LoginActivity"/>
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SearchActivity" />
+
+        <activity
+            android:name=".EditGoals"
+            android:label="Edit Goals" />
+        <activity
+            android:name=".ViewCalendarGoals"
+            android:label="Goals" />
         <activity
             android:name=".FAQ"
-            android:label="@string/title_activity_faq">
-        </activity>
+            android:label="@string/title_activity_faq" />
 
         <service
             android:name=".TrackingService"
