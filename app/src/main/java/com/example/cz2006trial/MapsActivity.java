@@ -364,6 +364,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
 
+            case R.id.log_out: {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MapsActivity.this, SignUpActivity.class));
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
