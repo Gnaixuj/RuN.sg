@@ -3,7 +3,7 @@ package com.example.cz2006trial;
 import java.util.ArrayList;
 
 public class GoalController {
-    private static Goal goal = new Goal();
+    private static CalendarGoalEntity goal = new CalendarGoalEntity();
 
     public static double getDailyGoalDistance(String date) {
         for (int i = 0; i < goal.getAllGoals().size();i++) {
@@ -59,7 +59,7 @@ public class GoalController {
 
     }
 
-    public static void appendNewGoal(DailyGoal newGoal) {
+    public static void appendNewGoal(GoalEntity newGoal) {
         goal.getAllGoals().add(newGoal);
     }
 }

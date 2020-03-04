@@ -1,18 +1,18 @@
 package com.example.cz2006trial;
 
-public class DailyGoal {
+public class GoalEntity {
 
     private String goalDate;
     private double dailyGoalDistance;
     private double dailyGoalTarget;
 
-    public DailyGoal(String goalDate) {
+    public GoalEntity(String goalDate) {
         this.goalDate = goalDate;
         dailyGoalDistance = 0;
         dailyGoalTarget = -1;
     }
 
-    public DailyGoal(String goalDate, double dailyGoalDistance, double dailyGoalTarget) {
+    public GoalEntity(String goalDate, double dailyGoalDistance, double dailyGoalTarget) {
         this.goalDate = goalDate;
         this.dailyGoalDistance = dailyGoalDistance;
         this.dailyGoalTarget = dailyGoalTarget;

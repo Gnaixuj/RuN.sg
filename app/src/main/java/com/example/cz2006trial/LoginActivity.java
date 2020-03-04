@@ -49,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (mFirebaseUser != null) {
                     Toast.makeText(LoginActivity.this, "You are Logged In", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, MapsActivity.class));
+                    finish();
                 } else {
                     Toast.makeText(LoginActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
                 }
@@ -80,6 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                         else {
                             startActivity(new Intent(LoginActivity.this, MapsActivity.class));
+                            finish();
                         }
                     }
                 });

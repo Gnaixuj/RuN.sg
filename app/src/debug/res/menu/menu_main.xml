@@ -22,8 +22,18 @@
         android:orderInCategory="400"
         app:showAsAction="never" />
     <item
+        android:id="@+id/goal"
+        android:title="GOALS"
+        android:orderInCategory="500"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/faq"
+        android:title="FAQ"
+        android:orderInCategory="600"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/log_out"
         android:title="LOG OUT"
-        android:orderInCategory="500"
+        android:orderInCategory="700"
         app:showAsAction="never" />
 </menu>

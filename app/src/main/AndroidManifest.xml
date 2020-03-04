@@ -18,22 +18,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".StartActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".LoginActivity"/>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".SearchActivity" />
 
         <activity
-            android:name=".EditGoals"
+            android:name=".EditGoalsActivity"
             android:label="Edit Goals" />
         <activity
-            android:name=".ViewCalendarGoals"
+            android:name=".CalendarGoalsActivity"
             android:label="Goals">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".FAQ"

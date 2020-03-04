@@ -1,12 +1,10 @@
 package com.example.cz2006trial;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -14,18 +12,12 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.TextView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
-import me.ithebk.barchart.BarChart;
-import me.ithebk.barchart.BarChartModel;
-
-public class ViewCalendarGoals extends AppCompatActivity {
+public class CalendarGoalsActivity extends AppCompatActivity {
 
     CalendarView calendarView;
     TextView dateView;
@@ -86,10 +78,10 @@ public class ViewCalendarGoals extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (GoalController.getDailyGoalTarget(date) == -1) {
-                            DailyGoal newGoal = new DailyGoal(date);
+                            GoalEntity newGoal = new GoalEntity(date);
                             GoalController.appendNewGoal(newGoal);
                         }
-                        Intent editGoalIntent = new Intent(getApplicationContext(), EditGoals.class);
+                        Intent editGoalIntent = new Intent(getApplicationContext(), EditGoalsActivity.class);
                         //Create the bundle
                         Bundle bundle = new Bundle();
                         //Add your data to bundle

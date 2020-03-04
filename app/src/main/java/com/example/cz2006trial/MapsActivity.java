@@ -78,7 +78,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
 
-    private final long MINTIME = 1000*2;
+    private final long MINTIME = 1000 * 2;
     private final float MINDIST = 0;
     private final int ZOOM = 12;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
@@ -194,6 +194,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
                 locations.add(lastLocation);
@@ -364,11 +374,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
 
+            case R.id.faq: {
+                startActivity(new Intent(MapsActivity.this, FAQActivity.class));
+            }
+
+            case R.id.goal: {
+                startActivity(new Intent(MapsActivity.this, CalendarGoalsActivity.class));
+            }
+
             case R.id.log_out: {
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MapsActivity.this, SignUpActivity.class));
             }
-
         }
 
         return super.onOptionsItemSelected(item);

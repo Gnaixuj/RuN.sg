@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EditGoals extends AppCompatActivity {
+public class EditGoalsActivity extends AppCompatActivity {
 
     TextView editGoalDateView;
     TextView goalDistanceView;
