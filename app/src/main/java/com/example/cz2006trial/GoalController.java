@@ -1,9 +1,15 @@
 package com.example.cz2006trial;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 
 public class GoalController {
     private static CalendarGoalEntity goal = new CalendarGoalEntity();
+
+    private static FirebaseFirestore fStore = FirebaseFirestore.getInstance();;
+    private static FirebaseAuth mAuth = FirebaseAuth.getInstance();;
 
     public static double getDailyGoalDistance(String date) {
         for (int i = 0; i < goal.getAllGoals().size();i++) {
