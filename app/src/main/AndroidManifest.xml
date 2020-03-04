@@ -35,7 +35,7 @@
             android:label="Goals">
         </activity>
         <activity
-            android:name=".FAQ"
+            android:name=".FAQActivity"
             android:label="@string/title_activity_faq" />
 
         <service
