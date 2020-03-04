@@ -384,7 +384,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case R.id.log_out: {
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MapsActivity.this, SignUpActivity.class));
+                startActivity(new Intent(MapsActivity.this, LoginActivity.class));
             }
         }
 
