@@ -71,7 +71,7 @@ public class SignUpActivity extends AppCompatActivity {
                     return;
                 }
                 if (password.length() < 8) {
-                    mUsername.setError("Password Must Be At Least 8 Characters Long");
+                    mPassword.setError("Password Must Be At Least 8 Characters Long");
                     return;
                 }
                 if (!confirmPassword.equals(password)) {
