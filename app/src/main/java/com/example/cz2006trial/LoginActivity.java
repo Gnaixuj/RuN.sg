@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+        /*mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser mFirebaseUser = mAuth.getCurrentUser();
@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
                 }
             }
-        };
+        };*/
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,11 +76,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Error " + task.getException().getMessage(),
+                            Toast.makeText(getApplicationContext(), "Error " + task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            startActivity(new Intent(LoginActivity.this, MapsActivity.class));
+                            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
                             finish();
                         }
                     }
@@ -97,9 +97,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    @Override
+    /*@Override
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthStateListener);
-    }
+    }*/
 }

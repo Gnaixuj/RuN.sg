@@ -17,23 +17,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StartActivity" >
+        <activity
+            android:name=".StartActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".SignUpActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".SignUpActivity"
+            android:launchMode="singleTop" />
         <activity android:name=".SearchActivity" />
-
         <activity
             android:name=".EditGoalsActivity"
             android:label="Edit Goals" />
         <activity
             android:name=".CalendarGoalsActivity"
-            android:label="Goals">
-        </activity>
+            android:label="Goals"></activity>
         <activity
             android:name=".FAQActivity"
             android:label="@string/title_activity_faq" />
