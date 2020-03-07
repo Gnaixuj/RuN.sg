@@ -61,7 +61,7 @@ public class CalendarGoalsActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                date = getZeroPadding(dayOfMonth) + "/" + getZeroPadding(month+1) + "/" + year;
+                date = getZeroPadding(dayOfMonth) + "-" + getZeroPadding(month + 1) + "-" + year;
                 //if date is in the past, do not show button to
                 LocalDate currentDate = LocalDate.now(ZoneId.of("UTC"));
 
@@ -77,10 +77,6 @@ public class CalendarGoalsActivity extends AppCompatActivity {
                 editGoalButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (GoalController.getDailyGoalTarget(date) == -1) {
-                            GoalEntity newGoal = new GoalEntity(date);
-                            GoalController.appendNewGoal(newGoal);
-                        }
                         Intent editGoalIntent = new Intent(getApplicationContext(), EditGoalsActivity.class);
                         //Create the bundle
                         Bundle bundle = new Bundle();
@@ -103,24 +99,29 @@ public class CalendarGoalsActivity extends AppCompatActivity {
         return String.valueOf(dayMonth);
     }
 
-    private void displayDailyGoal(String date) {
-        final double dailyGoalTarget = GoalController.getDailyGoalTarget(date);
-        final double dailyGoalDistance = GoalController.getDailyGoalDistance(date);
-        dateView.setText("Date: " + date);
-        if (dailyGoalTarget == -1) {
-            dailyGoalView.setText("No daily target set");
-            progressView.setVisibility(View.GONE);
-        }
-        else {
-            dailyGoalView.setText("Target: "+dailyGoalDistance+" / "+dailyGoalTarget+ " km");
-            progressView.setVisibility(View.VISIBLE);
-            if (dailyGoalDistance/dailyGoalTarget >= 1) {
-                progressView.setText("100%");
+    private void displayDailyGoal(final String date) {
+        //final double dailyGoalTarget = GoalController.getDailyGoalTarget(date);
+        //final double dailyGoalDistance = GoalController.getDailyGoalDistance(date);
+        GoalController.getGoalFromDatabase(new GoalController.FirebaseCallback() {
+            @Override
+            public void onCallback(double[] goalData) {
+                dateView.setText("Date: " + date);
+                if (goalData[1] == -1) {
+                    dailyGoalView.setText("No daily target set");
+                    progressView.setVisibility(View.GONE);
+                } else {
+                    dailyGoalView.setText("Target: " + goalData[0] + " / " + goalData[1] + " km");
+                    progressView.setVisibility(View.VISIBLE);
+                    if (goalData[1] == 0) {
+                        progressView.setText("Error");
+                    } else if (goalData[0] / goalData[1] >= 1) {
+                        progressView.setText("100%");
+                    } else {
+                        progressView.setText(Math.round((goalData[0] / goalData[1]) * 100) + "%");
+                    }
+                }
             }
-            else {
-                progressView.setText(Math.round((dailyGoalDistance/dailyGoalTarget)*100) + "%");
-            }
-        }
+        }, date);
     }
 
     @Override

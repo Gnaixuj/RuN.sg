@@ -2,44 +2,47 @@ package com.example.cz2006trial;
 
 public class GoalEntity {
 
-    private String goalDate;
-    private double dailyGoalDistance;
-    private double dailyGoalTarget;
+    private String date;
+    private double distance;
+    private double target;
 
-    public GoalEntity(String goalDate) {
-        this.goalDate = goalDate;
-        dailyGoalDistance = 0;
-        dailyGoalTarget = -1;
+    public GoalEntity() {
+
     }
 
-    public GoalEntity(String goalDate, double dailyGoalDistance, double dailyGoalTarget) {
-        this.goalDate = goalDate;
-        this.dailyGoalDistance = dailyGoalDistance;
-        this.dailyGoalTarget = dailyGoalTarget;
+    public GoalEntity(String date) {
+        this.date = date;
+        distance = 0;
+        target = -1;
     }
 
-    public void setGoalDate(String goalDate) {
-        this.goalDate = goalDate;
+    public GoalEntity(String date, double distance, double target) {
+        this.date = date;
+        this.distance = distance;
+        this.target = target;
     }
 
-    public String getGoalDate() {
-        return goalDate;
+    public String getDate() {
+        return date;
     }
 
-    public void setDailyGoalDistance(double dailyGoalDistance) {
-        this.dailyGoalDistance = dailyGoalDistance;
+    public void setDate(String date) {
+        this.date = date;
     }
 
-    public void setDailyGoalTarget(double dailyGoalTarget) {
-        this.dailyGoalTarget = dailyGoalTarget;
+    public double getDistance() {
+        return distance;
     }
 
-    public double getDailyGoalDistance() {
-        return dailyGoalDistance;
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
-    public double getDailyGoalTarget() {
-        return dailyGoalTarget;
+    public double getTarget() {
+        return target;
     }
 
+    public void setTarget(double target) {
+        this.target = target;
+    }
 }

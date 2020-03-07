@@ -40,18 +40,39 @@ public class EditGoalsActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         //Extract the data…
         final String goalDate = bundle.getString("date");
-        final double goalDistance = GoalController.getDailyGoalDistance(goalDate);
-        double initialGoalTarget = GoalController.getDailyGoalTarget(goalDate);
-        editGoalDateView.setText("Date: " + goalDate);
-        goalDistanceView.setText("Distance travelled: " + goalDistance + " km");
-        if (initialGoalTarget == -1) {
-            initialGoalTargetView.setVisibility(View.GONE);
-        }
-        else {
-            initialGoalTargetView.setText("Initial Goal Target: " + initialGoalTarget + " km");
-        }
+        GoalController.getGoalFromDatabase(new GoalController.FirebaseCallback() {
+            @Override
+            public void onCallback(final double[] goalData) {
+                editGoalDateView.setText("Date: " + goalDate);
+                goalDistanceView.setText("Distance travelled: " + goalData[0] + " km");
+                if (goalData[1] == -1) {
+                    initialGoalTargetView.setVisibility(View.GONE);
+                } else {
+                    initialGoalTargetView.setText("Initial Goal Target: " + goalData[1] + " km");
+                }
+                doneEditGoalButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String newGoalTargetText = String.valueOf(newGoalTargetEditText.getText());
+                        String message = GoalController.validateGoalFields(newGoalTargetText, goalData[0]);
+                        if (message.equals("success")) {
+                            errorMessageView.setVisibility(View.GONE);
+                            Toast toast = Toast.makeText(getApplicationContext(), "Goal Target Updated", Toast.LENGTH_SHORT);
+                            toast.show();
+                            if (GoalController.updateDataOnDatabase(goalDate, goalData[0], Double.parseDouble(newGoalTargetText))) {
+                                finish();
+                            } else {
+                                errorMessageView.setText("Error. Something went wrong. Please retry.");
+                            }
+                        } else {
+                            errorMessageView.setText(message);
+                        }
+                    }
+                });
+            }
+        }, goalDate);
 
-        doneEditGoalButton.setOnClickListener(new View.OnClickListener() {
+        /*doneEditGoalButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String newGoalTargetText = String.valueOf(newGoalTargetEditText.getText());
@@ -67,7 +88,7 @@ public class EditGoalsActivity extends AppCompatActivity {
                     errorMessageView.setText(message);
                 }
             }
-        });
+        });*/
 
     }
 }
