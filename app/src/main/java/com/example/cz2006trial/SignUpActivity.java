@@ -96,26 +96,7 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(SignUpActivity.this, "User Created", Toast.LENGTH_SHORT).show();
-
-                            userID = mAuth.getCurrentUser().getUid();
-                            DocumentReference documentReference = fStore.collection("users").document(userID);
-                            Map < String, Object > user = new HashMap<>();
-                            user.put("username", username);
-                            user.put("email", email);
-
-
-                            documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d("TAG", "onSuccess: user profile is created for" + userID);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d("TAG", "onFailure: " + e.toString());
-                                }
-                            });
-
+                            UserProfileController.setUserProfileOnDatabase(email, username);
                             startActivity(new Intent(getApplicationContext(), MapsActivity.class));
                             finish();
                         }

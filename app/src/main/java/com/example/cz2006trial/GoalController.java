@@ -13,7 +13,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
 public class GoalController {
-    private static CalendarGoalEntity goal = new CalendarGoalEntity();
     private static String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     public static void getGoalFromDatabase(final FirebaseCallback firebaseCallback, String date) {
@@ -87,7 +86,7 @@ public class GoalController {
         return true;
     }
 
-    public static void updateDailyTarget(String date, double distance) {
+    /*public static void updateDailyTarget(String date, double distance) {
         for (int i = 0; i < goal.getAllGoals().size();i++) {
             if (goal.getAllGoals().get(i).getDate().equals(date)) {
                 goal.getAllGoals().get(i).setTarget(distance);
@@ -106,5 +105,5 @@ public class GoalController {
 
     public static void appendNewGoal(GoalEntity newGoal) {
         goal.getAllGoals().add(newGoal);
-    }
+    }*/
 }
