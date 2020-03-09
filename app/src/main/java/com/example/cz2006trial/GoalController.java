@@ -9,13 +9,48 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class GoalController {
-    private static String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-    public static void getGoalFromDatabase(final FirebaseCallback firebaseCallback, String date) {
+    public static void getMarkedGoalDates(final FirebaseCalendarCallback firebaseCallback) {
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference("goals").child(UID);
+        databaseGoalDates.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                final List<CalendarDay> completeGoalList = new ArrayList<CalendarDay>();
+                final List<CalendarDay> incompleteGoalList = new ArrayList<CalendarDay>();
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    if (d != null) {
+                        GoalEntity goal = d.getValue(GoalEntity.class);
+                        String dateString = d.getKey();
+                        if (goal.getDistance() >= goal.getTarget()) {
+                            completeGoalList.add(CalendarDay.from(convertStringToDate(dateString)));
+                        } else {
+                            incompleteGoalList.add(CalendarDay.from(convertStringToDate(dateString)));
+                        }
+                    }
+                }
+                firebaseCallback.onCallback(completeGoalList, incompleteGoalList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
+    }
+
+    public static void getGoalFromDatabase(final FirebaseGoalCallback firebaseCallback, String date) {
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -41,9 +76,26 @@ public class GoalController {
         });
     }
 
-    public interface FirebaseCallback {
+    public interface FirebaseGoalCallback {
         void onCallback(double[] goalData);
     }
+
+    public interface FirebaseCalendarCallback {
+        void onCallback(List<CalendarDay> completeGoalDates, List<CalendarDay> incompleteGoalDates);
+    }
+
+    public static Date convertStringToDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date convertedDate = new Date();
+        try {
+            convertedDate = dateFormat.parse(date);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return convertedDate;
+    }
+
 
     /*public static double getDailyGoalDistance(String date) {
         for (int i = 0; i < goal.getAllGoals().size();i++) {
@@ -80,6 +132,7 @@ public class GoalController {
     }
 
     public static boolean updateDataOnDatabase(String date, double distance, double target) {
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
         GoalEntity goal = new GoalEntity(date, distance, target);
         databaseGoals.setValue(goal);

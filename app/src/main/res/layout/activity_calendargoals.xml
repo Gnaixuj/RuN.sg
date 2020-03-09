@@ -8,24 +8,24 @@
     tools:context=".CalendarGoalsActivity"
     tools:layout_editor_absoluteY="81dp">
 
-    <CalendarView
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
         android:id="@+id/calendarView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
-        android:layout_marginLeft="44dp"
-        android:layout_marginTop="44dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginRight="44dp"
+        android:layout_width="385dp"
+        android:layout_height="359dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.060000002"
+        app:mcv_selectionColor="#00F"
+        app:mcv_showOtherDates="all" />
 
     <TextView
         android:id="@+id/dateView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="368dp"
+        android:layout_marginTop="400dp"
         android:text=""
         app:layout_constraintStart_toStartOf="@id/calendarView"
         app:layout_constraintTop_toTopOf="@id/calendarView" />
@@ -43,12 +43,13 @@
         android:id="@+id/EditGoalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="112dp"
-        android:layout_marginTop="484dp"
-        android:visibility="gone"
         android:text="EDIT GOAL"
-        app:layout_constraintStart_toStartOf="@id/calendarView"
-        app:layout_constraintTop_toTopOf="@id/calendarView" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.971" />
 
     <me.ithebk.barchart.BarChart
         android:id="@+id/goalProgressBar"

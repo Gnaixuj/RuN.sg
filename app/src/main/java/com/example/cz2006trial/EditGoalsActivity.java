@@ -40,7 +40,7 @@ public class EditGoalsActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         //Extract the data…
         final String goalDate = bundle.getString("date");
-        GoalController.getGoalFromDatabase(new GoalController.FirebaseCallback() {
+        GoalController.getGoalFromDatabase(new GoalController.FirebaseGoalCallback() {
             @Override
             public void onCallback(final double[] goalData) {
                 editGoalDateView.setText("Date: " + goalDate);

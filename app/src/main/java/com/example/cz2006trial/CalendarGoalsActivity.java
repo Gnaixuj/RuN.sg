@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -12,19 +13,99 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.TextView;
 
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 public class CalendarGoalsActivity extends AppCompatActivity {
 
-    CalendarView calendarView;
-    TextView dateView;
-    TextView dailyGoalView;
-    Button editGoalButton;
-    TextView progressView;
-    String date;
+    private MaterialCalendarView calendarView;
+    private TextView dateView;
+    private TextView dailyGoalView;
+    private Button editGoalButton;
+    private TextView progressView;
+    private String date;
+    private Collection<CalendarDay> calendarDays = new Collection<CalendarDay>() {
+        @Override
+        public boolean add(CalendarDay object) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends CalendarDay> collection) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+
+        @Override
+        public boolean contains(Object object) {
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @NonNull
+        @Override
+        public Iterator<CalendarDay> iterator() {
+            return null;
+        }
+
+        @Override
+        public boolean remove(Object object) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @NonNull
+        @Override
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        @NonNull
+        @Override
+        public <T> T[] toArray(T[] array) {
+            return null;
+        }
+    };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -38,13 +119,9 @@ public class CalendarGoalsActivity extends AppCompatActivity {
         progressView = findViewById(R.id.progressView);
 
         //Set max and min date that can be shown on the calendar
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        c.add(Calendar.MONTH, -1);
-        long result = c.getTimeInMillis();
-        calendarView.setMinDate(result);
-        c.add(Calendar.MONTH,2);
-        result = c.getTimeInMillis();
-        calendarView.setMaxDate(result);
+        setMinMaxDate();
+        highlightGoalDates();
+        calendarView.addDecorator(new CurrentDateDecorator(this));
 
         /*BarChart barChart = findViewById(R.id.goalProgressBar);
         barChart.setBarMaxValue(100);
@@ -57,19 +134,17 @@ public class CalendarGoalsActivity extends AppCompatActivity {
 
         barChart.addBar(barChartModel);*/
 
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+
+        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                date = getZeroPadding(dayOfMonth) + "-" + getZeroPadding(month + 1) + "-" + year;
-                //if date is in the past, do not show button to
-                LocalDate currentDate = LocalDate.now(ZoneId.of("UTC"));
-
-                if (year < currentDate.getYear() || month+1 < currentDate.getMonthValue() ||
-                        (month+1 == currentDate.getMonthValue() && dayOfMonth < currentDate.getDayOfMonth())) {
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay calendarDate, boolean selected) {
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                date = dateFormat.format(calendarDate.getDate());
+                System.out.println(date);
+                if (calendarDate.isBefore(CalendarDay.today())) {
                     editGoalButton.setVisibility(View.GONE);
-                }
-                else {
+                } else {
                     editGoalButton.setVisibility(View.VISIBLE);
                 }
                 displayDailyGoal(date);
@@ -102,7 +177,7 @@ public class CalendarGoalsActivity extends AppCompatActivity {
     private void displayDailyGoal(final String date) {
         //final double dailyGoalTarget = GoalController.getDailyGoalTarget(date);
         //final double dailyGoalDistance = GoalController.getDailyGoalDistance(date);
-        GoalController.getGoalFromDatabase(new GoalController.FirebaseCallback() {
+        GoalController.getGoalFromDatabase(new GoalController.FirebaseGoalCallback() {
             @Override
             public void onCallback(double[] goalData) {
                 dateView.setText("Date: " + date);
@@ -124,22 +199,44 @@ public class CalendarGoalsActivity extends AppCompatActivity {
         }, date);
     }
 
+    //Set max and min date that can be shown on the calendar
+    private void setMinMaxDate() {
+        Calendar cMin = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cMin.add(Calendar.MONTH, -1);
+        Calendar cMax = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cMax.add(Calendar.MONTH, 1);
+        calendarView.state().edit()
+                .setFirstDayOfWeek(Calendar.SUNDAY)
+                .setMinimumDate(CalendarDay.from(cMin))
+                .setMaximumDate(CalendarDay.from(cMax))
+                .setCalendarDisplayMode(CalendarMode.MONTHS)
+                .commit();
+        ;
+    }
+
+    private void highlightGoalDates() {
+        GoalController.getMarkedGoalDates(new GoalController.FirebaseCalendarCallback() {
+            @Override
+            public void onCallback(List<CalendarDay> completeGoalDates, List<CalendarDay> incompleteGoalDates) {
+                //adding list of CalendarDays for completed goals
+                calendarDays = completeGoalDates;
+                //code to decorate selected dates
+                calendarView.addDecorators(new GoalDecorator(Color.parseColor("#00ff00"), calendarDays));
+                //clear calendarDays
+                calendarDays.clear();
+                //adding list of CalendarDays for completed goals
+                calendarDays = incompleteGoalDates;
+                //code to decorate selected dates
+                calendarView.addDecorators(new GoalDecorator(Color.parseColor("#ff0000"), calendarDays));
+                calendarView.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         displayDailyGoal(date);
     }
-
-    /*private Date convertStringToDate(String date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        Date convertedDate = new Date();
-        try {
-            convertedDate = dateFormat.parse(date);
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return convertedDate;
-    }*/
 
 }
