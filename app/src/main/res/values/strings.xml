@@ -14,4 +14,6 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_confirm_password">Confirm Password</string>
+    <string name="zeroDistance">Distance travelled: 0.0 km</string>
+    <string name="noTargetSet">No daily target set</string>
 </resources>
