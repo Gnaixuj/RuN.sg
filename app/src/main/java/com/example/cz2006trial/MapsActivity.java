@@ -374,6 +374,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 
         }
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
     }
 
