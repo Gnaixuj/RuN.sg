@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 import android.content.Context;
@@ -31,6 +32,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.google.maps.android.data.Feature;
 import com.google.maps.android.data.Geometry;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
@@ -52,7 +59,9 @@ import android.location.LocationManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ActionMenuView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -67,6 +76,7 @@ import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -78,6 +88,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
 
+    private SectionsStatePagerAdapter mSectionsStatePagerAdapter; // Swa
+    private ViewPager mViewPager; // Swa
+
     private final long MINTIME = 1000 * 2;
     private final float MINDIST = 0;
     private final int ZOOM = 12;
@@ -85,6 +98,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private FusedLocationProviderClient fusedLocationClient;
 
+    private boolean startTrack = false; // Swa
+    private UserLocationEntity mUserLocation; // Swa
+    private FirebaseFirestore mDb; // Swa
     private LatLng userLocation;
     private LatLng destination;
     private LatLng lastLocation;
@@ -128,6 +144,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        mDb = FirebaseFirestore.getInstance();
         //loginToFirebase();
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -136,8 +153,56 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // Swa
+        mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
+        mViewPager = findViewById(R.id.mapContainer);
+        // Set Up the Pager
+        setupViewPager(mViewPager);
     }
 
+    // Swa
+    private void setupViewPager(ViewPager viewPager) {
+        SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
+        adapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
+        viewPager.setAdapter(adapter);
+    }
+
+    // Swa
+    public void setViewPager(int fragmentNumber) {
+        mViewPager.setCurrentItem(fragmentNumber);
+    }
+
+    // Swa
+    public void setLayoutWeight(int weight) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                weight
+        );
+        findViewById(R.id.mapContainer).setLayoutParams(params);
+    }
+
+    // Swa
+    public void beginTracking() {
+        startTrack = true;
+    }
+
+    // Swa
+    public void endTracking() {
+        startTrack = false;
+    }
+
+    // Swa
+    private void saveUserLocation() {
+        // TODO
+        if (mUserLocation != null) {
+            String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//            DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("location").child(UID).child(date);
+//            DocumentReference locationRef = mDb.collection("users")
+        }
+    }
 /*
     private void loginToFirebase() {
 
@@ -177,7 +242,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        button = (Button) findViewById(R.id.button2);
+//        button = (Button) findViewById(R.id.button2);
 
         //button.setAlpha(0);
 
@@ -206,7 +271,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
-                locations.add(lastLocation);
+                if (startTrack) {
+                    locations.add(lastLocation);
+                }
                     /*Log.i("LAST LOCATION", lastLocation.toString());
                     for (LatLng loc: locations) {
                         Log.i("LOCATION", loc.toString());
@@ -216,10 +283,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     userMarker.remove();
                     userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED));
-                    //mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
-                }
-                else {
+                    if (startTrack) {
+                        mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED));
+                        //mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
+                    }
+                } else {
                     userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 }
@@ -259,7 +327,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
-
         try {
             parklayer = new KmlLayer(mMap, R.raw.parkconnectorloop, getApplicationContext());
             accesslayer = new KmlLayer(mMap, R.raw.accesspoints, getApplicationContext());
@@ -273,7 +340,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         for (GeoJsonFeature feature : accesslayerjson.getFeatures()) {
-            if("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
+            if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
                 GeoJsonPoint point = (GeoJsonPoint) feature.getGeometry();
 
                 LatLng latLng = point.getCoordinates();
@@ -297,13 +364,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }*/
 
 
-        if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION_PERMISSION);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
         } else {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
             Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-         //mMap.clear();
+            //mMap.clear();
             userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 
         }
@@ -344,7 +411,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
-                for (Marker marker: accessPoint) {
+                for (Marker marker : accessPoint) {
                     mMap.addMarker(new MarkerOptions().position(marker.getPosition()).title(marker.getTitle()).visible(true));
                 }
 
@@ -363,7 +430,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 ArrayList<String> accessStr = new ArrayList<>();
 
-                for (Marker marker: accessPoint) {
+                for (Marker marker : accessPoint) {
                     accessStr.add(marker.getTitle());
                 }
 
@@ -402,7 +469,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 String loc = data.getStringExtra("locationkey");
-                for (Marker marker: accessPoint) {
+                for (Marker marker : accessPoint) {
                     if (marker.getTitle().equalsIgnoreCase(loc)) {
                         destination = marker.getPosition();
                         break;
@@ -418,7 +485,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //method on click of button "Show Directions"
-    public void showDirection (View view) {
+    public void showDirection(View view) {
 
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
@@ -428,23 +495,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             button.setVisibility(View.INVISIBLE);
             mMap.addMarker(new MarkerOptions().position(destination).title("Your Destination"));
             getDirections(mMap, userLocation, destination, api_key);
-        }
-        else {
+        } else {
             Toast.makeText(this, "Choose your destination", Toast.LENGTH_LONG).show();
         }
     }
 
 
     //method to get directions url
-    private void getDirections(GoogleMap mMap, LatLng origin, LatLng destination, String api_key)
-    {
+    private void getDirections(GoogleMap mMap, LatLng origin, LatLng destination, String api_key) {
 
         //Forming an URL string which will return JSON as a result.
         String originString = "origin=" + origin.latitude + "," + origin.longitude;
         String destinationString = "destination=" + destination.latitude + "," + destination.longitude;
 
         //IF THIS GENERATES ERROR, HARD CODE API KEY INTO URL.
-        String url = "https://maps.googleapis.com/maps/api/directions/json?"+ originString
+        String url = "https://maps.googleapis.com/maps/api/directions/json?" + originString
                 + "&" + destinationString + "&key=" + api_key + "&mode=walking";
 
 
@@ -453,16 +518,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         downloadTask.execute(url);
     }
 
-    private String downloadUrl(String url) throws IOException
-    {
+    private String downloadUrl(String url) throws IOException {
         String data = "";
         InputStream inputStream = null;
         HttpURLConnection urlConnection = null;
 
-        try
-        {
+        try {
             URL actualURL = new URL(url);
-            urlConnection = (HttpURLConnection)actualURL.openConnection();
+            urlConnection = (HttpURLConnection) actualURL.openConnection();
             urlConnection.connect();
 
             inputStream = urlConnection.getInputStream();
@@ -470,20 +533,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             StringBuffer sb = new StringBuffer();
 
             String line = "";
-            while((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
 
             data = sb.toString();
 
             br.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Log.d("EXCEPTION DOWNLOADING", e.toString());
-        }
-        finally {
+        } finally {
             inputStream.close();
             urlConnection.disconnect();
         }
@@ -491,18 +550,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return data;
     }
 
-    private class DownloadTask extends AsyncTask<String, Void, String>
-    {
+    private class DownloadTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
             String data = "";
 
-            try
-            {
+            try {
                 data = downloadUrl(strings[0]);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.d("ASYNC TASK", e.toString());
             }
 
@@ -521,8 +576,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 JSONObject parentMain = new JSONObject(s);
                 JSONArray legs = parentMain.getJSONArray("routes").getJSONObject(0).getJSONArray("legs");
 
-                for(int i = 0; i < legs.length(); i++)
-                {
+                for (int i = 0; i < legs.length(); i++) {
                     JSONArray steps = legs.getJSONObject(i).getJSONArray("steps");
                     JSONObject distance = legs.getJSONObject(i).getJSONObject("distance");
                     JSONObject duration = legs.getJSONObject(i).getJSONObject("duration");
@@ -530,8 +584,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     totalDistance += Integer.parseInt(distance.getString("value"));
                     totalTravelTime += Integer.parseInt(duration.getString("value"));
 
-                    for(int j = 0; j < steps.length(); j++)
-                    {
+                    for (int j = 0; j < steps.length(); j++) {
                         JSONObject polyline = steps.getJSONObject(j).getJSONObject("polyline");
                         List<LatLng> markers = PolyUtil.decode(polyline.getString("points"));
 
@@ -546,19 +599,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         //Simply displays a toast message containing total distance and total time required.
-        public void toastData(int totalDistance, int totalTravelTime)
-        {
+        public void toastData(int totalDistance, int totalTravelTime) {
             int km = 0, m = 0;
             String displayDistance = "";
 
-            if(totalDistance < 1000)
-            {
+            if (totalDistance < 1000) {
                 displayDistance = "0." + String.valueOf(totalDistance) + " km";
-            }
-            else
-            {
-                while(totalDistance >= 1000)
-                {
+            } else {
+                while (totalDistance >= 1000) {
                     km++;
                     totalDistance -= 1000;
                 }
@@ -568,12 +616,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             int min = 0, sec = 0;
             String displayTravelTime = "";
-            if(totalDistance < 60)
+            if (totalDistance < 60)
                 displayTravelTime = "1 minute";
-            else
-            {
-                while(totalTravelTime >= 60)
-                {
+            else {
+                while (totalTravelTime >= 60) {
                     min++;
                     totalTravelTime -= 60;
                 }
@@ -586,7 +632,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-
     private void startTrackerService() {
         startService(new Intent(this, TrackingService.class));
         Log.i("Tracker", "Start tracking");
@@ -594,4 +639,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
         //finish();
     }
+
+
 }

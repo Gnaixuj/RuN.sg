@@ -16,15 +16,21 @@
         tools:context=".MapsActivity"
         tools:layout="@layout/activity_maps" />
 
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/mapContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:onClick="showDirection"
-        android:text="SHOW DIRECTIONS"
-        android:visibility="invisible" />
+        android:layout_weight="10" >
+    </androidx.viewpager.widget.ViewPager>
+
+<!--    <Button-->
+<!--        android:id="@+id/button2"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        android:onClick="showDirection"-->
+<!--        android:text="SHOW DIRECTIONS"-->
+<!--        android:visibility="visible" />-->
 
 </LinearLayout>
 
