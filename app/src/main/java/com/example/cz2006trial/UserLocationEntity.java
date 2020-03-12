@@ -9,22 +9,21 @@ import java.util.Date;
 
 public class UserLocationEntity {
 
-    private GeoPoint geo_point;
+    private double[] geo_point;
     private @ServerTimestamp
     Date timestamp;
 
     public UserLocationEntity() {}
 
-    public UserLocationEntity(GeoPoint geo_point, Date timestamp) {
+    public UserLocationEntity(double[] geo_point) {
         this.geo_point = geo_point;
-        this.timestamp = timestamp;
     }
 
-    public GeoPoint getGeo_point() {
+    public double[] getGeo_point() {
         return geo_point;
     }
 
-    public void setGeo_point(GeoPoint geo_point) {
+    public void setGeo_point(double[] geo_point) {
         this.geo_point = geo_point;
     }
 

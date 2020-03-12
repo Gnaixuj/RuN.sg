@@ -75,9 +75,16 @@ public class MapsTrackFragment extends Fragment {
                 mChronometer.stop();
                 timeElapsed = mChronometer.getBase() - SystemClock.elapsedRealtime();
                 ((MapsActivity)getActivity()).endTracking();
+                UserLocationSessionEntity.clearAllUserLocation();
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        UserLocationSessionEntity.clearAllUserLocation();
     }
 }

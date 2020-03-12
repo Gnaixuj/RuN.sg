@@ -272,7 +272,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
                 if (startTrack) {
+
                     locations.add(lastLocation);
+                    UserLocationController.addUserLocation(lastLocation);
+
                 }
                     /*Log.i("LAST LOCATION", lastLocation.toString());
                     for (LatLng loc: locations) {
