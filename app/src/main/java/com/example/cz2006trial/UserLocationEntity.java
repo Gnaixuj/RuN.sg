@@ -1,30 +1,37 @@
 package com.example.cz2006trial;
 
-import androidx.annotation.NonNull;
-
-import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.Date;
 
 public class UserLocationEntity {
 
-    private double[] geo_point;
-    private @ServerTimestamp
-    Date timestamp;
+    private double latitude;
+    private double longitude;
+    private Date timestamp;
 
-    public UserLocationEntity() {}
+    public UserLocationEntity() {
 
-    public UserLocationEntity(double[] geo_point) {
-        this.geo_point = geo_point;
     }
 
-    public double[] getGeo_point() {
-        return geo_point;
+    public UserLocationEntity(double latitude, double longitude, Date timestamp) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.timestamp = timestamp;
     }
 
-    public void setGeo_point(double[] geo_point) {
-        this.geo_point = geo_point;
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public Date getTimestamp() {
@@ -38,7 +45,8 @@ public class UserLocationEntity {
     @Override
     public String toString() {
         return "UserLocationEntity{" +
-                "geo_point=" + geo_point +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
                 ", timestamp=" + timestamp +
                 '}';
     }

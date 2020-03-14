@@ -65,7 +65,7 @@ public class EditGoalsActivity extends AppCompatActivity {
                 final GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
                 final double goalDistance;
                 if (goal != null) {
-                    goalDistance = goal.getDistance();
+                    goalDistance = (Math.round(goal.getDistance() * 10) / 10.0);
                     goalDistanceView.setText("Distance travelled: " + goalDistance + " km");
                     initialGoalTargetView.setText("Initial Goal Target: " + goal.getTarget() + " km");
                 } else {

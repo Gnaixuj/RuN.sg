@@ -76,6 +76,7 @@ import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -101,6 +102,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean startTrack = false; // Swa
     private UserLocationEntity mUserLocation; // Swa
     private FirebaseFirestore mDb; // Swa
+    private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
     private LatLng userLocation;
     private LatLng destination;
     private LatLng lastLocation;
@@ -185,10 +187,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // Swa
-    public void beginTracking() {
+    public void beginTracking(UserLocationSessionEntity userLocationSession) {
+        this.userLocationSession = userLocationSession;
         startTrack = true;
     }
 
+    public void resumeTracking() {
+        startTrack = true;
+    }
     // Swa
     public void endTracking() {
         startTrack = false;
@@ -274,7 +280,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (startTrack) {
 
                     locations.add(lastLocation);
-                    UserLocationController.addUserLocation(lastLocation);
+                    UserLocationEntity userLocation = new UserLocationEntity();
+                    UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
+                    UserLocationController.updateUserLocation(userLocationSession);
 
                 }
                     /*Log.i("LAST LOCATION", lastLocation.toString());

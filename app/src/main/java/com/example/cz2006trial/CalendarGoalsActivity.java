@@ -134,7 +134,7 @@ public class CalendarGoalsActivity extends AppCompatActivity {
                 dateView.setText("Date: " + date);
                 GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
                 if (goal != null) {
-                    dailyGoalView.setText("Target: " + goal.getDistance() + " / " + goal.getTarget() + " km");
+                    dailyGoalView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
                     progressView.setVisibility(View.VISIBLE);
                     double progress = Math.max(0, Math.min(100 * goal.getDistance() / goal.getTarget(), 100));
                     progressView.setText("Progress: " + Math.round(progress) + "%");

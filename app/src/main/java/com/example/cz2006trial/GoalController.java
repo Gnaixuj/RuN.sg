@@ -1,9 +1,15 @@
 package com.example.cz2006trial;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,6 +52,27 @@ public class GoalController {
         GoalEntity goal = new GoalEntity(date, distance, target);
         databaseGoals.setValue(goal);
         return true;
+    }
+
+    public static void getDistanceDatabase(final Date date, final double distance) {
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        final String dateString = dateFormat.format(date);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(dateString);
+        databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
+                if (goal != null) {
+                    updateDataOnDatabase(dateString, goal.getDistance() + distance, goal.getTarget());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
     }
 
 
