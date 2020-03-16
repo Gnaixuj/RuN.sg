@@ -65,6 +65,8 @@ public class GoalController {
                 GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
                 if (goal != null) {
                     updateDataOnDatabase(dateString, goal.getDistance() + distance, goal.getTarget());
+                } else {
+                    updateDataOnDatabase(dateString, 0, -1);
                 }
             }
 

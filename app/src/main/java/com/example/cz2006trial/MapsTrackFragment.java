@@ -120,7 +120,7 @@ public class MapsTrackFragment extends Fragment {
                         UserLocationController.calculateNSetTimeTaken(userLocationSession, SystemClock.elapsedRealtime() - mChronometer.getBase());
                         distanceTravelledView.setText("Distance travelled: " + Math.round(userSession.getDistance() * 10) / 10.0 + " km");
                         distanceTravelledView.setVisibility(View.VISIBLE);
-                        displayNUpdateGoalTarget(date, Math.round(userSession.getDistance() * 10) / 10.0);
+                        displayGoalTarget(date);
 
                     } else {
                         distanceTravelledView.setVisibility(View.GONE);
@@ -135,7 +135,7 @@ public class MapsTrackFragment extends Fragment {
         }
     }
 
-    public void displayNUpdateGoalTarget(Date date, double distance) {
+    public void displayGoalTarget(Date date) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         final String dateString = dateFormat.format(date);
@@ -145,8 +145,11 @@ public class MapsTrackFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
                 if (goal != null) {
-                    goalProgressView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
-                    goalProgressView.setVisibility(View.VISIBLE);
+                    if (goal.getTarget() != -1) {
+                        goalProgressView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
+                    } else {
+                        goalProgressView.setText(R.string.noTargetSet);
+                    }
                 } else {
                     goalProgressView.setText(R.string.noTargetSet);
                 }

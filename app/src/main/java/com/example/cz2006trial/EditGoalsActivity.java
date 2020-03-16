@@ -68,6 +68,9 @@ public class EditGoalsActivity extends AppCompatActivity {
                     goalDistance = (Math.round(goal.getDistance() * 10) / 10.0);
                     goalDistanceView.setText("Distance travelled: " + goalDistance + " km");
                     initialGoalTargetView.setText("Initial Goal Target: " + goal.getTarget() + " km");
+                    if (goal.getTarget() == -1) {
+                        initialGoalTargetView.setVisibility(View.GONE);
+                    }
                 } else {
                     goalDistance = 0;
                     goalDistanceView.setText(R.string.zeroDistance);
