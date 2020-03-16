@@ -6,6 +6,10 @@ public class GoalEntity {
     private double distance;
     private double target;
 
+    public GoalEntity() {
+
+    }
+
     public GoalEntity(String date, double distance, double target) {
         this.date = date;
         this.distance = distance;
