@@ -96,7 +96,7 @@ public class CalendarGoalsActivity extends AppCompatActivity {
 
     public void decorateGoalDates() {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference("goals").child(UID);
+        DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference().child(UID).child("goals");
         databaseGoalDates.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -106,9 +106,9 @@ public class CalendarGoalsActivity extends AppCompatActivity {
                     if (d != null) {
                         GoalEntity goal = d.getValue(GoalEntity.class);
                         String dateString = d.getKey();
-                        if (goal.getDistance() >= goal.getTarget()) {
+                        if (goal.getDistance() >= goal.getTarget() && goal.getTarget() != -1) {
                             completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
-                        } else {
+                        } else if (goal.getTarget() != -1) {
                             incompleteGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
                         }
                     }
@@ -127,7 +127,7 @@ public class CalendarGoalsActivity extends AppCompatActivity {
 
     public void displayGoalFromDatabase(final String date) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
         databaseGoals.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

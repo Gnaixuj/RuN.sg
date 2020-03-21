@@ -48,7 +48,7 @@ public class GoalController {
 
     public static boolean updateDataOnDatabase(String date, double distance, double target) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
         GoalEntity goal = new GoalEntity(date, distance, target);
         databaseGoals.setValue(goal);
         return true;
@@ -58,7 +58,7 @@ public class GoalController {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         final String dateString = dateFormat.format(date);
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(dateString);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(dateString);
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

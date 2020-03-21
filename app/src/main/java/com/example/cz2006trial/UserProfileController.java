@@ -11,10 +11,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class UserProfileController {
 
-    private static String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
     public static void getUserProfileFromDatabase(final FirebaseCallback firebaseCallback) {
-        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference("users").child(UID);
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
         databaseUserProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -40,7 +39,8 @@ public class UserProfileController {
     }
 
     public static boolean setUserProfileOnDatabase(String email, String username) {
-        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference("users").child(UID);
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
         UserProfileEntity userProfile = new UserProfileEntity(email, username);
         databaseUserProfile.setValue(userProfile);
         return true;

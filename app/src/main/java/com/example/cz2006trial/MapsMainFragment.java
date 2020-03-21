@@ -27,7 +27,8 @@ public class MapsMainFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "Click Create", Toast.LENGTH_SHORT).show();
+                ((MapsActivity) getActivity()).setLayoutWeight(1);
+                ((MapsActivity) getActivity()).setViewPager(2);
             }
         });
 

@@ -100,12 +100,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationClient;
 
     private boolean startTrack = false; // Swa
-    private UserLocationEntity mUserLocation; // Swa
-    private FirebaseFirestore mDb; // Swa
     private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
     private LatLng userLocation;
     private LatLng destination;
     private LatLng lastLocation;
+
+    private boolean createRoute = false;
+    private UserRouteEntity userRoute = new UserRouteEntity();
+    private Marker startPoint;
+    private Marker endPoint;
+    private ArrayList<Polyline> routeLine = new ArrayList<>();
+
 
     ArrayList<LatLng> locations = new ArrayList<>();
     ArrayList<Marker> accessPoint = new ArrayList<>();
@@ -146,7 +151,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        mDb = FirebaseFirestore.getInstance();
         //loginToFirebase();
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -168,6 +172,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
         adapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
+        adapter.addFragment(new MapsCreateFragment(), "MapsCreateFragment");
         viewPager.setAdapter(adapter);
     }
 
@@ -200,14 +205,89 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startTrack = false;
     }
 
-    // Swa
-    private void saveUserLocation() {
-        // TODO
-        if (mUserLocation != null) {
-            String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//            DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("location").child(UID).child(date);
-//            DocumentReference locationRef = mDb.collection("users")
+    // Fazli
+
+    public void clearRouteDetails() {
+        startPoint.remove();
+        endPoint.remove();
+        for (int i = 0; i < routeLine.size(); i++)
+            routeLine.get(i).remove();
+        startPoint = null;
+        endPoint = null;
+        routeLine.clear();
+    }
+
+    public void setStartPoint(final UserRouteEntity userRoute) {
+        try {
+            accesslayer.addLayerToMap();
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        if (endPoint != null) {
+            endPoint.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        }
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (!marker.getTitle().equals("Your Location"))
+                    if (endPoint == null || !marker.getTitle().equals(endPoint.getTitle())) {
+                        if (startPoint != null)
+                            startPoint.remove();
+                        startPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                .title(marker.getTitle() + " " + marker.getId())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                        UserRouteController.setStartMarkerInfo(userRoute, startPoint);
+                        Toast.makeText(getApplicationContext(), "Starting Point updated", Toast.LENGTH_SHORT).show();
+                        accesslayer.removeLayerFromMap();
+                    }
+                return true;
+            }
+        });
+
+    }
+
+    public void setEndPoint(final UserRouteEntity userRoute) {
+        try {
+            accesslayer.addLayerToMap();
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (startPoint != null) {
+            startPoint.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        }
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (!marker.getTitle().equals("Your Location"))
+                    if (startPoint == null || !marker.getTitle().equals(startPoint.getTitle())) {
+                        if (endPoint != null)
+                            endPoint.remove();
+                        endPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                .title(marker.getTitle() + " " + marker.getId())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                        UserRouteController.setEndMarkerInfo(userRoute, endPoint);
+                        Toast.makeText(getApplicationContext(), "Ending Point updated", Toast.LENGTH_SHORT).show();
+                        accesslayer.removeLayerFromMap();
+                    }
+                return true;
+            }
+        });
+
+    }
+
+    public String createRoute(UserRouteEntity userRoute) {
+        if (startPoint == null || endPoint == null)
+            return ("Missing starting point or ending point");
+        this.userRoute = userRoute;
+        createRoute = true;
+        getDirections(mMap, startPoint.getPosition(), endPoint.getPosition(), api_key);
+        return ("Route created");
     }
 /*
     private void loginToFirebase() {
@@ -341,7 +421,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
             parklayer = new KmlLayer(mMap, R.raw.parkconnectorloop, getApplicationContext());
             accesslayer = new KmlLayer(mMap, R.raw.accesspoints, getApplicationContext());
-            //parklayer.addLayerToMap();
 
 
         } catch (XmlPullParserException e) {
@@ -601,13 +680,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         JSONObject polyline = steps.getJSONObject(j).getJSONObject("polyline");
                         List<LatLng> markers = PolyUtil.decode(polyline.getString("points"));
 
-                        mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.RED));
+                        //save distance and timeTaken to userRoute
+                        if (createRoute)
+                            routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.GREEN)));
+                        else
+                            mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.RED));
                     }
                 }
 
             } catch (JSONException e) {
                 Toast.makeText(MapsActivity.this, "WELL WE MESSED UP!", Toast.LENGTH_LONG).show();
             }
+
             toastData(totalDistance, totalTravelTime);
         }
 
@@ -638,6 +722,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 sec = totalTravelTime;
                 displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
+            }
+            if (createRoute) {
+                UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
+                createRoute = false;
             }
 
             Toast.makeText(MapsActivity.this, "DISTANCE : " + displayDistance + "\nTIME REQUIRED : " + displayTravelTime, Toast.LENGTH_LONG).show();

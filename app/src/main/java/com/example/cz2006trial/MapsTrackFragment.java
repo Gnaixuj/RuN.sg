@@ -55,7 +55,8 @@ public class MapsTrackFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "Click Create", Toast.LENGTH_SHORT).show();
+                ((MapsActivity) getActivity()).setLayoutWeight(1);
+                ((MapsActivity) getActivity()).setViewPager(2);
             }
         });
 
@@ -111,7 +112,8 @@ public class MapsTrackFragment extends Fragment {
     public void displaySessionFromDatabase(final Date date) {
         if (date != null) {
             String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference("userLocationSessions").child(UID).child(date.toString());
+            DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference()
+                    .child(UID).child("userLocationSessions").child(date.toString());
             databaseUserSession.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -139,7 +141,7 @@ public class MapsTrackFragment extends Fragment {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         final String dateString = dateFormat.format(date);
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(dateString);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(dateString);
         databaseGoals.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

@@ -56,8 +56,8 @@ public class EditGoalsActivity extends AppCompatActivity {
     }
 
     public void displayGoalFromDatabase(final String date) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference(UID).child("goals").child(date);
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

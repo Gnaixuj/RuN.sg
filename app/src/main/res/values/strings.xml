@@ -16,4 +16,7 @@
     <string name="prompt_confirm_password">Confirm Password</string>
     <string name="zeroDistance">Distance travelled: 0.0 km</string>
     <string name="noTargetSet">No daily target set</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
