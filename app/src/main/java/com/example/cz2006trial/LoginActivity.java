@@ -88,6 +88,21 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+                    finish();
+
+                } else {
+                    // User is signed out
+                    Toast.makeText(getApplicationContext(), "Please Log in", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,9 +112,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    /*@Override
+    @Override
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthStateListener);
-    }*/
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuth != null) {
+            mAuth.removeAuthStateListener(mAuthStateListener);
+        }
+    }
 }
