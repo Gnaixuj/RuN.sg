@@ -19,23 +19,17 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".history.HistoryActivity"
-            android:label="@string/title_activity_history"
-            android:theme="@style/AppTheme.NoActionBar">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
-
-        <activity
             android:name=".StartActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".history.recyclerview.MainActivity"
+            android:launchMode="singleTop">
         </activity>
 
         <activity
@@ -77,7 +71,9 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
-            android:launchMode="singleTop"></activity>
+            android:launchMode="singleTop">
+        </activity>
+
     </application>
 
 </manifest>
