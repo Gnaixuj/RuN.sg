@@ -27,6 +27,11 @@
         android:orderInCategory="500"
         app:showAsAction="never" />
     <item
+        android:id="@+id/history"
+        android:title="HISTORY"
+        android:orderInCategory="600"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/faq"
         android:title="FAQ"
         android:orderInCategory="600"

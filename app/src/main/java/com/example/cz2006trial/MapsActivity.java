@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.graphics.Color;
 
+import com.example.cz2006trial.history.HistoryActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -603,6 +604,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case R.id.goal: {
                 startActivity(new Intent(MapsActivity.this, CalendarGoalsActivity.class));
+                return true;
+            }
+
+            case R.id.history: {
+                startActivity(new Intent(MapsActivity.this, HistoryActivity.class));
                 return true;
             }
 
