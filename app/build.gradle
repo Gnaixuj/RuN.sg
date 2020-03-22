@@ -45,4 +45,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'me.ithebk:barchart:0.9'
     implementation 'com.prolificinteractive:material-calendarview:1.4.3'
+    implementation 'com.andreabaccega:android-form-edittext:1.2.1@aar'
+    implementation 'de.hdodenhof:circleimageview:2.1.0'
+
 }
