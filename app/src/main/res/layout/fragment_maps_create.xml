@@ -41,7 +41,7 @@
         app:layout_constraintHorizontal_bias="0.96"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/buttonTrack"
-        app:layout_constraintVertical_bias="0.18" />
+        app:layout_constraintVertical_bias="0.24" />
 
     <Button
         android:id="@+id/buttonSetEnd"
@@ -54,7 +54,7 @@
         app:layout_constraintHorizontal_bias="0.96"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/buttonSetStart"
-        app:layout_constraintVertical_bias="0.13" />
+        app:layout_constraintVertical_bias="0.24" />
 
     <Button
         android:id="@+id/buttonCreate"
@@ -64,9 +64,10 @@
         android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.65" />
+        app:layout_constraintVertical_bias="0.9" />
 
     <Button
         android:id="@+id/buttonSave"
@@ -74,36 +75,44 @@
         android:layout_height="wrap_content"
         android:backgroundTint="#009688"
         android:text="Save"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCreate" />
+        app:layout_constraintStart_toEndOf="@id/buttonCreate"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
 
     <TextView
         android:id="@+id/startPoint"
-        android:layout_width="wrap_content"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:text="Start Point: Select an access point marker"
-        android:visibility="visible"
+        android:lines="2"
+        android:maxLength="90"
+        android:ellipsize="end"
+        android:textColor="#013220"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintHorizontal_bias="0.15"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/buttonTrack"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintVertical_bias="0.25" />
 
     <TextView
         android:id="@+id/endPoint"
-        android:layout_width="wrap_content"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:text="End Point: Select an access point marker"
+        android:lines="2"
+        android:maxLength="90"
+        android:ellipsize="end"
+        android:textColor="#013220"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintHorizontal_bias="0.15"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/startPoint"
-        app:layout_constraintVertical_bias="0.1" />
+        app:layout_constraintVertical_bias="0.23" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

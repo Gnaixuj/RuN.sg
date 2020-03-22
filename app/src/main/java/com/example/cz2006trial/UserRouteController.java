@@ -12,10 +12,6 @@ import java.util.Date;
 
 public class UserRouteController {
 
-    public static void removeAccessPoints(Layer accesslayer) {
-        accesslayer.removeLayerFromMap();
-    }
-
     public static void setStartMarkerInfo(UserRouteEntity userRoute, Marker marker) {
         userRoute.setStartPoint(marker.getPosition());
         userRoute.setStartPointName(marker.getTitle());
@@ -23,7 +19,7 @@ public class UserRouteController {
 
     public static void setEndMarkerInfo(UserRouteEntity userRoute, Marker marker) {
         userRoute.setEndPoint(marker.getPosition());
-        userRoute.setEndPointName(marker.getTitle() + " " + marker.getId());
+        userRoute.setEndPointName(marker.getTitle());
     }
 
     public static String getStartPointName(UserRouteEntity userRoute) {

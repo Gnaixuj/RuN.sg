@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
@@ -106,6 +107,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LatLng lastLocation;
 
     private boolean createRoute = false;
+    private boolean setStartPoint = false;
+    private boolean setEndPoint = false;
     private UserRouteEntity userRoute = new UserRouteEntity();
     private Marker startPoint;
     private Marker endPoint;
@@ -169,11 +172,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Swa
     private void setupViewPager(ViewPager viewPager) {
-        SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
-        adapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
-        adapter.addFragment(new MapsCreateFragment(), "MapsCreateFragment");
-        viewPager.setAdapter(adapter);
+        mSectionsStatePagerAdapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
+        mSectionsStatePagerAdapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
+        mSectionsStatePagerAdapter.addFragment(new MapsCreateFragment(), "MapsCreateFragment");
+        viewPager.setAdapter(mSectionsStatePagerAdapter);
     }
 
     // Swa
@@ -217,7 +219,40 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         routeLine.clear();
     }
 
-    public void setStartPoint(final UserRouteEntity userRoute) {
+    public void setStartingPoint(UserRouteEntity userRoute) {
+        setStartPoint = true;
+        this.userRoute = userRoute;
+        for (Marker marker : accessPoint) {
+            marker.setVisible(true);
+        }
+    }
+
+    public void setEndingPoint(UserRouteEntity userRoute) {
+        setEndPoint = true;
+        this.userRoute = userRoute;
+        for (Marker marker : accessPoint) {
+            marker.setVisible(true);
+        }
+    }
+
+    public void stopSettingPoints() {
+        setStartPoint = false;
+        setEndPoint = false;
+        for (Marker marker : accessPoint) {
+            marker.setVisible(false);
+        }
+    }
+
+    public String createRoute(UserRouteEntity userRoute) {
+        if (startPoint == null || endPoint == null)
+            return ("Missing starting point or ending point");
+        this.userRoute = userRoute;
+        createRoute = true;
+        getDirections(mMap, startPoint.getPosition(), endPoint.getPosition(), api_key);
+        return ("Route created");
+    }
+
+    /*public void setStartPoint(final UserRouteEntity userRoute) {
         try {
             accesslayer.addLayerToMap();
 
@@ -237,7 +272,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (startPoint != null)
                             startPoint.remove();
                         startPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
-                                .title(marker.getTitle() + " " + marker.getId())
+                                .title(marker.getTitle())
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                         UserRouteController.setStartMarkerInfo(userRoute, startPoint);
                         Toast.makeText(getApplicationContext(), "Starting Point updated", Toast.LENGTH_SHORT).show();
@@ -279,16 +314,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-    }
+    }*/
 
-    public String createRoute(UserRouteEntity userRoute) {
-        if (startPoint == null || endPoint == null)
-            return ("Missing starting point or ending point");
-        this.userRoute = userRoute;
-        createRoute = true;
-        getDirections(mMap, startPoint.getPosition(), endPoint.getPosition(), api_key);
-        return ("Route created");
-    }
 /*
     private void loginToFirebase() {
 
@@ -331,6 +358,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        button = (Button) findViewById(R.id.button2);
 
         //button.setAlpha(0);
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Fragment fragment = mSectionsStatePagerAdapter.getItem(2);
+                if (setStartPoint) {
+                    if (!marker.getTitle().equals("Your Location"))
+                        if (endPoint == null || !marker.getTitle().equals("Your Ending Location")) {
+                            if (startPoint != null)
+                                startPoint.remove();
+                            startPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                    .title(marker.getTitle())
+                                    .snippet("Your Starting Point")
+                                    .zIndex(2f)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                            UserRouteController.setStartMarkerInfo(userRoute, startPoint);
+                            Toast.makeText(getApplicationContext(), "Starting Point updated", Toast.LENGTH_SHORT).show();
+                            ((MapsCreateFragment) getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
+                        }
+                } else if (setEndPoint) {
+                    if (!marker.getTitle().equals("Your Location"))
+                        if (startPoint == null || !marker.getTitle().equals(startPoint.getTitle())) {
+                            if (endPoint != null)
+                                endPoint.remove();
+                            endPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                    .title(marker.getTitle())
+                                    .snippet("Your Ending Location")
+                                    .zIndex(1f)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                            UserRouteController.setEndMarkerInfo(userRoute, endPoint);
+                            Toast.makeText(getApplicationContext(), "Ending Point updated", Toast.LENGTH_SHORT).show();
+                            ((MapsCreateFragment) getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
+                        }
+                }
+                return false;
+            }
+        });
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 

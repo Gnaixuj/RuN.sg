@@ -49,11 +49,13 @@ public class MapsCreateFragment extends Fragment {
                     setStartButton.setText("DONE");
                     createButton.setVisibility(View.GONE);
                     setEndButton.setVisibility(View.GONE);
-                    ((MapsActivity) getActivity()).setStartPoint(userRoute);
+                    //((MapsActivity) getActivity()).setStartPoint(userRoute);
+                    ((MapsActivity) getActivity()).setStartingPoint(userRoute);
                 } else {
                     setStartButton.setText("SET");
                     createButton.setVisibility(View.VISIBLE);
                     setEndButton.setVisibility(View.VISIBLE);
+                    ((MapsActivity) getActivity()).stopSettingPoints();
                     displayStartEndText();
                 }
             }
@@ -66,11 +68,13 @@ public class MapsCreateFragment extends Fragment {
                     setEndButton.setText("DONE");
                     createButton.setVisibility(View.GONE);
                     setStartButton.setVisibility(View.GONE);
-                    ((MapsActivity) getActivity()).setEndPoint(userRoute);
+                    //((MapsActivity) getActivity()).setEndPoint(userRoute);
+                    ((MapsActivity) getActivity()).setEndingPoint(userRoute);
                 } else {
                     setEndButton.setText("SET");
                     setStartButton.setVisibility(View.VISIBLE);
                     createButton.setVisibility(View.VISIBLE);
+                    ((MapsActivity) getActivity()).stopSettingPoints();
                     displayStartEndText();
                 }
             }
@@ -121,6 +125,7 @@ public class MapsCreateFragment extends Fragment {
             public void onClick(View view) {
                 saveButton.setVisibility(View.GONE);
                 UserRouteController.updateUserRouteDatabase(userRoute);
+                Toast.makeText(getActivity(), "Route saved successfully", Toast.LENGTH_SHORT).show();
             }
         });
 
