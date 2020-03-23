@@ -11,34 +11,50 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.graphics.Color;
 
+import com.example.cz2006trial.history.recyclerview.MainActivity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
+import com.google.maps.android.data.geojson.GeoJsonPoint;
 import com.google.maps.android.data.kml.KmlLayer;
+import com.google.maps.android.data.kml.KmlLineString;
+import com.google.maps.android.data.kml.KmlPlacemark;
+import com.google.maps.android.data.kml.KmlPoint;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
 
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -54,9 +70,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class MapsActivity extends AppCompatActivity {
+import org.xmlpull.v1.XmlPullParserException;
+
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
@@ -70,12 +89,19 @@ public class MapsActivity extends AppCompatActivity {
 
 
     private boolean startTrack = false; // Swa
-    private UserLocationEntity mUserLocation; // Swa
-    private FirebaseFirestore mDb; // Swa
     private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
     private LatLng userLocation;
     private LatLng destination;
     private LatLng lastLocation;
+
+    private boolean createRoute = false;
+    private boolean setStartPoint = false;
+    private boolean setEndPoint = false;
+    private UserRouteEntity userRoute = new UserRouteEntity();
+    private Marker startPoint;
+    private Marker endPoint;
+    private ArrayList<Polyline> routeLine = new ArrayList<>();
+
 
     ArrayList<LatLng> locations = new ArrayList<>();
     ArrayList<Marker> accessPoint = new ArrayList<>();
@@ -97,10 +123,7 @@ public class MapsActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private NavController navController;
 
-    public NavController getNavController() {
-        return navController;
-    }
-    /*    //method to check whether permission for location access has been granted
+    //method to check whether permission for location access has been granted
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -114,7 +137,7 @@ public class MapsActivity extends AppCompatActivity {
                 }
             }
         }
-    }*/
+    }
 
     public void setDate(String date) {
         this.date = date;
@@ -175,23 +198,23 @@ public class MapsActivity extends AppCompatActivity {
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-/*        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);*/
+        mapFragment.getMapAsync(this);
 
-/*        // Swa
+        // Swa
         mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         mViewPager = findViewById(R.id.mapContainer);
         // Set Up the Pager
-        setupViewPager(mViewPager);*/
+        setupViewPager(mViewPager);
     }
 
     // Swa
     private void setupViewPager(ViewPager viewPager) {
-        SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
-        adapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
-        viewPager.setAdapter(adapter);
+        mSectionsStatePagerAdapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
+        mSectionsStatePagerAdapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
+        mSectionsStatePagerAdapter.addFragment(new MapsCreateFragment(), "MapsCreateFragment");
+        viewPager.setAdapter(mSectionsStatePagerAdapter);
     }
 
     // Swa
@@ -223,15 +246,115 @@ public class MapsActivity extends AppCompatActivity {
         startTrack = false;
     }
 
-    // Swa
-    private void saveUserLocation() {
-        // TODO
-        if (mUserLocation != null) {
-            String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//            DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("location").child(UID).child(date);
-//            DocumentReference locationRef = mDb.collection("users")
+    // Fazli
+
+    public void clearRouteDetails() {
+        startPoint.remove();
+        endPoint.remove();
+        for (int i = 0; i < routeLine.size(); i++)
+            routeLine.get(i).remove();
+        startPoint = null;
+        endPoint = null;
+        routeLine.clear();
+    }
+
+    public void setStartingPoint(UserRouteEntity userRoute) {
+        setStartPoint = true;
+        this.userRoute = userRoute;
+        for (Marker marker : accessPoint) {
+            marker.setVisible(true);
         }
     }
+
+    public void setEndingPoint(UserRouteEntity userRoute) {
+        setEndPoint = true;
+        this.userRoute = userRoute;
+        for (Marker marker : accessPoint) {
+            marker.setVisible(true);
+        }
+    }
+
+    public void stopSettingPoints() {
+        setStartPoint = false;
+        setEndPoint = false;
+        for (Marker marker : accessPoint) {
+            marker.setVisible(false);
+        }
+    }
+
+    public String createRoute(UserRouteEntity userRoute) {
+        if (startPoint == null || endPoint == null)
+            return ("Missing starting point or ending point");
+        this.userRoute = userRoute;
+        createRoute = true;
+        getDirections(mMap, startPoint.getPosition(), endPoint.getPosition(), api_key);
+        return ("Route created");
+    }
+
+    /*public void setStartPoint(final UserRouteEntity userRoute) {
+        try {
+            accesslayer.addLayerToMap();
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (endPoint != null) {
+            endPoint.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        }
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (!marker.getTitle().equals("Your Location"))
+                    if (endPoint == null || !marker.getTitle().equals(endPoint.getTitle())) {
+                        if (startPoint != null)
+                            startPoint.remove();
+                        startPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                .title(marker.getTitle())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                        UserRouteController.setStartMarkerInfo(userRoute, startPoint);
+                        Toast.makeText(getApplicationContext(), "Starting Point updated", Toast.LENGTH_SHORT).show();
+                        accesslayer.removeLayerFromMap();
+                    }
+                return true;
+            }
+        });
+
+    }
+
+    public void setEndPoint(final UserRouteEntity userRoute) {
+        try {
+            accesslayer.addLayerToMap();
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (startPoint != null) {
+            startPoint.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        }
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (!marker.getTitle().equals("Your Location"))
+                    if (startPoint == null || !marker.getTitle().equals(startPoint.getTitle())) {
+                        if (endPoint != null)
+                            endPoint.remove();
+                        endPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                .title(marker.getTitle() + " " + marker.getId())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                        UserRouteController.setEndMarkerInfo(userRoute, endPoint);
+                        Toast.makeText(getApplicationContext(), "Ending Point updated", Toast.LENGTH_SHORT).show();
+                        accesslayer.removeLayerFromMap();
+                    }
+                return true;
+            }
+        });
+
+    }*/
+
 /*
     private void loginToFirebase() {
 
@@ -267,7 +390,6 @@ public class MapsActivity extends AppCompatActivity {
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
-/*
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -275,6 +397,42 @@ public class MapsActivity extends AppCompatActivity {
 //        button = (Button) findViewById(R.id.button2);
 
         //button.setAlpha(0);
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Fragment fragment = mSectionsStatePagerAdapter.getItem(2);
+                if (setStartPoint) {
+                    if (!marker.getTitle().equals("Your Location"))
+                        if (endPoint == null || !marker.getTitle().equals("Your Ending Location")) {
+                            if (startPoint != null)
+                                startPoint.remove();
+                            startPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                    .title(marker.getTitle())
+                                    .snippet("Your Starting Point")
+                                    .zIndex(2f)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                            UserRouteController.setStartMarkerInfo(userRoute, startPoint);
+                            Toast.makeText(getApplicationContext(), "Starting Point updated", Toast.LENGTH_SHORT).show();
+                            ((MapsCreateFragment) getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
+                        }
+                } else if (setEndPoint) {
+                    if (!marker.getTitle().equals("Your Location"))
+                        if (startPoint == null || !marker.getTitle().equals(startPoint.getTitle())) {
+                            if (endPoint != null)
+                                endPoint.remove();
+                            endPoint = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                                    .title(marker.getTitle())
+                                    .snippet("Your Ending Location")
+                                    .zIndex(1f)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                            UserRouteController.setEndMarkerInfo(userRoute, endPoint);
+                            Toast.makeText(getApplicationContext(), "Ending Point updated", Toast.LENGTH_SHORT).show();
+                            ((MapsCreateFragment) getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
+                        }
+                }
+                return false;
+            }
+        });
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -309,12 +467,10 @@ public class MapsActivity extends AppCompatActivity {
                     UserLocationController.updateUserLocation(userLocationSession);
 
                 }
-                    */
-/*Log.i("LAST LOCATION", lastLocation.toString());
+                    /*Log.i("LAST LOCATION", lastLocation.toString());
                     for (LatLng loc: locations) {
                         Log.i("LOCATION", loc.toString());
-                    }*//*
-
+                    }*/
 
                 if (userMarker != null) {
                     userMarker.remove();
@@ -387,7 +543,6 @@ public class MapsActivity extends AppCompatActivity {
             }
         }
 
-*/
 /*        ArrayList<ArrayList<LatLng>> pathLines = new ArrayList();
         for (GeoJsonFeature feature : parklayerjson.getFeatures()) {
             if("LineString".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
@@ -399,8 +554,7 @@ public class MapsActivity extends AppCompatActivity {
 
         for (ArrayList <LatLng> latLngList: pathLines) {
             mMap.addPolyline(new PolylineOptions().addAll(latLngList));
-        }*//*
-
+        }*/
 
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -417,12 +571,11 @@ public class MapsActivity extends AppCompatActivity {
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
     }
-*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_faq, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -489,8 +642,17 @@ public class MapsActivity extends AppCompatActivity {
             }
 
             case R.id.goal: {
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, new GoalsFragment());
-                fragmentTransaction.commit();
+                startActivity(new Intent(MapsActivity.this, CalendarGoalsActivity.class));
+                return true;
+            }
+
+            case R.id.history: {
+                startActivity(new Intent(MapsActivity.this, MainActivity.class));
+                return true;
+            }
+
+            case R.id.userProfile: {
+                startActivity(new Intent(MapsActivity.this, UserProfileActivity.class));
                 return true;
             }
 
@@ -593,8 +755,6 @@ public class MapsActivity extends AppCompatActivity {
         return data;
     }
 
-
-
     private class DownloadTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
@@ -633,13 +793,18 @@ public class MapsActivity extends AppCompatActivity {
                         JSONObject polyline = steps.getJSONObject(j).getJSONObject("polyline");
                         List<LatLng> markers = PolyUtil.decode(polyline.getString("points"));
 
-                        mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.RED));
+                        //save distance and timeTaken to userRoute
+                        if (createRoute)
+                            routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.GREEN)));
+                        else
+                            mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.RED));
                     }
                 }
 
             } catch (JSONException e) {
                 Toast.makeText(MapsActivity.this, "WELL WE MESSED UP!", Toast.LENGTH_LONG).show();
             }
+
             toastData(totalDistance, totalTravelTime);
         }
 
@@ -671,6 +836,10 @@ public class MapsActivity extends AppCompatActivity {
                 sec = totalTravelTime;
                 displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
             }
+            if (createRoute) {
+                UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
+                createRoute = false;
+            }
 
             Toast.makeText(MapsActivity.this, "DISTANCE : " + displayDistance + "\nTIME REQUIRED : " + displayTravelTime, Toast.LENGTH_LONG).show();
         }
@@ -684,8 +853,6 @@ public class MapsActivity extends AppCompatActivity {
         Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
         //finish();
     }
-
-
 
 
 }

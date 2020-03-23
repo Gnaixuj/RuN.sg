@@ -27,13 +27,25 @@
         android:orderInCategory="500"
         app:showAsAction="never" />
     <item
+        android:id="@+id/history"
+        android:title="HISTORY"
+        android:orderInCategory="600"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/userProfile"
+        android:title="USER PROFILE"
+        android:orderInCategory="700"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/faq"
         android:title="FAQ"
-        android:orderInCategory="600"
+        android:orderInCategory="800"
         app:showAsAction="never" />
     <item
         android:id="@+id/log_out"
         android:title="LOG OUT"
-        android:orderInCategory="700"
+        android:orderInCategory="900"
         app:showAsAction="never" />
 </menu>

@@ -43,8 +43,8 @@ public class UserLocationController {
 
     public static boolean updateUserLocation(UserLocationSessionEntity userLocationSession) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference("userLocationSessions")
-                .child(UID).child(userLocationSession.getTimestamp().toString());
+        DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference()
+                .child(UID).child("userLocationSessions").child(userLocationSession.getTimestamp().toString());
         databaseUserSession.setValue(new UserLocationSessionEntity(userLocationSession.getTimestamp(), userLocationSession.getDistance(), userLocationSession.getTimeTaken()));
         for (int i = 0; i < userLocationSession.getSession().size(); i++) {
             DatabaseReference databaseUserLocation = databaseUserSession.child(userLocationSession.getSession().get(i).getTimestamp().toString());
