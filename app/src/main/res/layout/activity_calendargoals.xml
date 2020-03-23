@@ -5,7 +5,6 @@
     xmlns:barchart="http://github.com/ITheBK/BarChart"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CalendarGoalsActivity"
     tools:layout_editor_absoluteY="81dp">
 
     <com.prolificinteractive.materialcalendarview.MaterialCalendarView

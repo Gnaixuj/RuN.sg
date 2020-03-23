@@ -20,10 +20,17 @@
         <activity
             android:name=".StartActivity"
             android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop" >
+
+        </activity>
+
         <activity
             android:name=".SignUpActivity"
             android:launchMode="singleTop" />
@@ -60,11 +67,9 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
-            android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
     </application>
 

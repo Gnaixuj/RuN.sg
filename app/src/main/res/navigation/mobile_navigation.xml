@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_map">
+
+    <fragment
+        android:id="@+id/nav_map"
+        android:name="com.example.cz2006trial.MapFragment"
+        android:label="@string/menu_map"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/nav_goals"
+        android:name="com.example.cz2006trial.GoalsFragment"
+        android:label="@string/menu_goals"
+        tools:layout="@layout/activity_calendargoals" >
+        <action
+            android:id="@+id/action_nav_goals_to_nav_editgoals"
+            app:destination="@id/nav_editgoals" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_faq"
+        android:name="com.example.cz2006trial.FaqFragment"
+        android:label="@string/menu_faq"
+        tools:layout="@layout/fragment_faq" />
+
+    <fragment
+        android:id="@+id/nav_editgoals"
+        android:name="com.example.cz2006trial.EditGoalsFragment"
+        android:label="Edit Goals"
+        tools:layout="@layout/activity_editgoals" />
+
+</navigation>

@@ -16,4 +16,13 @@
     <string name="prompt_confirm_password">Confirm Password</string>
     <string name="zeroDistance">Distance travelled: 0.0 km</string>
     <string name="noTargetSet">No daily target set</string>
+
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="menu_faq">FAQ</string>
+    <string name="menu_goals">Goals</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_logout">Log Out</string>
 </resources>

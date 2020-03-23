@@ -2,64 +2,43 @@ package com.example.cz2006trial;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager.widget.ViewPager;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.graphics.Color;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.ServerTimestamp;
-import com.google.maps.android.data.Feature;
-import com.google.maps.android.data.Geometry;
-import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
-import com.google.maps.android.data.geojson.GeoJsonLineString;
-import com.google.maps.android.data.geojson.GeoJsonPoint;
-import com.google.maps.android.data.kml.KmlContainer;
 import com.google.maps.android.data.kml.KmlLayer;
-import com.google.maps.android.data.kml.KmlLineString;
-import com.google.maps.android.data.kml.KmlPlacemark;
-import com.google.maps.android.data.kml.KmlPoint;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
 
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -72,20 +51,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.io.InputStream;
-
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity {
 
     private GoogleMap mMap;
 
@@ -97,7 +68,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final int ZOOM = 12;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
-    private FusedLocationProviderClient fusedLocationClient;
 
     private boolean startTrack = false; // Swa
     private UserLocationEntity mUserLocation; // Swa
@@ -123,8 +93,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button button;
     Marker userMarker;
 
+    private String date;
+    private AppBarConfiguration mAppBarConfiguration;
+    private NavController navController;
 
-    //method to check whether permission for location access has been granted
+    public NavController getNavController() {
+        return navController;
+    }
+    /*    //method to check whether permission for location access has been granted
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -138,29 +114,76 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
+    }*/
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+    public String getDate(){
+        return this.date;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        Log.i("MapsActivity", "oncreate");
+
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+
+
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_map, R.id.nav_goals, R.id.nav_faq)
+                .setDrawerLayout(drawer)
+                .build();
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId()== R.id.nav_logout) {
+                    FirebaseAuth.getInstance().signOut();
+                    startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+                    finish();
+                    return true;
+                }
+                else
+                    return false;
+            }
+        });
+
 
         mDb = FirebaseFirestore.getInstance();
         //loginToFirebase();
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+/*        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);*/
 
-        // Swa
+/*        // Swa
         mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         mViewPager = findViewById(R.id.mapContainer);
         // Set Up the Pager
-        setupViewPager(mViewPager);
+        setupViewPager(mViewPager);*/
     }
 
     // Swa
@@ -244,6 +267,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+/*
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -285,10 +309,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     UserLocationController.updateUserLocation(userLocationSession);
 
                 }
-                    /*Log.i("LAST LOCATION", lastLocation.toString());
+                    */
+/*Log.i("LAST LOCATION", lastLocation.toString());
                     for (LatLng loc: locations) {
                         Log.i("LOCATION", loc.toString());
-                    }*/
+                    }*//*
+
 
                 if (userMarker != null) {
                     userMarker.remove();
@@ -361,6 +387,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
+*/
 /*        ArrayList<ArrayList<LatLng>> pathLines = new ArrayList();
         for (GeoJsonFeature feature : parklayerjson.getFeatures()) {
             if("LineString".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
@@ -372,7 +399,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         for (ArrayList <LatLng> latLngList: pathLines) {
             mMap.addPolyline(new PolylineOptions().addAll(latLngList));
-        }*/
+        }*//*
+
 
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -389,11 +417,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
     }
+*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_faq, menu);
         return true;
     }
 
@@ -460,7 +489,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             case R.id.goal: {
-                startActivity(new Intent(MapsActivity.this, CalendarGoalsActivity.class));
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, new GoalsFragment());
+                fragmentTransaction.commit();
                 return true;
             }
 
@@ -563,6 +593,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return data;
     }
 
+
+
     private class DownloadTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
@@ -652,6 +684,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
         //finish();
     }
+
+
 
 
 }
