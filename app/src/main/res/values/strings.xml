@@ -6,7 +6,7 @@
     <string name="test_password">testpassword</string>
     <string name="firebase_path">location</string>
     <string name="menu_restart">RESTART</string>
-    <string name="menu_track">TRACK LOCATION</string>
+    <string name="menu_track">Track</string>
     <string name="menu_direction">SHOW DIRECTIONS</string>
     <string name="title_activity_faq">FAQ</string>
     <string name="action_settings">Settings</string>
@@ -134,4 +134,5 @@
 
     <string name="sample_show_log">Show Log</string>
     <string name="sample_hide_log">Hide Log</string>
+    <string name="menu_create">Create</string>
 </resources>

@@ -29,7 +29,6 @@ import com.example.cz2006trial.history.common.logger.LogWrapper;
 import com.example.cz2006trial.history.common.logger.MessageOnlyLogFilter;
 
 import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.Fragment;
 
 import com.example.cz2006trial.R;
 
@@ -50,7 +49,7 @@ public class MainActivity extends SampleActivityBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_history);
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

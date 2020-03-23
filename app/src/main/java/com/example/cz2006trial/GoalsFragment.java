@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.Navigation;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -94,7 +95,7 @@ public class GoalsFragment extends Fragment {
                     public void onClick(View v) {
                         MapsActivity activity = (MapsActivity) getActivity();
                         activity.setDate(date);
-                        activity.getNavController().navigate(R.id.nav_editgoals);
+                        Navigation.findNavController(getView()).navigate(R.id.nav_editgoals);
 
                     }
                 });

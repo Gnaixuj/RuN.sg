@@ -30,8 +30,8 @@ import java.util.Date;
 public class MapsTrackFragment extends Fragment {
 
     private static final String TAG = "MapsTrackFragment";
-    private Button createButton;
-    private Button backButton;
+/*    private Button createButton;
+    private Button backButton;*/
     private Button startButton;
     private Button endButton;
     private Chronometer mChronometer;
@@ -44,29 +44,29 @@ public class MapsTrackFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map_track, container, false);
-        createButton = view.findViewById(R.id.buttonCreate);
-        backButton = view.findViewById(R.id.buttonBack);
+/*        createButton = view.findViewById(R.id.buttonCreate);
+        backButton = view.findViewById(R.id.buttonBack);*/
         startButton = view.findViewById(R.id.buttonStart);
         endButton = view.findViewById(R.id.buttonEnd);
         mChronometer = view.findViewById(R.id.chronometer);
         distanceTravelledView = view.findViewById(R.id.distanceTravelled);
         goalProgressView = view.findViewById(R.id.goalProgress);
 
-        createButton.setOnClickListener(new View.OnClickListener() {
+/*        createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((MapsActivity) getActivity()).setLayoutWeight(1);
                 ((MapsActivity) getActivity()).setViewPager(2);
             }
-        });
-
+        });*/
+/*
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((MapsActivity)getActivity()).setLayoutWeight(10);
                 ((MapsActivity)getActivity()).setViewPager(0);
             }
-        });
+        });*/
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override

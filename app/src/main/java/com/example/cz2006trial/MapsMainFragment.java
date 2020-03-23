@@ -10,10 +10,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.google.android.gms.maps.SupportMapFragment;
+
+import java.util.Map;
 
 public class MapsMainFragment extends Fragment {
 
-    private static final String TAG = "MapsMainFragment";
+/*    private static final String TAG = "MapsMainFragment";
     private Button createButton;
     private Button trackButton;
 
@@ -24,22 +29,25 @@ public class MapsMainFragment extends Fragment {
         createButton = view.findViewById(R.id.buttonCreate);
         trackButton = view.findViewById(R.id.buttonTrack);
 
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        final MapFragment fragm = (MapFragment) fm.findFragmentById(R.id.map);
+
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MapsActivity) getActivity()).setLayoutWeight(1);
-                ((MapsActivity) getActivity()).setViewPager(2);
+                fragm.setLayoutWeight(1);
+                fragm.setViewPager(2);
             }
         });
 
         trackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MapsActivity)getActivity()).setLayoutWeight(1);
-                ((MapsActivity)getActivity()).setViewPager(1);
+                fragm.setLayoutWeight(1);
+                fragm.setViewPager(1);
             }
         });
 
         return view;
-    }
+    }*/
 }

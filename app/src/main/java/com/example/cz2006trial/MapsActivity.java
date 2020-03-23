@@ -4,9 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -16,6 +13,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -24,8 +23,6 @@ import android.util.Log;
 import android.graphics.Color;
 
 import com.example.cz2006trial.history.recyclerview.MainActivity;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,9 +38,6 @@ import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonPoint;
 import com.google.maps.android.data.kml.KmlLayer;
-import com.google.maps.android.data.kml.KmlLineString;
-import com.google.maps.android.data.kml.KmlPlacemark;
-import com.google.maps.android.data.kml.KmlPoint;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
@@ -54,7 +48,6 @@ import android.location.LocationManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -75,7 +68,7 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
 
@@ -178,44 +171,32 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .build();
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId()== R.id.nav_logout) {
-                    FirebaseAuth.getInstance().signOut();
-                    startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-                    finish();
-                    return true;
-                }
-                else
-                    return false;
-            }
-        });
 
 
-        mDb = FirebaseFirestore.getInstance();
         //loginToFirebase();
 
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+/*        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);*/
 
+/*
         // Swa
         mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         mViewPager = findViewById(R.id.mapContainer);
         // Set Up the Pager
         setupViewPager(mViewPager);
+*/
     }
 
-    // Swa
+/*    // Swa
     private void setupViewPager(ViewPager viewPager) {
         mSectionsStatePagerAdapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
         mSectionsStatePagerAdapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
         mSectionsStatePagerAdapter.addFragment(new MapsCreateFragment(), "MapsCreateFragment");
         viewPager.setAdapter(mSectionsStatePagerAdapter);
-    }
+    }*/
 
     // Swa
     public void setViewPager(int fragmentNumber) {
@@ -753,6 +734,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         return data;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.nav_logout) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+            finish();
+
+        }
+        return true;
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
