@@ -173,6 +173,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         NavigationUI.setupWithNavController(navigationView, navController);
 
 
+
         //loginToFirebase();
 
 
