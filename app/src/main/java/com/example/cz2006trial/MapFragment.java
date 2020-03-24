@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
@@ -64,10 +66,12 @@ import java.util.List;
 public class MapFragment extends Fragment implements OnMapReadyCallback, BottomNavigationView.OnNavigationItemSelectedListener{
 
     private TextView peekText;
+    private ImageView arrowImg;
 
     GoogleMap mMap;
 
-    private boolean startTrack = false; // Swa
+    private boolean startTrack = false;
+
     private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
 
     private boolean createRoute = false;
@@ -83,9 +87,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
     KmlLayer accesslayer;
     GeoJsonLayer accesslayerjson;
 
+    private BottomSheetBehavior bottomSheetBehavior;
+
 
     ArrayList<LatLng> locations = new ArrayList<>();
     ArrayList<Marker> accessPoint = new ArrayList<>();
+
+    private GoogleMapController controller = GoogleMapController.getController();
 
     private SectionsStatePagerAdapter mSectionsStatePagerAdapter; // Swa
     private ViewPager mViewPager; // Swa
@@ -100,7 +108,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
     private View root;
 
-    private String api_key = "AIzaSyCz0G1WVYtj1njKUMnPRf5A4FVfvxMvzZs";
 
     LocationManager locationManager;
     LocationListener locationListener;
@@ -132,7 +139,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
         root = inflater.inflate(R.layout.fragment_map, container, false);
 
+/*
         peekText = root.findViewById(R.id.peek_text);
+*/
+
+        arrowImg = root.findViewById(R.id.arrow_bottom_sheet);
+        View bottomSheet = root.findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                switch(newState) {
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        arrowImg.setImageResource(R.drawable.ic_arrow_up);
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        arrowImg.setImageResource(R.drawable.ic_arrow_down);
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
 
         BottomNavigationView navigationView = root.findViewById(R.id.bottom_nav);
         // Passing each menu ID as a set of Ids because each
@@ -145,96 +177,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
         navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(navigationView, navController);
 
-/*        // Swa
-        mSectionsStatePagerAdapter = new SectionsStatePagerAdapter(getActivity().getSupportFragmentManager());
-        mViewPager = root.findViewById(R.id.mapContainer);
-        // Set Up the Pager
-        setupViewPager(mViewPager);*/
         return root;
     }
-
-/*    // Swa
-    private void setupViewPager(ViewPager viewPager) {
-        mSectionsStatePagerAdapter.addFragment(new MapsMainFragment(), "MapsMainFragment");
-        mSectionsStatePagerAdapter.addFragment(new MapsTrackFragment(), "MapsTrackFragment");
-        mSectionsStatePagerAdapter.addFragment(new MapsCreateFragment(), "MapsCreateFragment");
-        viewPager.setAdapter(mSectionsStatePagerAdapter);
-    }
-
-    // Swa
-    public void setViewPager(int fragmentNumber) {
-        mViewPager.setCurrentItem(fragmentNumber);
-    }
-
-    // Swa
-    public void setLayoutWeight(int weight) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                weight
-        );
-        root.findViewById(R.id.mapContainer).setLayoutParams(params);
-    }*/
-
-    // Swa
-    public void beginTracking(UserLocationSessionEntity userLocationSession) {
-        this.userLocationSession = userLocationSession;
-        startTrack = true;
-    }
-
-    public void resumeTracking() {
-        startTrack = true;
-    }
-    // Swa
-    public void endTracking() {
-        startTrack = false;
-    }
-
-    // Fazli
-
-    public void clearRouteDetails() {
-        startPoint.remove();
-        endPoint.remove();
-        for (int i = 0; i < routeLine.size(); i++)
-            routeLine.get(i).remove();
-        startPoint = null;
-        endPoint = null;
-        routeLine.clear();
-    }
-
-    public void setStartingPoint(UserRouteEntity userRoute) {
-        setStartPoint = true;
-        this.userRoute = userRoute;
-        for (Marker marker : accessPoint) {
-            marker.setVisible(true);
-        }
-    }
-
-    public void setEndingPoint(UserRouteEntity userRoute) {
-        setEndPoint = true;
-        this.userRoute = userRoute;
-        for (Marker marker : accessPoint) {
-            marker.setVisible(true);
-        }
-    }
-
-    public void stopSettingPoints() {
-        setStartPoint = false;
-        setEndPoint = false;
-        for (Marker marker : accessPoint) {
-            marker.setVisible(false);
-        }
-    }
-
-    public String createRoute(UserRouteEntity userRoute) {
-        if (startPoint == null || endPoint == null)
-            return ("Missing starting point or ending point");
-        this.userRoute = userRoute;
-        createRoute = true;
-        getDirections(mMap, startPoint.getPosition(), endPoint.getPosition(), api_key);
-        return ("Route created");
-    }
-
 
 
     @Override
@@ -249,17 +193,105 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
     }
 
 
+    public void setStartingPoint() {
+        controller.setStartListener(new GoogleMapController.StartListener() {
+            @Override
+            public void onChange() {
+                setStartPoint = controller.isSetStartPoint();
+                userRoute = controller.getUserRouteEntity();
+                if (setStartPoint) {
+                    for (Marker marker : accessPoint) {
+                        marker.setVisible(true);
+                    }
+                }
+                else {
+                    for (Marker marker : accessPoint) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+        });
+    }
+
+    public void setEndingPoint() {
+        controller.setEndListener(new GoogleMapController.EndListener() {
+            @Override
+            public void onChange() {
+                setEndPoint = controller.isSetEndPoint();
+                userRoute = controller.getUserRouteEntity();
+                if (setEndPoint) {
+                    for (Marker marker : accessPoint) {
+                        marker.setVisible(true);
+                    }
+                }
+                else {
+                    for (Marker marker : accessPoint) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+        });
+    }
+
+
+    public void createRoute() {
+        controller.setCreateListener(new GoogleMapController.CreateListener() {
+            @Override
+            public void onChange() {
+                createRoute = controller.isCreateRoute();
+                if (createRoute) {
+                    if (startPoint == null || endPoint == null)
+                        controller.setMessage("Missing starting point or ending point");
+                    else {
+                        userRoute = controller.getUserRouteEntity();
+                        createRoute = true;
+                        controller.getDirections(startPoint.getPosition(), endPoint.getPosition());
+                        routeDone();
+                        controller.setMessage("Route created");
+
+                    }
+                }
+                else {
+                    startPoint.remove();
+                    endPoint.remove();
+                    for (int i = 0; i < routeLine.size(); i++)
+                        routeLine.get(i).remove();
+                    startPoint = null;
+                    endPoint = null;
+                    routeLine.clear();
+                }
+            }
+
+        });
+
+    }
+
+    public void routeDone() {
+        controller.setRouteListener(new GoogleMapController.RouteListener() {
+            @Override
+            public void onChange() {
+                ArrayList<LatLng> route = controller.getRoute();
+                Log.i("route", route.toString());
+                routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.GREEN)));
+
+            }
+        });
+    }
 
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        setStartingPoint();
+        setEndingPoint();
+        createRoute();
 
 //        button = (Button) findViewById(R.id.button2);
 
         //button.setAlpha(0);
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Fragment fragment = mSectionsStatePagerAdapter.getItem(2);
+                //Fragment fragment = mSectionsStatePagerAdapter.getItem(2);
                 if (setStartPoint) {
                     if (!marker.getTitle().equals("Your Location"))
                         if (endPoint == null || !marker.getTitle().equals("Your Ending Location")) {
@@ -272,7 +304,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                             UserRouteController.setStartMarkerInfo(userRoute, startPoint);
                             Toast.makeText(getActivity(), "Starting Point updated", Toast.LENGTH_SHORT).show();
-                            ((MapsCreateFragment) getActivity().getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
+                            //((MapsCreateFragment) getActivity().getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
                         }
                 } else if (setEndPoint) {
                     if (!marker.getTitle().equals("Your Location"))
@@ -286,7 +318,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                             UserRouteController.setEndMarkerInfo(userRoute, endPoint);
                             Toast.makeText(getActivity(), "Ending Point updated", Toast.LENGTH_SHORT).show();
-                            ((MapsCreateFragment) getActivity().getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
+                            //((MapsCreateFragment) getActivity().getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
                         }
                 }
                 return false;
@@ -319,8 +351,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
                 }
                 Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
+                startTrack = controller.isStartTrack();
                 if (startTrack) {
-
+                    userLocationSession = controller.getUserLocationSession();
                     locations.add(lastLocation);
                     UserLocationEntity userLocation = new UserLocationEntity();
                     UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
@@ -432,155 +465,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
     }
 
-    //method to get directions url
-    private void getDirections(GoogleMap mMap, LatLng origin, LatLng destination, String api_key) {
-
-        //Forming an URL string which will return JSON as a result.
-        String originString = "origin=" + origin.latitude + "," + origin.longitude;
-        String destinationString = "destination=" + destination.latitude + "," + destination.longitude;
-
-        //IF THIS GENERATES ERROR, HARD CODE API KEY INTO URL.
-        String url = "https://maps.googleapis.com/maps/api/directions/json?" + originString
-                + "&" + destinationString + "&key=" + api_key + "&mode=walking";
-
-
-        //Run the URL formed in above step and wait for result.
-        DownloadTask downloadTask = new DownloadTask();
-        downloadTask.execute(url);
-    }
-
-    private String downloadUrl(String url) throws IOException {
-        String data = "";
-        InputStream inputStream = null;
-        HttpURLConnection urlConnection = null;
-
-        try {
-            URL actualURL = new URL(url);
-            urlConnection = (HttpURLConnection) actualURL.openConnection();
-            urlConnection.connect();
-
-            inputStream = urlConnection.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuffer sb = new StringBuffer();
-
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-
-            data = sb.toString();
-
-            br.close();
-        } catch (Exception e) {
-            Log.d("EXCEPTION DOWNLOADING", e.toString());
-        } finally {
-            inputStream.close();
-            urlConnection.disconnect();
-        }
-
-        return data;
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_create) {
             peekText.setText(R.string.menu_create);
             Log.i("omg", "create");
+            return true;
         }
         else if (item.getItemId() == R.id.nav_track) {
             peekText.setText(R.string.menu_track);
             Log.i("omg", "track");
+            return true;
         }
+        else
+            Log.i("omg", "wot");
         return true;
     }
 
-    private class DownloadTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... strings) {
-            String data = "";
 
-            try {
-                data = downloadUrl(strings[0]);
-            } catch (Exception e) {
-                Log.d("ASYNC TASK", e.toString());
-            }
-
-            return data;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            //Toast.makeText(showPreviousOrder.this, s, Toast.LENGTH_LONG).show();
-
-            int totalDistance = 0;
-            int totalTravelTime = 0;
-
-            try {
-                JSONObject parentMain = new JSONObject(s);
-                JSONArray legs = parentMain.getJSONArray("routes").getJSONObject(0).getJSONArray("legs");
-
-                for (int i = 0; i < legs.length(); i++) {
-                    JSONArray steps = legs.getJSONObject(i).getJSONArray("steps");
-                    JSONObject distance = legs.getJSONObject(i).getJSONObject("distance");
-                    JSONObject duration = legs.getJSONObject(i).getJSONObject("duration");
-
-                    totalDistance += Integer.parseInt(distance.getString("value"));
-                    totalTravelTime += Integer.parseInt(duration.getString("value"));
-
-                    for (int j = 0; j < steps.length(); j++) {
-                        JSONObject polyline = steps.getJSONObject(j).getJSONObject("polyline");
-                        List<LatLng> markers = PolyUtil.decode(polyline.getString("points"));
-
-                        //save distance and timeTaken to userRoute
-                        if (createRoute)
-                            routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.GREEN)));
-                        else
-                            mMap.addPolyline(new PolylineOptions().addAll(markers).width(10.0f).color(Color.RED));
-                    }
-                }
-
-            } catch (JSONException e) {
-                Toast.makeText(getActivity(), "WELL WE MESSED UP!", Toast.LENGTH_LONG).show();
-            }
-
-            toastData(totalDistance, totalTravelTime);
-        }
-
-        //Simply displays a toast message containing total distance and total time required.
-        public void toastData(int totalDistance, int totalTravelTime) {
-            int km = 0, m = 0;
-            String displayDistance = "";
-
-            if (totalDistance < 1000) {
-                displayDistance = "0." + String.valueOf(totalDistance) + " km";
-            } else {
-                while (totalDistance >= 1000) {
-                    km++;
-                    totalDistance -= 1000;
-                }
-                m = totalDistance;
-                displayDistance = String.valueOf(km) + "." + String.valueOf(m) + " km";
-            }
-
-            int min = 0, sec = 0;
-            String displayTravelTime = "";
-            if (totalDistance < 60)
-                displayTravelTime = "1 minute";
-            else {
-                while (totalTravelTime >= 60) {
-                    min++;
-                    totalTravelTime -= 60;
-                }
-                sec = totalTravelTime;
-                displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
-            }
-            if (createRoute) {
-                UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
-                createRoute = false;
-            }
-
-            Toast.makeText(getActivity(), "DISTANCE : " + displayDistance + "\nTIME REQUIRED : " + displayTravelTime, Toast.LENGTH_LONG).show();
-        }
-    }
 }

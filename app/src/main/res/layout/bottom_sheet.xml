@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:orientation="vertical"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="56dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+>
+
+<!--    <TextView
+        android:id="@+id/peek_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp" />-->
+
+    <!--            <fragment
+                    android:id="@+id/bottom_fragment"
+                    android:name="com.example.slidertrial.ui.home.MapTrackFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>-->
+
+    <ImageView
+        android:id="@+id/arrow_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:srcCompat="@drawable/ic_arrow_up" />
+
+    <fragment
+        android:id="@+id/bottom_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:navGraph="@navigation/bottom_navigation"/>
+
+</LinearLayout>
