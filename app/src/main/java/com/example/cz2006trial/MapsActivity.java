@@ -75,7 +75,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private SectionsStatePagerAdapter mSectionsStatePagerAdapter; // Swa
     private ViewPager mViewPager; // Swa
 
-    private final long MINTIME = 1000 * 2;
+    private final long MINTIME = 500;
     private final float MINDIST = 0;
     private final int ZOOM = 12;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
@@ -126,7 +126,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     //how often location is updated
                     //startTrackerService();
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MINTIME, MINDIST, locationListener);
                 }
             }
         }
@@ -632,10 +632,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
 
-            case R.id.userProfile: {
+            /*case R.id.userProfile: {
                 startActivity(new Intent(MapsActivity.this, UserProfileActivity.class));
                 return true;
-            }
+            }*/
 
             case R.id.log_out: {
                 FirebaseAuth.getInstance().signOut();

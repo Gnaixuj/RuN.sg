@@ -32,5 +32,17 @@
         android:name="com.example.cz2006trial.EditGoalsFragment"
         android:label="Edit Goals"
         tools:layout="@layout/activity_editgoals" />
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.cz2006trial.UserProfileFragment"
+        android:label="@string/menu_profile">
+        <action
+            android:id="@+id/action_nav_profile_to_nav_editprofile"
+            app:destination="@id/nav_editprofile" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_editprofile"
+        android:name="com.example.cz2006trial.EditProfileFragment"
+        android:label="Edit Profile" />
 
 </navigation>
