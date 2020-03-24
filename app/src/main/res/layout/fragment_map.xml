@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/map_fragment"
     android:orientation="vertical">
 
     <fragment
@@ -18,36 +19,8 @@
         android:layout_gravity="bottom"
         android:layout_marginBottom="50dp">
 
-        <LinearLayout
-            android:id="@+id/bottom_sheet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#fff"
-            android:orientation="vertical"
-            app:behavior_hideable="false"
-            app:behavior_peekHeight="56dp"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        <include layout="@layout/bottom_sheet"/>
 
-            <TextView
-                android:id="@+id/peek_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp" />
-
-            <!--            <fragment
-                            android:id="@+id/bottom_fragment"
-                            android:name="com.example.slidertrial.ui.home.MapTrackFragment"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"/>-->
-
-            <fragment
-                android:id="@+id/bottom_fragment"
-                android:name="androidx.navigation.fragment.NavHostFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:navGraph="@navigation/bottom_navigation"/>
-
-        </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!--<include

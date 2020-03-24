@@ -25,6 +25,8 @@ public class MapsCreateFragment extends Fragment {
     private TextView endPoint;
     private UserRouteEntity userRoute = new UserRouteEntity();
 
+    private GoogleMapController controller = GoogleMapController.getController();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class MapsCreateFragment extends Fragment {
         setStartButton = view.findViewById(R.id.buttonSetStart);
         setEndButton = view.findViewById(R.id.buttonSetEnd);
 
+
         displayStartEndText();
 
         setStartButton.setOnClickListener(new View.OnClickListener() {
@@ -48,12 +51,12 @@ public class MapsCreateFragment extends Fragment {
                     createButton.setVisibility(View.GONE);
                     setEndButton.setVisibility(View.GONE);
                     //((MapsActivity) getActivity()).setStartPoint(userRoute);
-                    ((MapsActivity) getActivity()).setStartingPoint(userRoute);
+                    controller.setStartingPoint(userRoute);
                 } else {
                     setStartButton.setText("SET");
                     createButton.setVisibility(View.VISIBLE);
                     setEndButton.setVisibility(View.VISIBLE);
-                    ((MapsActivity) getActivity()).stopSettingPoints();
+                    controller.stopSettingPoints();
                     displayStartEndText();
                 }
             }
@@ -67,12 +70,12 @@ public class MapsCreateFragment extends Fragment {
                     createButton.setVisibility(View.GONE);
                     setStartButton.setVisibility(View.GONE);
                     //((MapsActivity) getActivity()).setEndPoint(userRoute);
-                    ((MapsActivity) getActivity()).setEndingPoint(userRoute);
+                    controller.setEndingPoint(userRoute);
                 } else {
                     setEndButton.setText("SET");
                     setStartButton.setVisibility(View.VISIBLE);
                     createButton.setVisibility(View.VISIBLE);
-                    ((MapsActivity) getActivity()).stopSettingPoints();
+                    controller.stopSettingPoints();
                     displayStartEndText();
                 }
             }
@@ -98,16 +101,17 @@ public class MapsCreateFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (createButton.getText().equals("Create")) {
-                    String message = ((MapsActivity) getActivity()).createRoute(userRoute);
+                    controller.create(userRoute);
+                    String message = controller.getMessage();
                     Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                    if (message == "Route created") {
+                    if (message.equals("Route created")) {
                         setStartButton.setVisibility(View.GONE);
                         setEndButton.setVisibility(View.GONE);
                         createButton.setText("Create New");
                         saveButton.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    ((MapsActivity) getActivity()).clearRouteDetails();
+                    controller.clear();
                     userRoute = new UserRouteEntity();
                     createButton.setText("Create");
                     displayStartEndText();

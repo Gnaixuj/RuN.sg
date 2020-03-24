@@ -2,6 +2,7 @@ package com.example.cz2006trial;
 
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +27,7 @@ import com.google.firebase.firestore.auth.User;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -40,6 +44,8 @@ public class MapsTrackFragment extends Fragment {
     private long timeElapsed = 0;
     private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
 
+    private GoogleMapController controller = GoogleMapController.getController();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -51,6 +57,8 @@ public class MapsTrackFragment extends Fragment {
         mChronometer = view.findViewById(R.id.chronometer);
         distanceTravelledView = view.findViewById(R.id.distanceTravelled);
         goalProgressView = view.findViewById(R.id.goalProgress);
+
+
 
 /*        createButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,17 +88,17 @@ public class MapsTrackFragment extends Fragment {
                     mChronometer.start();
                     userLocationSession = new UserLocationSessionEntity(Calendar.getInstance().getTime());
                     displaySessionFromDatabase(userLocationSession.getTimestamp());
-                    ((MapsActivity) getActivity()).beginTracking(userLocationSession);
+                    controller.beginTracking(userLocationSession);
                 } else if (startButton.getText().equals("Resume")) {
                     mChronometer.setBase(SystemClock.elapsedRealtime() - timeElapsed);
                     startButton.setText("Pause");
                     mChronometer.start();
-                    ((MapsActivity) getActivity()).resumeTracking();
+                    controller.resumeTracking();
                 } else {
                     startButton.setText("Resume");
                     mChronometer.stop();
                     timeElapsed = SystemClock.elapsedRealtime() - mChronometer.getBase();
-                    ((MapsActivity)getActivity()).endTracking();
+                    controller.endTracking();
                 }
             }
         });
@@ -102,7 +110,7 @@ public class MapsTrackFragment extends Fragment {
                 startButton.setText("Start");
                 mChronometer.stop();
                 timeElapsed = SystemClock.elapsedRealtime() - mChronometer.getBase();
-                ((MapsActivity)getActivity()).endTracking();
+                controller.endTracking();
             }
         });
 
