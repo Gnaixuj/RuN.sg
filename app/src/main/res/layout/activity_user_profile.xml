@@ -14,33 +14,27 @@
 
         <ImageView
             android:id="@+id/header_cover_image"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:scaleType="centerCrop"
+            android:layout_height="180dp"
+            android:background="#000000"
+            android:layout_width="fill_parent" />
 
-            android:src="@drawable/ic_nav_menu_header"
-            app:srcCompat="@drawable/ic_nav_menu_header" />
-
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-            app:civ_border_width="3dp"
-            app:civ_border_color="#FFFFFFFF"
-
+        <ImageView
             android:id="@+id/profile"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="250dp"
+            android:layout_height="220dp"
             android:layout_below="@+id/header_cover_image"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="-130dp"
+            android:layout_marginTop="-170dp"
             android:elevation="5dp"
             android:padding="20dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_profile_pic" />
+            android:visibility="gone"
+            android:src="@mipmap/ic_profile_pic" />
 
         <RelativeLayout
             android:id="@+id/profile_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="120dp"
             android:layout_below="@+id/header_cover_image"
             android:background="#ebca0707"
             android:elevation="4dp"
@@ -65,9 +59,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="70dp"
-                android:visibility="gone"
-                android:text="Laxman Marothiya"
+                android:layout_marginTop="58dp"
+                android:visibility="visible"
+                android:text="LOADING..."
                 android:textColor="#fff"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -78,8 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/profile_layout"
-            android:layout_margin="5dp"
-            android:layout_marginTop="63dp"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
             android:background="#fff"
             android:elevation="4dp"
@@ -98,6 +91,7 @@
                 android:layout_marginTop="8dp"
                 android:text="Email: "
                 android:textStyle="bold"
+                android:textSize="20sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -108,34 +102,11 @@
                 android:layout_margin="5dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="a@a.com"
+                android:text="-"
+                android:textSize="20sp"
                 android:visibility="gone"
                 app:layout_constraintLeft_toRightOf="@+id/email_header"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/gender_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="Gender: "
-                android:textStyle="bold"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/email_header" />
-
-            <TextView
-                android:id="@+id/gender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="Male"
-                android:visibility="gone"
-                app:layout_constraintLeft_toRightOf="@+id/gender_header"
-                app:layout_constraintTop_toBottomOf="@id/email" />
 
             <TextView
                 android:id="@+id/DOB_header"
@@ -146,8 +117,9 @@
                 android:layout_marginTop="8dp"
                 android:text="DOB: "
                 android:textStyle="bold"
+                android:textSize="20sp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gender_header" />
+                app:layout_constraintTop_toBottomOf="@id/email_header" />
 
             <TextView
                 android:id="@+id/DOB"
@@ -156,10 +128,11 @@
                 android:layout_margin="5dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="27/05/1996"
+                android:text="-"
+                android:textSize="20sp"
                 android:visibility="gone"
                 app:layout_constraintLeft_toRightOf="@+id/DOB_header"
-                app:layout_constraintTop_toBottomOf="@id/gender" />
+                app:layout_constraintTop_toBottomOf="@id/email" />
 
             <TextView
                 android:id="@+id/height_header"
@@ -170,6 +143,7 @@
                 android:layout_marginTop="8dp"
                 android:text="Height: "
                 android:textStyle="bold"
+                android:textSize="20sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/DOB_header" />
 
@@ -180,7 +154,8 @@
                 android:layout_margin="5dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="1.66m"
+                android:text="-"
+                android:textSize="20sp"
                 android:visibility="gone"
                 app:layout_constraintLeft_toRightOf="@+id/height_header"
                 app:layout_constraintTop_toBottomOf="@id/DOB" />
@@ -193,6 +168,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="Weight: "
+                android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/height_header" />
@@ -204,8 +180,9 @@
                 android:layout_margin="5dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="60kg"
+                android:text="-"
                 android:visibility="gone"
+                android:textSize="20sp"
                 app:layout_constraintLeft_toRightOf="@+id/weight_header"
                 app:layout_constraintTop_toBottomOf="@id/height" />
 
@@ -218,6 +195,7 @@
                 android:layout_marginTop="8dp"
                 android:text="BMI: "
                 android:textStyle="bold"
+                android:textSize="20sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/weight_header" />
 
@@ -228,7 +206,8 @@
                 android:layout_margin="5dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="18.0"
+                android:text="-"
+                android:textSize="20sp"
                 android:visibility="gone"
                 app:layout_constraintLeft_toRightOf="@+id/BMI_header"
                 app:layout_constraintTop_toBottomOf="@id/weight" />

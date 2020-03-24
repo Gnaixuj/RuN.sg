@@ -1,13 +1,10 @@
 package com.example.cz2006trial;
 
-import java.util.Date;
-
 public class UserProfileEntity {
 
     private String username;
     private String email;
-    private String gender;
-    private Date DOB;
+    private String DOB;
     private double height;
     private double weight;
     private double BMI;
@@ -16,10 +13,9 @@ public class UserProfileEntity {
 
     }
 
-    public UserProfileEntity(String username, String email, String gender, Date DOB, double height, double weight, double BMI) {
+    public UserProfileEntity(String username, String email, String DOB, double height, double weight, double BMI) {
         this.username = username;
         this.email = email;
-        this.gender = gender;
         this.DOB = DOB;
         this.height = height;
         this.weight = weight;
@@ -47,19 +43,11 @@ public class UserProfileEntity {
         this.email = email;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public Date getDOB() {
+    public String getDOB() {
         return DOB;
     }
 
-    public void setDOB(Date DOB) {
+    public void setDOB(String DOB) {
         this.DOB = DOB;
     }
 

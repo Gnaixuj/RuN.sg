@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
 public class EditGoalsFragment extends Fragment {
 
 
@@ -87,8 +88,7 @@ public class EditGoalsFragment extends Fragment {
                         String message = GoalController.validateGoalFields(newGoalTargetText, goalDistance);
                         if (message.equals("success")) {
                             errorMessageView.setVisibility(View.GONE);
-                            Toast toast = Toast.makeText(getContext(), "Goal Target Updated", Toast.LENGTH_SHORT);
-                            toast.show();
+                            Toast.makeText(getContext(), "Goal Target Updated", Toast.LENGTH_SHORT).show();
                             if (GoalController.updateDataOnDatabase(date, goalDistance, Double.parseDouble(newGoalTargetText))) {
                                 getActivity().onBackPressed();
                             } else {

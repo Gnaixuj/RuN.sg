@@ -32,8 +32,6 @@ public class SignUpActivity extends AppCompatActivity {
     private Button mRegisterButton;
     private TextView mLogin;
     private ProgressBar progressBar;
-    private FirebaseFirestore fStore;
-    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +47,6 @@ public class SignUpActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         mAuth = FirebaseAuth.getInstance();
-        fStore = FirebaseFirestore.getInstance();
 
         // Check If the User is Already Login
         if (mAuth.getCurrentUser() != null) {
