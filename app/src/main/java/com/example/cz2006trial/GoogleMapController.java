@@ -30,6 +30,7 @@ public class GoogleMapController {
     private EndListener endListener;
     private CreateListener createListener;
     private RouteListener routeListener;
+    private PointListener pointListener;
 
 
     private boolean startTrack = false;
@@ -40,6 +41,8 @@ public class GoogleMapController {
     private String message;
 
     private ArrayList<LatLng> route;
+    private ArrayList<Marker> markers;
+    private Marker pointChosen;
     private boolean createRoute;
 
     private GoogleMapController () {
@@ -64,6 +67,8 @@ public class GoogleMapController {
 
     public abstract static class RouteListener implements Listener{};
 
+    public abstract static class PointListener implements Listener{};
+
 
     public void setStartListener(StartListener listener) {
         this.startListener = listener;
@@ -77,8 +82,29 @@ public class GoogleMapController {
         this.createListener = listener;
     }
 
+    public void setPointListener(PointListener pointListener) {
+        this.pointListener = pointListener;
+    }
+
     public void setRouteListener(RouteListener routeListener) {
         this.routeListener = routeListener;
+    }
+
+    public void setMarkers(ArrayList<Marker> markers) {
+        this.markers = markers;
+    }
+
+    public ArrayList<Marker> getMarkers() {
+        return markers;
+    }
+
+    public void setPointChosen(Marker pointChosen) {
+        this.pointChosen = pointChosen;
+        pointListener.onChange();
+    }
+
+    public Marker getPointChosen() {
+        return pointChosen;
     }
 
     public void beginTracking(UserLocationSessionEntity userLocationSession) {

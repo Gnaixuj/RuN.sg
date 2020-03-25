@@ -6,7 +6,12 @@
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".SearchActivity">
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:padding="16dp"
+        android:layout_gravity="left"/>
 
     <SearchView
         android:id="@+id/searchBar"
@@ -17,7 +22,7 @@
     <ListView
         android:id="@+id/listLoc"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="165dp"
         android:layout_weight="1" />
 
 </LinearLayout>

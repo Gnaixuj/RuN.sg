@@ -67,10 +67,10 @@ import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback{
 
-    private TextView peekText;
     private ImageView arrowImg;
 
     GoogleMap mMap;
+    Marker pointChosen;
 
     private boolean startTrack = false;
 
@@ -141,11 +141,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         root = inflater.inflate(R.layout.fragment_map, container, false);
 
-        peekText = root.findViewById(R.id.peek_text);
+
 
         arrowImg = root.findViewById(R.id.arrow_bottom_sheet);
-        View bottomSheet = root.findViewById(R.id.bottom_sheet);
+        arrowImg.setImageResource(R.drawable.ic_arrow_up);
+        final View bottomSheet = root.findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+
+        arrowImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
 
         bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -170,14 +183,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_create, R.id.nav_track)
+                R.id.nav_create, R.id.nav_track, R.id.nav_search)
                 .build();
 
         NavHostFragment navHostFragment = (NavHostFragment) getChildFragmentManager().findFragmentById(R.id.bottom_fragment);
         navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        //change text of bottom sheet
+/*        //change text of bottom sheet
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
@@ -185,7 +198,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 if (peekText.getText().equals("Track")) peekText.setText("Create");
                 else peekText.setText("Track");
             }
-        });
+        });*/
         //navigationView.setOnNavigationItemSelectedListener(this);
 
         return root;
@@ -289,12 +302,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         });
     }
 
+    public void pointChosen() {
+        controller.setPointListener(new GoogleMapController.PointListener() {
+            @Override
+            public void onChange() {
+                if (bottomSheetBehavior != null) bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                Marker marker = controller.getPointChosen();
+                if (pointChosen != null) {
+                    pointChosen.remove();
+                }
+                pointChosen = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
+                        .title(marker.getTitle()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pointChosen.getPosition(), ZOOM));
+            }
+        });
+    }
+
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
         setStartingPoint();
         setEndingPoint();
         createRoute();
+        pointChosen();
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
@@ -448,6 +478,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name")).visible(false));
                 accessPoint.add(marker);
             }
+            controller.setMarkers(accessPoint);
         }
 
 /*        ArrayList<ArrayList<LatLng>> pathLines = new ArrayList();

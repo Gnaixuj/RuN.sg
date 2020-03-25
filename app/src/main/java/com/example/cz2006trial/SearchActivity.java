@@ -24,7 +24,7 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.fragment_map_search);
 
         listLoc = (ListView) findViewById(R.id.listLoc);
         

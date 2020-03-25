@@ -739,13 +739,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.nav_logout) {
+        if (item.getItemId() == R.id.log_out) {
+            Log.i("log out", "i am clicked");
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
             finish();
 
         }
         return true;
+    }
+
+    public void logOut(View view) {
+        Log.i("log out", "i am clicked");
+        FirebaseAuth.getInstance().signOut();
+        startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+        finish();
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {

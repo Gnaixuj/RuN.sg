@@ -14,5 +14,11 @@
             android:enabled="true"
             android:title="@string/menu_track" />
 
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_menu_search"
+            android:enabled="true"
+            android:title="@string/menu_search" />
+
     </group>
 </menu>
