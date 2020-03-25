@@ -14,8 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
+import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.model.UserProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -23,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class UserProfileFragment extends Fragment {
 
@@ -58,7 +62,7 @@ public class UserProfileFragment extends Fragment {
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        displayProfileFromDatabase();
+        displayProfile();
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,8 +111,38 @@ public class UserProfileFragment extends Fragment {
 
  */
 
-    public void displayProfileFromDatabase() {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public void displayProfile() {
+        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                if (errorMsg[0] != null)
+                    Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                else if (errorMsg[1] != null)
+                    Toast.makeText(getContext(), errorMsg[1], Toast.LENGTH_LONG).show();
+                else {
+                    heightTextView.setText("-");
+                    weightTextView.setText("-");
+                    BMITextView.setText("-");
+                    usernameTextView.setText(stringArgs.get(0));
+                    emailTextView.setText(stringArgs.get(1));
+                    DOBTextView.setText(stringArgs.get(2));
+                    if (doubleArgs[0] != 0)
+                        heightTextView.setText("" + doubleArgs[0]);
+                    if (doubleArgs[1] != 0)
+                        weightTextView.setText("" + doubleArgs[1]);
+                    if (doubleArgs[2] != 0)
+                        BMITextView.setText("" + doubleArgs[2]);
+                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
+                        @Override
+                        public void onCallback(String[] message) {
+                        }
+                    }, "retrieve", profilePhoto);
+                    loadingComplete();
+                }
+            }
+        }, "userProfile", null);
+
+        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference(UID).child("userProfile");
         databaseUserProfile.addValueEventListener(new ValueEventListener() {
             @Override
@@ -142,7 +176,7 @@ public class UserProfileFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
-        });
+        });*/
     }
 
     private void loadingComplete() {

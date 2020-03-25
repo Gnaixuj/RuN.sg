@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.controller.GoalController;
 import com.example.cz2006trial.GoalDecorator;
 import com.example.cz2006trial.model.Goal;
@@ -44,6 +47,8 @@ public class GoalsFragment extends Fragment {
     private TextView dailyGoalView;
     private Button editGoalButton;
     private TextView progressView;
+    private ProgressBar loadingBar;
+    private ArrayList<Goal> storedGoals = new ArrayList<>();
 
 
 
@@ -58,6 +63,7 @@ public class GoalsFragment extends Fragment {
         dailyGoalView = view.findViewById(R.id.dailyGoalView);
         editGoalButton = view.findViewById(R.id.EditGoalButton);
         progressView = view.findViewById(R.id.progressView);
+        loadingBar = view.findViewById(R.id.goalsFragmentLoading);
         return view;
     }
 
@@ -70,6 +76,7 @@ public class GoalsFragment extends Fragment {
 
         //highlight dates for incomplete goals and completed goals on calendar view
         decorateGoalDates();
+        loadingBar.setVisibility(View.GONE);
 
         //what is displayed when a date is selected on the calendar view
         calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
@@ -89,7 +96,7 @@ public class GoalsFragment extends Fragment {
                 }
 
                 //display distance travelled, goal target and progress for selected date
-                displayGoalFromDatabase(date);
+                displayGoal(date);
 
                 //go to EditGoalActivity page when pressed
                 editGoalButton.setOnClickListener(new View.OnClickListener() {
@@ -106,8 +113,56 @@ public class GoalsFragment extends Fragment {
         });
     }
 
+    /*public void displayGoals(String date) {
+        dateView.setText("Date: " + date);
+        for (Goal goal : storedGoals) {
+            if (goal.getDate().equals(date)) {
+                if (goal.getTarget() != -1) {
+                    dailyGoalView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
+                    double progress = Math.max(0, Math.min(100 * goal.getDistance() / goal.getTarget(), 100));
+                    progressView.setText("Progress: " + Math.round(progress) + "%");
+                    return;
+                } else {
+                    progressView.setText("Distance travelled: " + (Math.round(goal.getDistance() * 10) / 10.0));
+                    dailyGoalView.setText(R.string.noTargetSet);
+                    return;
+                }
+            }
+        }
+        progressView.setText(R.string.zeroDistance);
+        dailyGoalView.setText(R.string.noTargetSet);
+    }*/
+
     public void decorateGoalDates() {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                storedGoals = goals;
+                if (errorMsg[0] != null)
+                    Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                else {
+                    final ArrayList<CalendarDay> completeGoalList = new ArrayList<CalendarDay>();
+                    final ArrayList<CalendarDay> incompleteGoalList = new ArrayList<CalendarDay>();
+                    for (int i = 0; i < goals.size(); i++) {
+                        System.out.println("" + goals.get(i).getDistance() + " " + goals.get(i).getTarget());
+                        if (goals.get(i).getTarget() != -1) {
+                            if (goals.get(i).getDistance() >= goals.get(i).getTarget()) {
+                                completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(stringArgs.get(i))));
+                            } else {
+                                incompleteGoalList.add(CalendarDay.from(GoalController.convertStringToDate(stringArgs.get(i))));
+                            }
+                        }
+                    }
+                    calendarView.addDecorators(new GoalDecorator(Color.GREEN, false, completeGoalList));
+                    calendarView.addDecorators(new GoalDecorator(Color.RED, false, incompleteGoalList));
+                    calendarView.setVisibility(View.VISIBLE);
+                }
+            }
+        }, "goals", null);
+
+
+        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference("goals").child(UID);
         databaseGoalDates.addValueEventListener(new ValueEventListener() {
             @Override
@@ -118,10 +173,12 @@ public class GoalsFragment extends Fragment {
                     if (d != null) {
                         Goal goal = d.getValue(Goal.class);
                         String dateString = d.getKey();
-                        if (goal.getDistance() >= goal.getTarget()) {
-                            completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
-                        } else {
-                            incompleteGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
+                        if (goal.getTarget() != -1) {
+                            if (goal.getDistance() >= goal.getTarget()) {
+                                completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
+                            } else {
+                                incompleteGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
+                            }
                         }
                     }
                 }
@@ -134,11 +191,34 @@ public class GoalsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
-        });
+        });*/
     }
 
-    public void displayGoalFromDatabase(final String date) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public void displayGoal(final String date) {
+        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                dateView.setText("Date: " + date);
+                if (errorMsg[0] != null)
+                    Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                else if (errorMsg[1] != null) {
+                    progressView.setText(R.string.zeroDistance);
+                    dailyGoalView.setText(R.string.noTargetSet);
+                } else {
+                    if (doubleArgs[1] != -1 && doubleArgs[1] != 0) {
+                        dailyGoalView.setText("Target: " + (Math.round(doubleArgs[0] * 10) / 10.0) + " / " + doubleArgs[1] + " km");
+                        double progress = Math.max(0, Math.min(100 * doubleArgs[0] / doubleArgs[1], 100));
+                        progressView.setText("Progress: " + Math.round(progress) + "%");
+                    } else {
+                        progressView.setText("Distance travelled: " + (Math.round(doubleArgs[0] * 10) / 10.0));
+                        dailyGoalView.setText(R.string.noTargetSet);
+                    }
+                }
+            }
+        }, "goals", date);
+
+
+        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
         databaseGoals.addValueEventListener(new ValueEventListener() {
             @Override
@@ -146,6 +226,7 @@ public class GoalsFragment extends Fragment {
                 dateView.setText("Date: " + date);
                 Goal goal = dataSnapshot.getValue(Goal.class);
                 if (goal != null) {
+                    System.out.println("Target " + goal.getTarget());
                     if (goal.getTarget() != -1) {
                         dailyGoalView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
                         double progress = Math.max(0, Math.min(100 * goal.getDistance() / goal.getTarget(), 100));
@@ -164,7 +245,7 @@ public class GoalsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
-        });
+        });*/
     }
 
     private void instantiateCalendar() {

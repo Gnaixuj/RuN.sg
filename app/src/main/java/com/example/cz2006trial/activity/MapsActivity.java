@@ -16,6 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.history.recyclerview.MainActivity;
+import com.example.cz2006trial.model.Goal;
 import com.google.android.material.navigation.NavigationView;
 
 public class MapsActivity extends AppCompatActivity {
@@ -23,6 +24,7 @@ public class MapsActivity extends AppCompatActivity {
 
 
     private String date;
+    //private Goal goal;
     private AppBarConfiguration mAppBarConfiguration;
 
 
@@ -32,6 +34,12 @@ public class MapsActivity extends AppCompatActivity {
     public String getDate(){
         return this.date;
     }
+    /*public Goal getGoal() {
+        return goal;
+    }
+    public void setGoal(Goal goal) {
+        this.goal = goal;
+    }*/
 
     @Override
     public boolean onSupportNavigateUp() {

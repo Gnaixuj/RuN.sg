@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.controller.GoalController;
 import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.activity.MapsActivity;
@@ -25,17 +26,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 
 public class EditGoalsFragment extends Fragment {
 
 
-    TextView dateView;
-    TextView goalDistanceView;
-    TextView initialGoalTargetView;
-    TextView newGoalTargetPlainText;
-    EditText newGoalTargetEditText;
-    TextView errorMessageView;
-    Button editGoalDoneButton;
+    private TextView dateView;
+    private TextView goalDistanceView;
+    private TextView initialGoalTargetView;
+    private EditText newGoalTargetEditText;
+    private TextView errorMessageView;
+    private Button editGoalDoneButton;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -45,7 +47,6 @@ public class EditGoalsFragment extends Fragment {
         dateView = view.findViewById(R.id.editGoalDateView);
         goalDistanceView = view.findViewById(R.id.goalDistance);
         initialGoalTargetView = view.findViewById(R.id.initialGoalTarget);
-        newGoalTargetPlainText = view.findViewById(R.id.newGoalTargetText);
         newGoalTargetEditText = view.findViewById(R.id.newGoalTarget);
         errorMessageView = view.findViewById(R.id.errorMessage);
         editGoalDoneButton = view.findViewById(R.id.DoneEditGoalButton);
@@ -59,11 +60,53 @@ public class EditGoalsFragment extends Fragment {
         MapsActivity activity = (MapsActivity) getActivity();
         final String date = activity.getDate();
         Log.i("edit goals", "date is shown");
-        displayGoalFromDatabase(date);
+        displayGoal(date);
     }
 
-    public void displayGoalFromDatabase(final String date) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public void displayGoal(final String date) {
+
+        dateView.setText("Date: " + date);
+        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, final double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                if (errorMsg[0] != null)
+                    Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                else if (errorMsg[1] != null) {
+                    goalDistanceView.setText(R.string.zeroDistance);
+                    initialGoalTargetView.setVisibility(View.GONE);
+                } else {
+                    goalDistanceView.setText("Distance travelled: " + doubleArgs[0] + " km");
+                    initialGoalTargetView.setText("Initial Goal Target: " + doubleArgs[1] + " km");
+                    if (doubleArgs[1] == -1 || doubleArgs[1] == 0) {
+                        initialGoalTargetView.setVisibility(View.GONE);
+                    }
+                }
+                editGoalDoneButton.setVisibility(View.VISIBLE);
+                editGoalDoneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String newGoalTargetText = String.valueOf(newGoalTargetEditText.getText());
+                        String message = GoalController.validateGoalFields(newGoalTargetText, doubleArgs[0]);
+                        if (message.equals("success")) {
+                            errorMessageView.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "Goal Target Updated", Toast.LENGTH_SHORT).show();
+                            DatabaseManager.updateGoalData(date, doubleArgs[0], Double.parseDouble(newGoalTargetText));
+                            getActivity().onBackPressed();
+                            /*if (GoalController.updateDataOnDatabase(date, doubleArgs[0], Double.parseDouble(newGoalTargetText))) {
+                                getActivity().onBackPressed();
+                            } else {
+                                errorMessageView.setText("Error. Something went wrong. Please retry.");
+                            }*/
+                        } else {
+                            errorMessageView.setText(message);
+                        }
+                    }
+                });
+            }
+        }, "goals", date);
+
+
+        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -108,6 +151,6 @@ public class EditGoalsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
-        });
+        });*/
     }
 }

@@ -2,6 +2,7 @@ package com.example.cz2006trial.controller;
 
 import androidx.annotation.NonNull;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.model.Goal;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -47,13 +48,13 @@ public class GoalController {
         return "success";
     }
 
-    public static boolean updateDataOnDatabase(String date, double distance, double target) {
+    /*public static boolean updateDataOnDatabase(String date, double distance, double target) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
         Goal goal = new Goal(date, distance, target);
         databaseGoals.setValue(goal);
         return true;
-    }
+    }*/
 
     public static void getDistanceDatabase(final Date date, final double distance) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -65,9 +66,11 @@ public class GoalController {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Goal goal = dataSnapshot.getValue(Goal.class);
                 if (goal != null) {
-                    updateDataOnDatabase(dateString, goal.getDistance() + distance, goal.getTarget());
+                    DatabaseManager.updateGoalData(dateString, goal.getDistance() + distance, goal.getTarget());
+                    //updateDataOnDatabase(dateString, goal.getDistance() + distance, goal.getTarget());
                 } else {
-                    updateDataOnDatabase(dateString, 0, -1);
+                    DatabaseManager.updateGoalData(dateString, 0, -1);
+                    //updateDataOnDatabase(dateString, 0, -1);
                 }
             }
 

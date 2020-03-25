@@ -35,11 +35,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.DecimalDigitsInputFilter;
 import com.example.cz2006trial.DownloadFileManager;
 import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserProfileController;
+import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.model.UserProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -50,6 +52,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -152,7 +155,7 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
-        displayProfileFromDatabase();
+        displayProfile();
 
         updateProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -352,11 +355,43 @@ public class EditProfileFragment extends Fragment {
         if (!BMITextView.getEditableText().toString().equals(""))
             BMI = Double.parseDouble(BMITextView.getEditableText().toString());
 
-        UserProfileController.setEditedUserProfileOnDatabase(username, email, DOB, height, weight, BMI);
+        DatabaseManager.updateProfileData(username, email, DOB, height, weight, BMI);
     }
 
-    public void displayProfileFromDatabase() {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public void displayProfile() {
+        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                if (errorMsg[0] != null)
+                    Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                else if (errorMsg[1] != null)
+                    Toast.makeText(getContext(), errorMsg[1], Toast.LENGTH_LONG).show();
+                else {
+                    usernameTextView.setText(stringArgs.get(0));
+                    emailTextView.setText(stringArgs.get(1));
+                    if (stringArgs.get(2) != null)
+                        DOBTextView.setText(stringArgs.get(2));
+                    DOBTextView.setHint("Please input your date of birth");
+                    if (doubleArgs[0] != 0)
+                        heightTextView.setText("" + doubleArgs[0]);
+                    heightTextView.setHint("Please input your height in cm");
+                    if (doubleArgs[1] != 0)
+                        weightTextView.setText("" + doubleArgs[1]);
+                    weightTextView.setHint("Please input your weight in kg");
+                    if (doubleArgs[2] != 0)
+                        BMITextView.setText("" + doubleArgs[2]);
+                    BMITextView.setHint("Please input your BMI");
+                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
+                        @Override
+                        public void onCallback(String[] message) {
+                            Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
+                        }
+                    }, "retrieve", profilePhoto);
+                }
+            }
+        }, "userProfile", null);
+
+        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference(UID).child("userProfile");
         databaseUserProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -398,7 +433,7 @@ public class EditProfileFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
-        });
+        });*/
     }
 
     /**

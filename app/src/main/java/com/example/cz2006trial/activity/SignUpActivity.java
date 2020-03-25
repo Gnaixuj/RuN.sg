@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserProfileController;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -87,7 +88,8 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(SignUpActivity.this, "User Created", Toast.LENGTH_SHORT).show();
-                            UserProfileController.setUserProfileOnDatabase(email, username);
+                            //UserProfileController.setUserProfileOnDatabase(email, username);
+                            DatabaseManager.updateProfileData(username, email);
                             startActivity(new Intent(getApplicationContext(), MapsActivity.class));
                             finish();
                         }

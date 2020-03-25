@@ -7,7 +7,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class UserProfileController {
 
-    public static void setEditedUserProfileOnDatabase(String username, String email, String DOB, double height, double weight, double BMI) {
+    /*public static void setEditedUserProfileOnDatabase(String username, String email, String DOB, double height, double weight, double BMI) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
         UserProfile userProfile = new UserProfile(username, email, DOB, height, weight, BMI);
@@ -19,6 +19,6 @@ public class UserProfileController {
         DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
         UserProfile userProfile = new UserProfile(username, email);
         databaseUserProfile.setValue(userProfile);
-    }
+    }*/
 
 }
