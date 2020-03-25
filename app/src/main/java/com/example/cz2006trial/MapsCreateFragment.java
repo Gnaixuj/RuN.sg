@@ -40,7 +40,6 @@ public class MapsCreateFragment extends Fragment {
         setStartButton = view.findViewById(R.id.buttonSetStart);
         setEndButton = view.findViewById(R.id.buttonSetEnd);
 
-
         displayStartEndText();
 
         setStartButton.setOnClickListener(new View.OnClickListener() {
@@ -57,6 +56,8 @@ public class MapsCreateFragment extends Fragment {
                     createButton.setVisibility(View.VISIBLE);
                     setEndButton.setVisibility(View.VISIBLE);
                     controller.stopSettingPoints();
+                    if (UserRouteController.getStartPointName(userRoute) != null)
+                        Toast.makeText(getActivity(), "Starting Point set", Toast.LENGTH_SHORT).show();
                     displayStartEndText();
                 }
             }
@@ -76,6 +77,8 @@ public class MapsCreateFragment extends Fragment {
                     setStartButton.setVisibility(View.VISIBLE);
                     createButton.setVisibility(View.VISIBLE);
                     controller.stopSettingPoints();
+                    if (UserRouteController.getEndPointName(userRoute) != null)
+                        Toast.makeText(getActivity(), "Ending Point set", Toast.LENGTH_SHORT).show();
                     displayStartEndText();
                 }
             }
@@ -135,6 +138,7 @@ public class MapsCreateFragment extends Fragment {
     }
 
     public void displayStartEndText() {
+        userRoute = controller.getUserRouteEntity();
         String startPointText = UserRouteController.getStartPointName(userRoute);
         String endPointText = UserRouteController.getEndPointName(userRoute);
         if (startPointText != null)
@@ -145,5 +149,16 @@ public class MapsCreateFragment extends Fragment {
             endPoint.setText("End Point: " + endPointText);
         else
             endPoint.setText("End Point: Select an access point marker");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!controller.getRoute().isEmpty()) {
+            createButton.setText("Create New");
+            saveButton.setVisibility(View.VISIBLE);
+            setStartButton.setVisibility(View.GONE);
+            setEndButton.setVisibility(View.GONE);
+        }
     }
 }

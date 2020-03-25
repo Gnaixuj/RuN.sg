@@ -303,7 +303,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
                                     .zIndex(2f)
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                             UserRouteController.setStartMarkerInfo(userRoute, startPoint);
-                            Toast.makeText(getActivity(), "Starting Point updated", Toast.LENGTH_SHORT).show();
                             //((MapsCreateFragment) getActivity().getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
                         }
                 } else if (setEndPoint) {
@@ -317,7 +316,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
                                     .zIndex(1f)
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                             UserRouteController.setEndMarkerInfo(userRoute, endPoint);
-                            Toast.makeText(getActivity(), "Ending Point updated", Toast.LENGTH_SHORT).show();
                             //((MapsCreateFragment) getActivity().getSupportFragmentManager().findFragmentById(fragment.getId())).displayStartEndText();
                         }
                 }

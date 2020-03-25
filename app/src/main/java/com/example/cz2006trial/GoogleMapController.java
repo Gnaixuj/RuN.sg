@@ -132,6 +132,7 @@ public class GoogleMapController {
 
     public void clear() {
         createRoute = false;
+        userRouteEntity = new UserRouteEntity();
         if (createListener != null ) createListener.onChange();
     }
 
