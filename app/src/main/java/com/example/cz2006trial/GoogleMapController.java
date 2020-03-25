@@ -130,8 +130,9 @@ public class GoogleMapController {
         this.userRouteEntity = userRoute;
     }
 
-    public void clear() {
+    public void clearRoute() {
         createRoute = false;
+        route.clear();
         userRouteEntity = new UserRouteEntity();
         if (createListener != null ) createListener.onChange();
     }

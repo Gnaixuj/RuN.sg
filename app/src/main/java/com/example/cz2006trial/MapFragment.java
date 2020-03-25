@@ -199,8 +199,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
-
     }
 
 
@@ -295,6 +293,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         setStartingPoint();
         setEndingPoint();
         createRoute();
+
+        userRoute = controller.getUserRouteEntity();
+        if (userRoute.getStartPointName() != null) {
+            startPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getStartPoint())
+                    .title(userRoute.getStartPointName())
+                    .snippet("Your Starting Point")
+                    .zIndex(2f)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
+        if (userRoute.getEndPointName() != null) {
+            endPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getEndPoint())
+                    .title(userRoute.getEndPointName())
+                    .snippet("Your Ending Point")
+                    .zIndex(2f)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
+        if (!controller.getRoute().isEmpty()) {
+            Toast.makeText(getActivity(), "Inside", Toast.LENGTH_SHORT).show();
+            controller.create(userRoute);
+            //ArrayList<LatLng> route = controller.getRoute();
+            //routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.GREEN)));
+        }
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
@@ -477,6 +497,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     }
 
+    /*@Override
+    public void onStart() {
+        super.onStart();
+        userRoute = controller.getUserRouteEntity();
+        if (userRoute.getStartPointName() != null) {
+            startPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getStartPoint())
+                    .title(userRoute.getStartPointName())
+                    .snippet("Your Starting Point")
+                    .zIndex(2f)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
+        if (userRoute.getEndPointName() != null) {
+            endPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getEndPoint())
+                    .title(userRoute.getEndPointName())
+                    .snippet("Your Ending Point")
+                    .zIndex(2f)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
+        if (!controller.getRoute().isEmpty())
+                routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(controller.getRoute()).width(10.0f).color(Color.GREEN)));
+    }*/
+
 /*    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_create) {
@@ -490,6 +532,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         }
         return true;
     }*/
-
 
 }

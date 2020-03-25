@@ -114,7 +114,7 @@ public class MapsCreateFragment extends Fragment {
                         saveButton.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    controller.clear();
+                    controller.clearRoute();
                     userRoute = new UserRouteEntity();
                     createButton.setText("Create");
                     displayStartEndText();
