@@ -1,17 +1,23 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputFilter;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.example.cz2006trial.controller.GoalController;
+import com.example.cz2006trial.model.Goal;
+import com.example.cz2006trial.activity.MapsActivity;
+import com.example.cz2006trial.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,7 +25,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class EditGoalsActivity extends AppCompatActivity {
+
+public class EditGoalsFragment extends Fragment {
+
 
     TextView dateView;
     TextView goalDistanceView;
@@ -30,39 +38,38 @@ public class EditGoalsActivity extends AppCompatActivity {
     Button editGoalDoneButton;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_editgoals);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_edit_goals, container, false);
 
-        dateView = findViewById(R.id.editGoalDateView);
-        goalDistanceView = findViewById(R.id.goalDistance);
-        initialGoalTargetView = findViewById(R.id.initialGoalTarget);
-        newGoalTargetPlainText = findViewById(R.id.newGoalTargetText);
-        newGoalTargetEditText = findViewById(R.id.newGoalTarget);
-        errorMessageView = findViewById(R.id.errorMessage);
-        editGoalDoneButton = findViewById(R.id.DoneEditGoalButton);
+        dateView = view.findViewById(R.id.editGoalDateView);
+        goalDistanceView = view.findViewById(R.id.goalDistance);
+        initialGoalTargetView = view.findViewById(R.id.initialGoalTarget);
+        newGoalTargetPlainText = view.findViewById(R.id.newGoalTargetText);
+        newGoalTargetEditText = view.findViewById(R.id.newGoalTarget);
+        errorMessageView = view.findViewById(R.id.errorMessage);
+        editGoalDoneButton = view.findViewById(R.id.DoneEditGoalButton);
 
-        //allow users to input 3 digit number that allow only one decimal place
-        newGoalTargetEditText.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(3,1)});
+        return view;
+    }
 
-        //Get the bundle
-        Bundle bundle = getIntent().getExtras();
-        //Extract the data…
-        final String date = bundle.getString("date");
-
-        //display initial goals for editing
+    @Override
+    public void onStart() {
+        super.onStart();
+        MapsActivity activity = (MapsActivity) getActivity();
+        final String date = activity.getDate();
+        Log.i("edit goals", "date is shown");
         displayGoalFromDatabase(date);
-
     }
 
     public void displayGoalFromDatabase(final String date) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 dateView.setText("Date: " + date);
-                final GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
+                final Goal goal = dataSnapshot.getValue(Goal.class);
                 final double goalDistance;
                 if (goal != null) {
                     goalDistance = (Math.round(goal.getDistance() * 10) / 10.0);
@@ -84,10 +91,9 @@ public class EditGoalsActivity extends AppCompatActivity {
                         String message = GoalController.validateGoalFields(newGoalTargetText, goalDistance);
                         if (message.equals("success")) {
                             errorMessageView.setVisibility(View.GONE);
-                            Toast toast = Toast.makeText(getApplicationContext(), "Goal Target Updated", Toast.LENGTH_SHORT);
-                            toast.show();
+                            Toast.makeText(getContext(), "Goal Target Updated", Toast.LENGTH_SHORT).show();
                             if (GoalController.updateDataOnDatabase(date, goalDistance, Double.parseDouble(newGoalTargetText))) {
-                                finish();
+                                getActivity().onBackPressed();
                             } else {
                                 errorMessageView.setText("Error. Something went wrong. Please retry.");
                             }

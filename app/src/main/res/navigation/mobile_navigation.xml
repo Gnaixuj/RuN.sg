@@ -7,15 +7,15 @@
 
     <fragment
         android:id="@+id/nav_map"
-        android:name="com.example.cz2006trial.MapFragment"
+        android:name="com.example.cz2006trial.fragment.MapFragment"
         android:label="@string/menu_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/nav_goals"
-        android:name="com.example.cz2006trial.GoalsFragment"
+        android:name="com.example.cz2006trial.fragment.GoalsFragment"
         android:label="@string/menu_goals"
-        tools:layout="@layout/activity_calendargoals" >
+        tools:layout="@layout/fragment_goals" >
         <action
             android:id="@+id/action_nav_goals_to_nav_editgoals"
             app:destination="@id/nav_editgoals" />
@@ -23,26 +23,28 @@
 
     <fragment
         android:id="@+id/nav_faq"
-        android:name="com.example.cz2006trial.FaqFragment"
+        android:name="com.example.cz2006trial.fragment.FaqFragment"
         android:label="@string/menu_faq"
         tools:layout="@layout/fragment_faq" />
 
     <fragment
         android:id="@+id/nav_editgoals"
-        android:name="com.example.cz2006trial.EditGoalsFragment"
+        android:name="com.example.cz2006trial.fragment.EditGoalsFragment"
         android:label="Edit Goals"
-        tools:layout="@layout/activity_editgoals" />
+        tools:layout="@layout/fragment_edit_goals" />
+
     <fragment
         android:id="@+id/nav_profile"
-        android:name="com.example.cz2006trial.UserProfileFragment"
+        android:name="com.example.cz2006trial.fragment.UserProfileFragment"
         android:label="@string/menu_profile">
         <action
             android:id="@+id/action_nav_profile_to_nav_editprofile"
             app:destination="@id/nav_editprofile" />
     </fragment>
+
     <fragment
         android:id="@+id/nav_editprofile"
-        android:name="com.example.cz2006trial.EditProfileFragment"
+        android:name="com.example.cz2006trial.fragment.EditProfileFragment"
         android:label="Edit Profile" />
 
 </navigation>

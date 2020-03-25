@@ -1,66 +1,66 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.controller;
 
+import com.example.cz2006trial.model.UserRoute;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.maps.android.data.Layer;
 
 import java.util.Calendar;
 import java.util.Date;
 
 public class UserRouteController {
 
-    public static void setStartMarkerInfo(UserRouteEntity userRoute, Marker marker) {
+    public static void setStartMarkerInfo(UserRoute userRoute, Marker marker) {
         userRoute.setStartPoint(marker.getPosition());
         userRoute.setStartPointName(marker.getTitle());
     }
 
-    public static void setEndMarkerInfo(UserRouteEntity userRoute, Marker marker) {
+    public static void setEndMarkerInfo(UserRoute userRoute, Marker marker) {
         userRoute.setEndPoint(marker.getPosition());
         userRoute.setEndPointName(marker.getTitle());
     }
 
-    public static String getStartPointName(UserRouteEntity userRoute) {
+    public static String getStartPointName(UserRoute userRoute) {
         return userRoute.getStartPointName();
     }
 
-    public static String getEndPointName(UserRouteEntity userRoute) {
+    public static String getEndPointName(UserRoute userRoute) {
         return userRoute.getEndPointName();
     }
 
-    public static LatLng getStartPointPos(UserRouteEntity userRoute) {
+    public static LatLng getStartPointPos(UserRoute userRoute) {
         return userRoute.getStartPoint();
     }
 
-    public static LatLng getEndPointPos(UserRouteEntity userRoute) {
+    public static LatLng getEndPointPos(UserRoute userRoute) {
         return userRoute.getEndPoint();
     }
 
-    public static boolean existStartPoint(UserRouteEntity userRoute) {
+    public static boolean existStartPoint(UserRoute userRoute) {
         if (userRoute.getStartPointName() != null)
             return true;
         return false;
     }
 
-    public static boolean existEndPoint(UserRouteEntity userRoute) {
+    public static boolean existEndPoint(UserRoute userRoute) {
         if (userRoute.getEndPointName() != null)
             return true;
         return false;
     }
 
-    public static void setDistanceTimeTaken(UserRouteEntity userRoute, String distance, String timeTaken) {
+    public static void setDistanceTimeTaken(UserRoute userRoute, String distance, String timeTaken) {
         userRoute.setDistance(distance);
         userRoute.setTimeTaken(timeTaken);
     }
 
-    public static void updateUserRouteDatabase(UserRouteEntity userRoute) {
+    public static void updateUserRouteDatabase(UserRoute userRoute) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Date date = Calendar.getInstance().getTime();
         String dateString = date.toString();
         DatabaseReference databaseUserSavedRoutes = FirebaseDatabase.getInstance().getReference().child(UID).child("userSavedRoutes").child(dateString);
-        UserRouteEntity userSavedRoute = new UserRouteEntity(
+        UserRoute userSavedRoute = new UserRoute(
                 date,
                 userRoute.getStartPointName(),
                 userRoute.getEndPointName(),

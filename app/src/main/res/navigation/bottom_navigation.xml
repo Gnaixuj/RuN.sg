@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/nav_create"
-        android:name="com.example.cz2006trial.MapsCreateFragment"
+        android:name="com.example.cz2006trial.fragment.MapsCreateFragment"
         android:label="@string/menu_create"
         tools:layout="@layout/fragment_map_create" />
 
     <fragment
         android:id="@+id/nav_track"
-        android:name="com.example.cz2006trial.MapsTrackFragment"
+        android:name="com.example.cz2006trial.fragment.MapsTrackFragment"
         android:label="@string/menu_track"
         tools:layout="@layout/fragment_map_track" />
 
     <fragment
         android:id="@+id/nav_search"
-        android:name="com.example.cz2006trial.SearchFragment"
+        android:name="com.example.cz2006trial.fragment.SearchFragment"
         android:label="@string/menu_search"
         tools:layout="@layout/fragment_map_search" />
 

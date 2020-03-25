@@ -1,33 +1,32 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.cz2006trial.model.Goal;
+import com.example.cz2006trial.controller.GoogleMapController;
+import com.example.cz2006trial.R;
+import com.example.cz2006trial.controller.UserLocationController;
+import com.example.cz2006trial.model.UserLocationSession;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.auth.User;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -42,7 +41,7 @@ public class MapsTrackFragment extends Fragment {
     private TextView distanceTravelledView;
     private TextView goalProgressView;
     private long timeElapsed = 0;
-    private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
+    private UserLocationSession userLocationSession = new UserLocationSession();
 
     private GoogleMapController controller = GoogleMapController.getController();
 
@@ -86,7 +85,7 @@ public class MapsTrackFragment extends Fragment {
                     endButton.setVisibility(View.VISIBLE);
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
-                    userLocationSession = new UserLocationSessionEntity(Calendar.getInstance().getTime());
+                    userLocationSession = new UserLocationSession(Calendar.getInstance().getTime());
                     displaySessionFromDatabase(userLocationSession.getTimestamp());
                     controller.beginTracking(userLocationSession);
                 } else if (startButton.getText().equals("Resume")) {
@@ -125,7 +124,7 @@ public class MapsTrackFragment extends Fragment {
             databaseUserSession.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    UserLocationSessionEntity userSession = dataSnapshot.getValue(UserLocationSessionEntity.class);
+                    UserLocationSession userSession = dataSnapshot.getValue(UserLocationSession.class);
                     if (userSession != null) {
                         UserLocationController.calculateNSetTimeTaken(userLocationSession, SystemClock.elapsedRealtime() - mChronometer.getBase());
                         distanceTravelledView.setText("Distance travelled: " + Math.round(userSession.getDistance() * 10) / 10.0 + " km");
@@ -153,7 +152,7 @@ public class MapsTrackFragment extends Fragment {
         databaseGoals.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
+                Goal goal = dataSnapshot.getValue(Goal.class);
                 if (goal != null) {
                     if (goal.getTarget() != -1) {
                         goalProgressView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");

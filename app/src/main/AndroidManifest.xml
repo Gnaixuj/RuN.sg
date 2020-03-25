@@ -21,7 +21,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".StartActivity"
+            android:name=".activity.StartActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,26 +36,12 @@
         </activity>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".activity.LoginActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".SignUpActivity"
+            android:name=".activity.SignUpActivity"
             android:launchMode="singleTop" />
-        <activity android:name=".SearchActivity" />
-        <activity
-            android:name=".EditGoalsActivity"
-            android:label="Edit Goals" />
-        <activity
-            android:name=".CalendarGoalsActivity"
-            android:label="Goals"></activity>
-        <activity
-            android:name=".FAQActivity"
-            android:label="@string/title_activity_faq" />
 
-        <service
-            android:name=".TrackingService"
-            android:enabled="true"
-            android:exported="true" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -72,7 +58,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".activity.MapsActivity"
             android:label="@string/title_activity_maps"
 
             android:launchMode="singleTop"

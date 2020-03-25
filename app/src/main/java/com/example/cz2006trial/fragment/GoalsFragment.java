@@ -1,17 +1,25 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
+import com.example.cz2006trial.controller.GoalController;
+import com.example.cz2006trial.GoalDecorator;
+import com.example.cz2006trial.model.Goal;
+import com.example.cz2006trial.activity.MapsActivity;
+import com.example.cz2006trial.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class CalendarGoalsActivity extends AppCompatActivity {
+public class GoalsFragment extends Fragment {
 
     private MaterialCalendarView calendarView;
     private TextView dateView;
@@ -37,16 +45,25 @@ public class CalendarGoalsActivity extends AppCompatActivity {
     private Button editGoalButton;
     private TextView progressView;
 
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendargoals);
 
-        calendarView = findViewById(R.id.calendarView);
-        dateView = findViewById(R.id.dateView);
-        dailyGoalView = findViewById(R.id.dailyGoalView);
-        editGoalButton = findViewById(R.id.EditGoalButton);
-        progressView = findViewById(R.id.progressView);
+
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_goals, container, false);
+
+        calendarView = view.findViewById(R.id.calendarView);
+        dateView = view.findViewById(R.id.dateView);
+        dailyGoalView = view.findViewById(R.id.dailyGoalView);
+        editGoalButton = view.findViewById(R.id.EditGoalButton);
+        progressView = view.findViewById(R.id.progressView);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(final Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         //display how calendar looks like initially
         instantiateCalendar();
@@ -78,15 +95,10 @@ public class CalendarGoalsActivity extends AppCompatActivity {
                 editGoalButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent editGoalIntent = new Intent(getApplicationContext(), EditGoalsActivity.class);
-                        //Create the bundle
-                        Bundle bundle = new Bundle();
-                        //Add string date to bundle
-                        bundle.putString("date", date);
-                        //Add the bundle to the intent
-                        editGoalIntent.putExtras(bundle);
-                        //Fire that second activity
-                        startActivity(editGoalIntent);
+                        MapsActivity activity = (MapsActivity) getActivity();
+                        activity.setDate(date);
+                        Navigation.findNavController(getView()).navigate(R.id.nav_editgoals);
+
                     }
                 });
 
@@ -96,7 +108,7 @@ public class CalendarGoalsActivity extends AppCompatActivity {
 
     public void decorateGoalDates() {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference().child(UID).child("goals");
+        DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference("goals").child(UID);
         databaseGoalDates.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -104,11 +116,11 @@ public class CalendarGoalsActivity extends AppCompatActivity {
                 final ArrayList<CalendarDay> incompleteGoalList = new ArrayList<CalendarDay>();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     if (d != null) {
-                        GoalEntity goal = d.getValue(GoalEntity.class);
+                        Goal goal = d.getValue(Goal.class);
                         String dateString = d.getKey();
-                        if (goal.getDistance() >= goal.getTarget() && goal.getTarget() != -1) {
+                        if (goal.getDistance() >= goal.getTarget()) {
                             completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
-                        } else if (goal.getTarget() != -1) {
+                        } else {
                             incompleteGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
                         }
                     }
@@ -127,12 +139,12 @@ public class CalendarGoalsActivity extends AppCompatActivity {
 
     public void displayGoalFromDatabase(final String date) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
+        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
         databaseGoals.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 dateView.setText("Date: " + date);
-                GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
+                Goal goal = dataSnapshot.getValue(Goal.class);
                 if (goal != null) {
                     if (goal.getTarget() != -1) {
                         dailyGoalView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
@@ -174,4 +186,5 @@ public class CalendarGoalsActivity extends AppCompatActivity {
         currentDate.add(CalendarDay.today());
         calendarView.addDecorators(new GoalDecorator(Color.WHITE, true, currentDate));
     }
+
 }

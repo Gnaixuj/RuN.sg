@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

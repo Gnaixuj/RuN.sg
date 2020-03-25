@@ -1,7 +1,8 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.controller;
 
 import androidx.annotation.NonNull;
 
+import com.example.cz2006trial.model.Goal;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -49,7 +50,7 @@ public class GoalController {
     public static boolean updateDataOnDatabase(String date, double distance, double target) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
-        GoalEntity goal = new GoalEntity(date, distance, target);
+        Goal goal = new Goal(date, distance, target);
         databaseGoals.setValue(goal);
         return true;
     }
@@ -62,7 +63,7 @@ public class GoalController {
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                GoalEntity goal = dataSnapshot.getValue(GoalEntity.class);
+                Goal goal = dataSnapshot.getValue(Goal.class);
                 if (goal != null) {
                     updateDataOnDatabase(dateString, goal.getDistance() + distance, goal.getTarget());
                 } else {

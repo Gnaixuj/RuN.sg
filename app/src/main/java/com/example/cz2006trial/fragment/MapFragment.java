@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.Manifest;
 import android.content.Context;
@@ -7,30 +7,30 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.viewpager.widget.ViewPager;
 
+import com.example.cz2006trial.controller.GoogleMapController;
+import com.example.cz2006trial.R;
+import com.example.cz2006trial.controller.UserLocationController;
+import com.example.cz2006trial.model.UserLocation;
+import com.example.cz2006trial.model.UserLocationSession;
+import com.example.cz2006trial.controller.UserRouteController;
+import com.example.cz2006trial.model.UserRoute;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,27 +43,17 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.navigation.NavigationView;
-import com.google.maps.android.PolyUtil;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonPoint;
 import com.google.maps.android.data.kml.KmlLayer;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback{
 
@@ -74,12 +64,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private boolean startTrack = false;
 
-    private UserLocationSessionEntity userLocationSession = new UserLocationSessionEntity();
+    private UserLocationSession userLocationSession = new UserLocationSession();
 
     private boolean createRoute = false;
     private boolean setStartPoint = false;
     private boolean setEndPoint = false;
-    private UserRouteEntity userRoute = new UserRouteEntity();
+    private UserRoute userRoute = new UserRoute();
     private Marker startPoint;
     private Marker endPoint;
     private ArrayList<Polyline> routeLine = new ArrayList<>();
@@ -97,8 +87,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private GoogleMapController controller = GoogleMapController.getController();
 
-    private SectionsStatePagerAdapter mSectionsStatePagerAdapter; // Swa
-    private ViewPager mViewPager; // Swa
 
     private final long MINTIME = 1000 * 2;
     private final float MINDIST = 0;
@@ -141,13 +129,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         root = inflater.inflate(R.layout.fragment_map, container, false);
 
-
-
         arrowImg = root.findViewById(R.id.arrow_bottom_sheet);
         arrowImg.setImageResource(R.drawable.ic_arrow_up);
         final View bottomSheet = root.findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
+        //clicking on arrow will expand/collapse bottom sheet
         arrowImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,6 +147,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             }
         });
 
+        //to set image of arrow
         bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -220,7 +208,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onChange() {
                 setStartPoint = controller.isSetStartPoint();
-                userRoute = controller.getUserRouteEntity();
+                userRoute = controller.getUserRoute();
                 if (setStartPoint) {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(true);
@@ -240,7 +228,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onChange() {
                 setEndPoint = controller.isSetEndPoint();
-                userRoute = controller.getUserRouteEntity();
+                userRoute = controller.getUserRoute();
                 if (setEndPoint) {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(true);
@@ -265,7 +253,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     if (startPoint == null || endPoint == null)
                         controller.setMessage("Missing starting point or ending point");
                     else {
-                        userRoute = controller.getUserRouteEntity();
+                        userRoute = controller.getUserRoute();
                         createRoute = true;
                         controller.getDirections(startPoint.getPosition(), endPoint.getPosition());
                         routeDone();
@@ -324,7 +312,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         createRoute();
         pointChosen();
 
-        userRoute = controller.getUserRouteEntity();
+        userRoute = controller.getUserRoute();
         if (userRoute.getStartPointName() != null) {
             startPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getStartPoint())
                     .title(userRoute.getStartPointName())
@@ -420,7 +408,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 if (startTrack) {
                     userLocationSession = controller.getUserLocationSession();
                     locations.add(lastLocation);
-                    UserLocationEntity userLocation = new UserLocationEntity();
+                    UserLocation userLocation = new UserLocation();
                     UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
                     UserLocationController.updateUserLocation(userLocationSession);
 
@@ -550,18 +538,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(controller.getRoute()).width(10.0f).color(Color.GREEN)));
     }*/
 
-/*    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.nav_create) {
-            peekText.setText(R.string.menu_create);
 
-            return true;
-        }
-        else if (item.getItemId() == R.id.nav_track) {
-            peekText.setText(R.string.menu_track);
-            return true;
-        }
-        return true;
-    }*/
 
 }

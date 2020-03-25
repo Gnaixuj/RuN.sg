@@ -4,8 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="vertical"
-    tools:context=".SearchActivity">
+    android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,7 +21,7 @@
     <ListView
         android:id="@+id/listLoc"
         android:layout_width="wrap_content"
-        android:layout_height="165dp"
+        android:layout_height="175dp"
         android:layout_weight="1" />
 
 </LinearLayout>

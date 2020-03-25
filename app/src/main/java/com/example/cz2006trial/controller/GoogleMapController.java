@@ -1,13 +1,12 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.controller;
 
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.example.cz2006trial.model.UserLocationSession;
+import com.example.cz2006trial.model.UserRoute;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
@@ -35,8 +34,8 @@ public class GoogleMapController {
 
     private boolean startTrack = false;
     private boolean setStartPoint = false;
-    private UserLocationSessionEntity userLocationSession;
-    private UserRouteEntity userRouteEntity;
+    private UserLocationSession userLocationSession;
+    private UserRoute userRoute;
     private boolean setEndPoint;
     private String message;
 
@@ -46,8 +45,8 @@ public class GoogleMapController {
     private boolean createRoute;
 
     private GoogleMapController () {
-        userLocationSession = new UserLocationSessionEntity();
-        userRouteEntity = new UserRouteEntity();
+        userLocationSession = new UserLocationSession();
+        userRoute = new UserRoute();
         route = new ArrayList<>();
     }
 
@@ -107,7 +106,7 @@ public class GoogleMapController {
         return pointChosen;
     }
 
-    public void beginTracking(UserLocationSessionEntity userLocationSession) {
+    public void beginTracking(UserLocationSession userLocationSession) {
         this.userLocationSession = userLocationSession;
         startTrack = true;
     }
@@ -124,21 +123,21 @@ public class GoogleMapController {
         return startTrack;
     }
 
-    public UserLocationSessionEntity getUserLocationSession() {
+    public UserLocationSession getUserLocationSession() {
         return userLocationSession;
     }
 
-    public void setStartingPoint(UserRouteEntity userRoute) {
+    public void setStartingPoint(UserRoute userRoute) {
         setStartPoint = true;
         if (startListener != null ) startListener.onChange();
-        this.userRouteEntity = userRoute;
+        this.userRoute = userRoute;
 
     }
 
-    public void setEndingPoint(UserRouteEntity userRoute) {
+    public void setEndingPoint(UserRoute userRoute) {
         setEndPoint = true;
         if (endListener != null ) endListener.onChange();
-        this.userRouteEntity = userRoute;
+        this.userRoute = userRoute;
 
     }
 
@@ -150,16 +149,16 @@ public class GoogleMapController {
 
     }
 
-    public void create(UserRouteEntity userRoute) {
+    public void create(UserRoute userRoute) {
         createRoute = true;
         if (createListener != null ) createListener.onChange();
-        this.userRouteEntity = userRoute;
+        this.userRoute = userRoute;
     }
 
     public void clearRoute() {
         createRoute = false;
         route.clear();
-        userRouteEntity = new UserRouteEntity();
+        userRoute = new UserRoute();
         if (createListener != null ) createListener.onChange();
     }
 
@@ -172,8 +171,8 @@ public class GoogleMapController {
         return setEndPoint;
     }
 
-    public UserRouteEntity getUserRouteEntity() {
-        return userRouteEntity;
+    public UserRoute getUserRoute() {
+        return userRoute;
     }
 
     public void setMessage(String message) {

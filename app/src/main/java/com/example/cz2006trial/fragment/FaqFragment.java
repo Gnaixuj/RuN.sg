@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,10 @@ import android.widget.ExpandableListView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.cz2006trial.CustomExpandableListAdapter;
+import com.example.cz2006trial.ExpandableListData;
+import com.example.cz2006trial.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

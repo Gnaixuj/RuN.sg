@@ -1,6 +1,6 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.model;
 
-public class UserProfileEntity {
+public class UserProfile {
 
     private String username;
     private String email;
@@ -9,11 +9,11 @@ public class UserProfileEntity {
     private double weight;
     private double BMI;
 
-    public UserProfileEntity() {
+    public UserProfile() {
 
     }
 
-    public UserProfileEntity(String username, String email, String DOB, double height, double weight, double BMI) {
+    public UserProfile(String username, String email, String DOB, double height, double weight, double BMI) {
         this.username = username;
         this.email = email;
         this.DOB = DOB;
@@ -22,7 +22,7 @@ public class UserProfileEntity {
         this.BMI = BMI;
     }
 
-    public UserProfileEntity(String username, String email) {
+    public UserProfile(String username, String email) {
         this.username = username;
         this.email = email;
     }

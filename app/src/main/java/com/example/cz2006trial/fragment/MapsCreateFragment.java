@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.cz2006trial.controller.GoogleMapController;
+import com.example.cz2006trial.R;
+import com.example.cz2006trial.controller.UserRouteController;
+import com.example.cz2006trial.model.UserRoute;
+
 public class MapsCreateFragment extends Fragment {
 
     private static final String TAG = "MapsCreateFragment";
@@ -23,7 +28,7 @@ public class MapsCreateFragment extends Fragment {
     private Button setEndButton;
     private TextView startPoint;
     private TextView endPoint;
-    private UserRouteEntity userRoute = new UserRouteEntity();
+    private UserRoute userRoute = new UserRoute();
 
     private GoogleMapController controller = GoogleMapController.getController();
 
@@ -115,7 +120,7 @@ public class MapsCreateFragment extends Fragment {
                     }
                 } else {
                     controller.clearRoute();
-                    userRoute = new UserRouteEntity();
+                    userRoute = new UserRoute();
                     createButton.setText("Create");
                     displayStartEndText();
                     setStartButton.setVisibility(View.VISIBLE);
@@ -138,7 +143,7 @@ public class MapsCreateFragment extends Fragment {
     }
 
     public void displayStartEndText() {
-        userRoute = controller.getUserRouteEntity();
+        userRoute = controller.getUserRoute();
         String startPointText = UserRouteController.getStartPointName(userRoute);
         String endPointText = UserRouteController.getEndPointName(userRoute);
         if (startPointText != null)

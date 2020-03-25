@@ -1,18 +1,18 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.model;
 
 import java.util.Date;
 
-public class UserLocationEntity {
+public class UserLocation {
 
     private double latitude;
     private double longitude;
     private Date timestamp;
 
-    public UserLocationEntity() {
+    public UserLocation() {
 
     }
 
-    public UserLocationEntity(double latitude, double longitude, Date timestamp) {
+    public UserLocation(double latitude, double longitude, Date timestamp) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.timestamp = timestamp;

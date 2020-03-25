@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.cz2006trial.controller.GoogleMapController;
+import com.example.cz2006trial.R;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;

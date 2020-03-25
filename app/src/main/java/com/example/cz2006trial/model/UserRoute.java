@@ -1,10 +1,10 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.model;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Date;
 
-public class UserRouteEntity {
+public class UserRoute {
 
     private Date date;
     private String startPointName;
@@ -15,11 +15,11 @@ public class UserRouteEntity {
     private String distance;
     private String timeTaken;
 
-    public UserRouteEntity() {
+    public UserRoute() {
 
     }
 
-    public UserRouteEntity(Date date, String startPointName, String endPointName, LatLng startPoint, LatLng endPoint, String distance, String timeTaken) {
+    public UserRoute(Date date, String startPointName, String endPointName, LatLng startPoint, LatLng endPoint, String distance, String timeTaken) {
         this.date = date;
         this.startPointName = startPointName;
         this.endPointName = endPointName;

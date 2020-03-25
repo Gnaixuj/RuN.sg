@@ -1,5 +1,7 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.controller;
 
+import com.example.cz2006trial.model.UserLocation;
+import com.example.cz2006trial.model.UserLocationSession;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -10,12 +12,12 @@ import java.util.Date;
 
 public class UserLocationController {
 
-    public static void addUserLocation(UserLocationSessionEntity userLocationSession, LatLng geopoints, Date timestamp) {
+    public static void addUserLocation(UserLocationSession userLocationSession, LatLng geopoints, Date timestamp) {
         double latitude = geopoints.latitude;
         double longitude = geopoints.longitude;
-        UserLocationEntity userLocation = new UserLocationEntity(latitude, longitude, timestamp);
+        UserLocation userLocation = new UserLocation(latitude, longitude, timestamp);
 
-        ArrayList<UserLocationEntity> userSession = userLocationSession.getSession();
+        ArrayList<UserLocation> userSession = userLocationSession.getSession();
         if (!userSession.isEmpty()) {
             double distance = calculateDistance(userSession.get(userSession.size() - 1).getLatitude(),
                     userSession.get(userSession.size() - 1).getLongitude(),
@@ -41,21 +43,21 @@ public class UserLocationController {
         }
     }
 
-    public static boolean updateUserLocation(UserLocationSessionEntity userLocationSession) {
+    public static boolean updateUserLocation(UserLocationSession userLocationSession) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference()
                 .child(UID).child("userLocationSessions").child(userLocationSession.getTimestamp().toString());
-        databaseUserSession.setValue(new UserLocationSessionEntity(userLocationSession.getTimestamp(), userLocationSession.getDistance(), userLocationSession.getTimeTaken()));
+        databaseUserSession.setValue(new UserLocationSession(userLocationSession.getTimestamp(), userLocationSession.getDistance(), userLocationSession.getTimeTaken()));
         for (int i = 0; i < userLocationSession.getSession().size(); i++) {
             DatabaseReference databaseUserLocation = databaseUserSession.child(userLocationSession.getSession().get(i).getTimestamp().toString());
-            databaseUserLocation.setValue(new UserLocationEntity(userLocationSession.getSession().get(i).getLatitude(),
+            databaseUserLocation.setValue(new UserLocation(userLocationSession.getSession().get(i).getLatitude(),
                     userLocationSession.getSession().get(i).getLongitude(),
                     userLocationSession.getSession().get(i).getTimestamp()));
         }
         return true;
     }
 
-    public static void calculateNSetTimeTaken(UserLocationSessionEntity userLocationSession, long diff) {
+    public static void calculateNSetTimeTaken(UserLocationSession userLocationSession, long diff) {
         long diffSeconds = diff / 1000 % 60;
         long diffMinutes = diff / (60 * 1000) % 60;
         long diffHours = diff / (60 * 60 * 1000) % 24;

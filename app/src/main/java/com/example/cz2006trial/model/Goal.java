@@ -1,16 +1,16 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.model;
 
-public class GoalEntity {
+public class Goal {
 
     private String date;
     private double distance;
     private double target;
 
-    public GoalEntity() {
+    public Goal() {
 
     }
 
-    public GoalEntity(String date, double distance, double target) {
+    public Goal(String date, double distance, double target) {
         this.date = date;
         this.distance = distance;
         this.target = target;

@@ -1,19 +1,13 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.content.CursorLoader;
-import androidx.navigation.Navigation;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -25,15 +19,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputFilter;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,37 +35,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.cz2006trial.DecimalDigitsInputFilter;
+import com.example.cz2006trial.DownloadFileManager;
+import com.example.cz2006trial.ImageDatabaseManager;
+import com.example.cz2006trial.R;
+import com.example.cz2006trial.controller.UserProfileController;
+import com.example.cz2006trial.model.UserProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.Context.DOWNLOAD_SERVICE;
-import static androidx.core.content.ContextCompat.getSystemService;
 
 /**
  * This fragment is used to update user profile information to Firebase.
@@ -382,7 +361,7 @@ public class EditProfileFragment extends Fragment {
         databaseUserProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                final UserProfileEntity userProfile = dataSnapshot.getValue(UserProfileEntity.class);
+                final UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
                 if (userProfile != null) {
                     usernameTextView.setText(userProfile.getUsername());
                     emailTextView.setText(userProfile.getEmail());
