@@ -20,10 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -63,7 +65,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, BottomNavigationView.OnNavigationItemSelectedListener{
+public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private TextView peekText;
     private ImageView arrowImg;
@@ -139,9 +141,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
         root = inflater.inflate(R.layout.fragment_map, container, false);
 
-/*
         peekText = root.findViewById(R.id.peek_text);
-*/
 
         arrowImg = root.findViewById(R.id.arrow_bottom_sheet);
         View bottomSheet = root.findViewById(R.id.bottom_sheet);
@@ -176,6 +176,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
         NavHostFragment navHostFragment = (NavHostFragment) getChildFragmentManager().findFragmentById(R.id.bottom_fragment);
         navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        //change text of bottom sheet
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                Log.i("navcontroller", String.valueOf(destination.getId()));
+                if (peekText.getText().equals("Track")) peekText.setText("Create");
+                else peekText.setText("Track");
+            }
+        });
+        //navigationView.setOnNavigationItemSelectedListener(this);
 
         return root;
     }
@@ -280,13 +291,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
         setStartingPoint();
         setEndingPoint();
         createRoute();
 
-//        button = (Button) findViewById(R.id.button2);
-
-        //button.setAlpha(0);
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
             @Override
@@ -334,11 +343,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
             @Override
             public void onLocationChanged(Location location) {
 
+                if (isFirstTime) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
+                    isFirstTime = false;
+                }
+
+                if (userLocation != null)
+                    lastLocation = userLocation;
+
+                //update current position of user
                 userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+/*                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
                     // here to request the missing permissions, and then overriding
                     //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -346,9 +363,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
                     // to handle the case where the user grants the permission. See the documentation
                     // for ActivityCompat#requestPermissions for more details.
                     return;
-                }
-                Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
+                }*/
+                //Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                //lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
                 startTrack = controller.isStartTrack();
                 if (startTrack) {
                     userLocationSession = controller.getUserLocationSession();
@@ -379,10 +396,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
                 //mMap.addPolyline(new PolylineOptions().add(new LatLng(lastLocation.latitude, lastLocation.longitude),
                 //        new LatLng(userLocation.latitude, userLocation.longitude)).width(Float.valueOf("10.0")).color(Color.BLACK));
-                if (isFirstTime) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
-                    isFirstTime = false;
-                }
+
             }
 
             @Override
@@ -463,22 +477,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, BottomN
 
     }
 
-    @Override
+/*    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_create) {
             peekText.setText(R.string.menu_create);
-            Log.i("omg", "create");
+
             return true;
         }
         else if (item.getItemId() == R.id.nav_track) {
             peekText.setText(R.string.menu_track);
-            Log.i("omg", "track");
             return true;
         }
-        else
-            Log.i("omg", "wot");
         return true;
-    }
+    }*/
 
 
 }
