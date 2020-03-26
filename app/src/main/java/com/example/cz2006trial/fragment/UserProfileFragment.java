@@ -38,7 +38,6 @@ public class UserProfileFragment extends Fragment {
     private TextView weightTextView;
     private TextView BMITextView;
     private ImageView editProfileButton;
-    private ProgressBar userProfileLoading;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -53,7 +52,6 @@ public class UserProfileFragment extends Fragment {
         weightTextView = view.findViewById(R.id.weight);
         BMITextView = view.findViewById(R.id.BMI);
         editProfileButton = view.findViewById(R.id.edit);
-        userProfileLoading = view.findViewById(R.id.userProfileLoading);
 
         return view;
     }
@@ -180,7 +178,6 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadingComplete() {
-        userProfileLoading.setVisibility(View.GONE);
         profilePhoto.setVisibility(View.VISIBLE);
         usernameTextView.setVisibility(View.VISIBLE);
         emailTextView.setVisibility(View.VISIBLE);
