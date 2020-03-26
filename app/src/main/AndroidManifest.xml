@@ -31,13 +31,19 @@
         </activity>
 
         <activity
-            android:name=".history.recyclerview.MainActivity"
+            android:name=".historyPage.HistoryPageActivity"
+            android:launchMode="singleTop">
+        </activity>
+
+        <activity
+            android:name=".historyPage.RoutePageActivity"
             android:launchMode="singleTop">
         </activity>
 
         <activity
             android:name=".activity.LoginActivity"
             android:launchMode="singleTop" />
+
         <activity
             android:name=".activity.SignUpActivity"
             android:launchMode="singleTop" />
