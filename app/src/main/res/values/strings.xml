@@ -137,5 +137,7 @@
 
     <string name="sample_show_log">Show Log</string>
     <string name="sample_hide_log">Hide Log</string>
+    <string name="history_routes">History Routes</string>
+    <string name="saved_routes">Saved Routes</string>
 
 </resources>

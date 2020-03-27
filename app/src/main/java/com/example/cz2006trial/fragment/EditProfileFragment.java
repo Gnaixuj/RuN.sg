@@ -73,7 +73,7 @@ public class EditProfileFragment extends Fragment {
     EditText heightTextView;
     EditText weightTextView;
     EditText BMITextView;
-    Button updateProfileButton;
+    ImageView updateProfileButton;
     private boolean photoChange = false;
 
     @Override
@@ -97,7 +97,7 @@ public class EditProfileFragment extends Fragment {
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        BroadcastReceiver receiver = new BroadcastReceiver() {
+        /*BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -106,9 +106,9 @@ public class EditProfileFragment extends Fragment {
                     getActivity().onBackPressed();
                 }
             }
-        };
+        };*/
 
-        getActivity().registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        //getActivity().registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         final Calendar myCalendar = Calendar.getInstance();
 
@@ -148,8 +148,10 @@ public class EditProfileFragment extends Fragment {
         profilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkPermission())
+                if (checkPermission()) {
+                    requestPermission();
                     editPhoto();
+                }
                 else
                     requestPermission();
             }
@@ -162,23 +164,28 @@ public class EditProfileFragment extends Fragment {
             public void onClick(View v) {
                 updateProfile();
                 if (photoChange && hasPhoto(profilePhoto)) {
+                    System.out.println("First");
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message) {
-                            DownloadFileManager.downloadFile(getContext(), "profilePhoto", ".jpg", Environment.DIRECTORY_DOWNLOADS, message[0]);
-                            Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
+                            //DownloadFileManager.downloadFile(getContext(), "profilePhoto", ".jpg", Environment.DIRECTORY_DOWNLOADS, message[0]);
+                            //Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "update", profilePhoto);
+                    Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
+                    getActivity().onBackPressed();
                 } else if (photoChange && !hasPhoto(profilePhoto)) {
+                    System.out.println("Second");
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message) {
-                            Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "delete", profilePhoto);
                     Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
                     getActivity().onBackPressed();
                 } else {
+                    System.out.println("Third");
                     Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
                     getActivity().onBackPressed();
                 }
@@ -369,6 +376,8 @@ public class EditProfileFragment extends Fragment {
                 else {
                     usernameTextView.setText(stringArgs.get(0));
                     emailTextView.setText(stringArgs.get(1));
+                    usernameTextView.setVisibility(View.VISIBLE);
+                    emailTextView.setVisibility(View.VISIBLE);
                     if (stringArgs.get(2) != null)
                         DOBTextView.setText(stringArgs.get(2));
                     DOBTextView.setHint("Please input your date of birth");
@@ -448,7 +457,7 @@ public class EditProfileFragment extends Fragment {
         boolean result = true;
         Drawable.ConstantState constantState;
         constantState = getResources()
-                .getDrawable(R.mipmap.ic_profile_pic, getContext().getTheme())
+                .getDrawable(R.drawable.ic_profile_pic, getContext().getTheme())
                 .getConstantState();
 
         if (profilePhoto.getDrawable().getConstantState() == constantState) {
@@ -493,7 +502,7 @@ public class EditProfileFragment extends Fragment {
                                     Intent.createChooser(intent, "Select File"),
                                     SELECT_FILE);
                         } else if (items[item].equals("Remove Photo")) {
-                            profilePhoto.setImageResource(R.mipmap.ic_profile_pic);
+                            profilePhoto.setImageResource(R.drawable.ic_profile_pic);
                             photoChange = true;
                             dialog.dismiss(); //dismiss the dialog when an option is selected
                         }
