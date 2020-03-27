@@ -30,7 +30,7 @@ public class GoalController {
         return convertedDate;
     }
 
-    public static String validateGoalFields(String target, double distance) {
+    public static String validateGoalFields(String target) {
 
         if (target.equals("")) {
             return "Please enter a positive value";
@@ -39,13 +39,11 @@ public class GoalController {
         double targetDouble = Double.parseDouble(target);
         if (targetDouble == 0) {
             return "Please enter a positive value";
-        } else if (targetDouble < distance) {
-            return "Please enter a positive value higher than the current distance travelled";
         } else if (targetDouble >= 100) {
             return "Please enter a positive value lower than 100";
         }
 
-        return "success";
+        return "Goal Target Updated";
     }
 
     /*public static boolean updateDataOnDatabase(String date, double distance, double target) {

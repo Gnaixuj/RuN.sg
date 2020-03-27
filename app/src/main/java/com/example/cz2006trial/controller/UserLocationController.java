@@ -2,6 +2,7 @@ package com.example.cz2006trial.controller;
 
 import com.example.cz2006trial.model.UserLocation;
 import com.example.cz2006trial.model.UserLocationSession;
+import com.example.cz2006trial.model.UserRoute;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -63,6 +64,11 @@ public class UserLocationController {
         long diffHours = diff / (60 * 60 * 1000) % 24;
         String timeTaken = diffHours + "hr " + diffMinutes + "min " + diffSeconds + "s";
         userLocationSession.setTimeTaken(timeTaken);
+    }
+
+    public static void setDistanceTimeTaken(UserRoute userRoute, String displayDistance, String displayTravelTime) {
+        userRoute.setDistance(displayDistance);
+        userRoute.setTimeTaken(displayTravelTime);
     }
 
 }

@@ -26,7 +26,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class UserProfileFragment extends Fragment {
 
@@ -38,6 +41,8 @@ public class UserProfileFragment extends Fragment {
     private TextView weightTextView;
     private TextView BMITextView;
     private ImageView editProfileButton;
+    private TextView totalDistanceTextView;
+    private TextView todayTargetTextView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -52,6 +57,8 @@ public class UserProfileFragment extends Fragment {
         weightTextView = view.findViewById(R.id.weight);
         BMITextView = view.findViewById(R.id.BMI);
         editProfileButton = view.findViewById(R.id.edit);
+        totalDistanceTextView = view.findViewById(R.id.totalDistance);
+        todayTargetTextView = view.findViewById(R.id.todayTarget);
 
         return view;
     }
@@ -135,6 +142,24 @@ public class UserProfileFragment extends Fragment {
                         public void onCallback(String[] message) {
                         }
                     }, "retrieve", profilePhoto);
+                    DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+                        @Override
+                        public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                            double totalDistance = 0.0;
+                            double todayTarget;
+                            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                            String date = dateFormat.format(Calendar.getInstance().getTime());
+                            for (Goal goal : goals) {
+                                totalDistance += goal.getDistance();
+                                if (goal.getDate().equals(date)) {
+                                    if (goal.getTarget() > 0)
+                                        todayTargetTextView.setText(Math.round(goal.getDistance() * 10) / 10.0 + "/" + goal.getTarget() + " km");
+                                }
+
+                            }
+                            totalDistanceTextView.setText(Math.round(totalDistance * 10) / 10.0 + " km");
+                        }
+                    }, "goals", null);
                     loadingComplete();
                 }
             }

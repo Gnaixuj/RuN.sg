@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="@drawable/circle_border">
+            android:background="@drawable/square_border">
 
             <ImageView
                 android:id="@+id/profile"
@@ -27,7 +27,6 @@
                 android:layout_height="120dp"
                 android:layout_margin="9dp"
                 android:adjustViewBounds="true"
-                android:background="@drawable/circle"
                 android:padding="3dp"
                 android:scaleType="centerCrop"
                 android:visibility="invisible"
@@ -102,10 +101,11 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/totalDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="12km (nyi)"
+                    android:text=""
                     android:textColor="@color/white"
                     android:textSize="25sp" />
 
@@ -139,10 +139,11 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/todayTarget"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="0.0/12.9km (nyi)"
+                    android:text="-"
                     android:textColor="@color/white"
                     android:textSize="25sp" />
 

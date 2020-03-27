@@ -86,7 +86,7 @@ public class EditGoalsFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         String newGoalTargetText = String.valueOf(newGoalTargetEditText.getText());
-                        String message = GoalController.validateGoalFields(newGoalTargetText, doubleArgs[0]);
+                        String message = GoalController.validateGoalFields(newGoalTargetText);
                         if (message.equals("success")) {
                             errorMessageView.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "Goal Target Updated", Toast.LENGTH_SHORT).show();

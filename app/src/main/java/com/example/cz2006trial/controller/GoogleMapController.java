@@ -354,10 +354,7 @@ public class GoogleMapController {
                 displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
             }
 
-            UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
-
-
-
+            UserLocationController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
         }
     }
 

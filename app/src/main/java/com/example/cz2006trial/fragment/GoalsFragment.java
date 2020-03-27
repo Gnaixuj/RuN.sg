@@ -3,10 +3,13 @@ package com.example.cz2006trial.fragment;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.cz2006trial.DatabaseManager;
+import com.example.cz2006trial.DecimalDigitsInputFilter;
 import com.example.cz2006trial.controller.GoalController;
 import com.example.cz2006trial.GoalDecorator;
 import com.example.cz2006trial.model.Goal;
@@ -44,11 +48,14 @@ public class GoalsFragment extends Fragment {
 
     private MaterialCalendarView calendarView;
     private TextView dateView;
-    private TextView dailyGoalView;
+    private TextView distanceView;
+    private TextView targetView;
     private Button editGoalButton;
     private TextView progressView;
     private ProgressBar loadingBar;
-    private ArrayList<Goal> storedGoals = new ArrayList<>();
+    private EditText newTargetView;
+    private LinearLayout newTargetLayout;
+    private double distance;
 
 
 
@@ -60,10 +67,14 @@ public class GoalsFragment extends Fragment {
 
         calendarView = view.findViewById(R.id.calendarView);
         dateView = view.findViewById(R.id.dateView);
-        dailyGoalView = view.findViewById(R.id.dailyGoalView);
+        distanceView = view.findViewById(R.id.distanceView);
+        targetView = view.findViewById(R.id.targetView);
         editGoalButton = view.findViewById(R.id.EditGoalButton);
         progressView = view.findViewById(R.id.progressView);
         loadingBar = view.findViewById(R.id.goalsFragmentLoading);
+        newTargetView = view.findViewById(R.id.newTargetView);
+        newTargetLayout = view.findViewById(R.id.newtarget_layout);
+        newTargetView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
         return view;
     }
 
@@ -78,6 +89,9 @@ public class GoalsFragment extends Fragment {
         decorateGoalDates();
         loadingBar.setVisibility(View.GONE);
 
+        //force user to input new goal target up to 4 digits in 1 decimal
+
+
         //what is displayed when a date is selected on the calendar view
         calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -88,6 +102,9 @@ public class GoalsFragment extends Fragment {
                 DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
                 final String date = dateFormat.format(calendarDate.getDate());
 
+                //display distance travelled, goal target and progress for selected date
+                displayGoal(date);
+
                 //edit goal button to appear only on future dates including current date
                 if (calendarDate.isBefore(CalendarDay.today())) {
                     editGoalButton.setVisibility(View.GONE);
@@ -95,17 +112,36 @@ public class GoalsFragment extends Fragment {
                     editGoalButton.setVisibility(View.VISIBLE);
                 }
 
-                //display distance travelled, goal target and progress for selected date
-                displayGoal(date);
+                if (editGoalButton.getText().equals("EDIT"))
+                    newTargetLayout.setVisibility(View.GONE);
+                else
+                    newTargetLayout.setVisibility(View.VISIBLE);
 
                 //go to EditGoalActivity page when pressed
                 editGoalButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MapsActivity activity = (MapsActivity) getActivity();
+                        if (editGoalButton.getText().equals("EDIT")) {
+                            newTargetLayout.setVisibility(View.VISIBLE);
+                            editGoalButton.setText("DONE");
+                        } else {
+                            String newGoalTargetText = String.valueOf(newTargetView.getText());
+                            String message = GoalController.validateGoalFields(newGoalTargetText);
+                            if (message.equals("Goal Target Updated")) {
+                                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                                DatabaseManager.updateGoalData(date, distance, Double.parseDouble(newGoalTargetText));
+                                editGoalButton.setText("EDIT");
+                                newTargetView.setText("");
+                                newTargetLayout.setVisibility(View.GONE);
+                                decorateGoalDates();
+                                displayGoal(date);
+                            } else {
+                                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        /*MapsActivity activity = (MapsActivity) getActivity();
                         activity.setDate(date);
-                        Navigation.findNavController(getView()).navigate(R.id.nav_editgoals);
-
+                        Navigation.findNavController(getView()).navigate(R.id.nav_editgoals);*/
                     }
                 });
 
@@ -138,7 +174,6 @@ public class GoalsFragment extends Fragment {
         DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
             @Override
             public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
-                storedGoals = goals;
                 if (errorMsg[0] != null)
                     Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
                 else {
@@ -198,20 +233,23 @@ public class GoalsFragment extends Fragment {
         DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
             @Override
             public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
-                dateView.setText("Date: " + date);
+                dateView.setText(date);
                 if (errorMsg[0] != null)
                     Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
                 else if (errorMsg[1] != null) {
-                    progressView.setText(R.string.zeroDistance);
-                    dailyGoalView.setText(R.string.noTargetSet);
+                    distanceView.setText(R.string.zeroDistance);
+                    targetView.setText(R.string.noTargetSet);
                 } else {
                     if (doubleArgs[1] != -1 && doubleArgs[1] != 0) {
-                        dailyGoalView.setText("Target: " + (Math.round(doubleArgs[0] * 10) / 10.0) + " / " + doubleArgs[1] + " km");
+                        distance = doubleArgs[0];
+                        distanceView.setText("" + Math.round(doubleArgs[0] * 10) / 10.0);
+                        targetView.setText("" + doubleArgs[1]);
                         double progress = Math.max(0, Math.min(100 * doubleArgs[0] / doubleArgs[1], 100));
-                        progressView.setText("Progress: " + Math.round(progress) + "%");
+                        progressView.setText(Math.round(progress) + "%");
                     } else {
-                        progressView.setText("Distance travelled: " + (Math.round(doubleArgs[0] * 10) / 10.0));
-                        dailyGoalView.setText(R.string.noTargetSet);
+                        distance = doubleArgs[0];
+                        distanceView.setText("" + Math.round(doubleArgs[0] * 10) / 10.0);
+                        targetView.setText(R.string.noTargetSet);
                     }
                 }
             }

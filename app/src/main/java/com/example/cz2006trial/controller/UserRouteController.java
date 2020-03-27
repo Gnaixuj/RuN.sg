@@ -38,23 +38,6 @@ public class UserRouteController {
         return userRoute.getEndPoint();
     }
 
-    public static boolean existStartPoint(UserRoute userRoute) {
-        if (userRoute.getStartPointName() != null)
-            return true;
-        return false;
-    }
-
-    public static boolean existEndPoint(UserRoute userRoute) {
-        if (userRoute.getEndPointName() != null)
-            return true;
-        return false;
-    }
-
-    public static void setDistanceTimeTaken(UserRoute userRoute, String distance, String timeTaken) {
-        userRoute.setDistance(distance);
-        userRoute.setTimeTaken(timeTaken);
-    }
-
     public static void updateUserRouteDatabase(UserRoute userRoute) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Date date = Calendar.getInstance().getTime();

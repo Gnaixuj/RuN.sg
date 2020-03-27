@@ -3,6 +3,7 @@ package com.example.cz2006trial.fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.content.CursorLoader;
@@ -21,10 +22,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,10 +55,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -66,14 +74,16 @@ public class EditProfileFragment extends Fragment {
     private static final int SELECT_FILE = 2;
     private static final int REQUEST_CAMERA = 1;
 
-    ImageView profilePhoto;
-    TextView usernameTextView;
-    TextView emailTextView;
-    EditText DOBTextView;
-    EditText heightTextView;
-    EditText weightTextView;
-    EditText BMITextView;
-    ImageView updateProfileButton;
+    private ImageView profilePhoto;
+    private TextView usernameTextView;
+    private TextView emailTextView;
+    private EditText DOBTextView;
+    private EditText heightTextView;
+    private EditText weightTextView;
+    private EditText BMITextView;
+    private ImageView updateProfileButton;
+    private TextView totalDistanceTextView;
+    private TextView todayTargetTextView;
     private boolean photoChange = false;
 
     @Override
@@ -89,6 +99,8 @@ public class EditProfileFragment extends Fragment {
         weightTextView = view.findViewById(R.id.weight);
         BMITextView = view.findViewById(R.id.BMI);
         updateProfileButton = view.findViewById(R.id.updateProfileButton);
+        totalDistanceTextView = view.findViewById(R.id.totalDistance);
+        todayTargetTextView = view.findViewById(R.id.todayTarget);
 
         return view;
     }
@@ -148,6 +160,7 @@ public class EditProfileFragment extends Fragment {
         profilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (checkPermission()) {
                     requestPermission();
                     editPhoto();
@@ -302,41 +315,40 @@ public class EditProfileFragment extends Fragment {
  */
 
     private boolean checkPermission() {
-        int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
         if (result == PackageManager.PERMISSION_GRANTED) {
-
             return true;
-
         } else {
-
             return false;
-
         }
     }
 
     private void requestPermission() {
-
-        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
+        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Toast.makeText(getContext(), "Please allow in App Settings for additional functionality.", Toast.LENGTH_LONG).show();
+        } else {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 225);
+        }
+    }
+
+    public static void MyOnRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
         } else {
 
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 1:
+            case 225:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     Toast.makeText(getContext(), "Permission Granted, Now you can edit profile photo.", Toast.LENGTH_LONG).show();
+                    EditProfileFragment.MyOnRequestPermissionResult(requestCode, permissions, grantResults);
                 } else {
-
                     Toast.makeText(getContext(), "Permission Denied, You cannot edit profile photo.", Toast.LENGTH_LONG).show();
-
                 }
                 break;
         }
@@ -396,6 +408,24 @@ public class EditProfileFragment extends Fragment {
                             Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "retrieve", profilePhoto);
+                    DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+                        @Override
+                        public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                            double totalDistance = 0.0;
+                            double todayTarget;
+                            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                            String date = dateFormat.format(Calendar.getInstance().getTime());
+                            for (Goal goal : goals) {
+                                totalDistance += goal.getDistance();
+                                if (goal.getDate().equals(date)) {
+                                    if (goal.getTarget() > 0)
+                                        todayTargetTextView.setText(Math.round(goal.getDistance() * 10) / 10.0 + "/" + goal.getTarget() + " km");
+                                }
+
+                            }
+                            totalDistanceTextView.setText(Math.round(totalDistance * 10) / 10.0 + " km");
+                        }
+                    }, "goals", null);
                 }
             }
         }, "userProfile", null);
@@ -554,31 +584,32 @@ public class EditProfileFragment extends Fragment {
                 }
 
             } else if (requestCode == SELECT_FILE) {
-                /**
-                 * if user chose to upload a file from external storage, set that image to the
-                 * profile photo ImageView.
-                 */
-                Uri selectedImageUri = data.getData();
-                String[] projection = {MediaStore.MediaColumns.DATA};
-                CursorLoader cursorLoader = new CursorLoader(getContext(), selectedImageUri, projection, null, null, null);
-                Cursor cursor = cursorLoader.loadInBackground();
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                cursor.moveToFirst();
-                String selectedImagePath = cursor.getString(column_index);
-                Bitmap bm;
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeFile(selectedImagePath, options);
-                final int REQUIRED_SIZE = 200;
-                int scale = 1;
-                while (options.outWidth / scale / 2 >= REQUIRED_SIZE
-                        && options.outHeight / scale / 2 >= REQUIRED_SIZE)
-                    scale *= 2;
-                options.inSampleSize = scale;
-                options.inJustDecodeBounds = false;
-                bm = BitmapFactory.decodeFile(selectedImagePath, options);
-                profilePhoto.setImageBitmap(bm);
-                photoChange = true;
+                String state = Environment.getExternalStorageState();
+                if (Environment.MEDIA_MOUNTED.equals(state)) {
+                    Uri selectedImageUri = data.getData();
+                    String[] projection = {MediaStore.MediaColumns.DATA};
+                    CursorLoader cursorLoader = new CursorLoader(getContext(), selectedImageUri, projection, null, null, null);
+                    Cursor cursor = cursorLoader.loadInBackground();
+                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                    cursor.moveToFirst();
+                    String selectedImagePath = cursor.getString(column_index);
+                    Bitmap bm;
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(selectedImagePath, options);
+                    final int REQUIRED_SIZE = 120;
+                    int scale = 1;
+                    while (options.outWidth / scale / 2 >= REQUIRED_SIZE
+                            && options.outHeight / scale / 2 >= REQUIRED_SIZE)
+                        scale *= 2;
+                    options.inSampleSize = scale;
+                    options.inJustDecodeBounds = false;
+                    bm = BitmapFactory.decodeFile(selectedImagePath, options);
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                    profilePhoto.setImageBitmap(bm);
+                    photoChange = true;
+                }
             }
         }
     }

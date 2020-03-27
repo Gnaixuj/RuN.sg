@@ -19,12 +19,6 @@ public class UserLocationSession {
         distance = 0;
     }
 
-    public UserLocationSession(ArrayList<UserLocation> session, Date timestamp, double distance) {
-        this.session = session;
-        this.timestamp = timestamp;
-        this.distance = distance;
-    }
-
     public UserLocationSession(Date timestamp, double distance, String timeTaken) {
         this.timestamp = timestamp;
         this.distance = distance;

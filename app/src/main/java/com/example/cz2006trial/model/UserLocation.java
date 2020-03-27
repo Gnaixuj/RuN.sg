@@ -41,13 +41,4 @@ public class UserLocation {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
-
-    @Override
-    public String toString() {
-        return "UserLocationEntity{" +
-                "latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", timestamp=" + timestamp +
-                '}';
-    }
 }
