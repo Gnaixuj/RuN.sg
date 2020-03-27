@@ -39,6 +39,44 @@
         app:itemIconTint="@drawable/selector_bottombar"
         app:itemTextColor="@drawable/selector_bottombar"
         app:menu="@menu/menu_bottom_nav" />
+
+    <Switch
+        android:id="@+id/switch_park"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show All Parks"
+        android:layout_gravity="top|right"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="80dp"/>
+
+    <Switch
+        android:id="@+id/switch_pcn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:text="Show Park Connector Network"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="50dp"/>
+    <!--
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_access"
+            android:layout_width="67dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|right"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="100dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_access" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_park"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|right"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_park" />-->
 </FrameLayout>
 
 

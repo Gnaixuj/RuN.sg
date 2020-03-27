@@ -20,8 +20,7 @@ import com.example.cz2006trial.model.UserRoute;
 public class MapsCreateFragment extends Fragment {
 
     private static final String TAG = "MapsCreateFragment";
-/*    private Button trackButton;
-    private Button backButton;*/
+
     private Button createButton;
     private Button saveButton;
     private Button setStartButton;
@@ -36,8 +35,7 @@ public class MapsCreateFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map_create, container, false);
-/*        trackButton = view.findViewById(R.id.buttonTrack);
-        backButton = view.findViewById(R.id.buttonBack);*/
+
         createButton = view.findViewById(R.id.buttonCreate);
         saveButton = view.findViewById(R.id.buttonSave);
         startPoint = view.findViewById(R.id.startPoint);
@@ -54,12 +52,13 @@ public class MapsCreateFragment extends Fragment {
                     setStartButton.setText("DONE");
                     createButton.setVisibility(View.GONE);
                     setEndButton.setVisibility(View.GONE);
-                    //((MapsActivity) getActivity()).setStartPoint(userRoute);
+                    endPoint.setVisibility(View.GONE);
                     controller.setStartingPoint(userRoute);
                 } else {
                     setStartButton.setText("SET");
                     createButton.setVisibility(View.VISIBLE);
                     setEndButton.setVisibility(View.VISIBLE);
+                    endPoint.setVisibility(View.VISIBLE);
                     controller.stopSettingPoints();
                     if (UserRouteController.getStartPointName(userRoute) != null)
                         Toast.makeText(getActivity(), "Starting Point set", Toast.LENGTH_SHORT).show();
@@ -74,13 +73,14 @@ public class MapsCreateFragment extends Fragment {
                 if (setEndButton.getText().equals("SET")) {
                     setEndButton.setText("DONE");
                     createButton.setVisibility(View.GONE);
+                    startPoint.setVisibility(View.GONE);
                     setStartButton.setVisibility(View.GONE);
-                    //((MapsActivity) getActivity()).setEndPoint(userRoute);
                     controller.setEndingPoint(userRoute);
                 } else {
                     setEndButton.setText("SET");
                     setStartButton.setVisibility(View.VISIBLE);
                     createButton.setVisibility(View.VISIBLE);
+                    startPoint.setVisibility(View.VISIBLE);
                     controller.stopSettingPoints();
                     if (UserRouteController.getEndPointName(userRoute) != null)
                         Toast.makeText(getActivity(), "Ending Point set", Toast.LENGTH_SHORT).show();
@@ -89,21 +89,7 @@ public class MapsCreateFragment extends Fragment {
             }
         });
 
-/*        trackButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MapsActivity) getActivity()).setLayoutWeight(1);
-                ((MapsActivity) getActivity()).setViewPager(1);
-            }
-        });
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MapsActivity) getActivity()).setLayoutWeight(10);
-                ((MapsActivity) getActivity()).setViewPager(0);
-            }
-        });*/
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,6 +19,7 @@ import com.example.cz2006trial.R;
 import com.example.cz2006trial.history.recyclerview.MainActivity;
 import com.example.cz2006trial.model.Goal;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MapsActivity extends AppCompatActivity {
 
@@ -136,5 +138,12 @@ public class MapsActivity extends AppCompatActivity {
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void logOut(View view) {
+        Log.i("log out", "i am clicked");
+        FirebaseAuth.getInstance().signOut();
+        startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+        finish();
     }
 }

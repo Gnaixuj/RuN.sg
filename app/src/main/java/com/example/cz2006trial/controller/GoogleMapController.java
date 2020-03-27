@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.cz2006trial.model.UserLocationSession;
 import com.example.cz2006trial.model.UserRoute;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.PolyUtil;
@@ -20,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class GoogleMapController {
@@ -30,6 +32,8 @@ public class GoogleMapController {
     private CreateListener createListener;
     private RouteListener routeListener;
     private PointListener pointListener;
+
+    private HashMap<String, Object> parkInfo = new HashMap<>();
 
 
     private boolean startTrack = false;
@@ -43,6 +47,7 @@ public class GoogleMapController {
     private ArrayList<Marker> markers;
     private Marker pointChosen;
     private boolean createRoute;
+    private PlaceListener placeListener;
 
     private GoogleMapController () {
         userLocationSession = new UserLocationSession();
@@ -53,6 +58,11 @@ public class GoogleMapController {
     public static GoogleMapController getController() {
         return controller;
     }
+
+    public HashMap<String, Object> getParkInfo () {
+        return parkInfo;
+    }
+
 
     public interface Listener {
         void onChange();
@@ -68,6 +78,11 @@ public class GoogleMapController {
 
     public abstract static class PointListener implements Listener{};
 
+    public abstract static class PlaceListener implements Listener{};
+
+    public void setPlaceListener(PlaceListener listener) {
+        this.placeListener = listener;
+    }
 
     public void setStartListener(StartListener listener) {
         this.startListener = listener;
@@ -191,6 +206,21 @@ public class GoogleMapController {
         return createRoute;
     }
 
+    public void getInfo(String title) {
+
+        String apiKey = "AIzaSyCz0G1WVYtj1njKUMnPRf5A4FVfvxMvzZs";
+
+        String url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?" + "key=" + apiKey +
+                "&input=" + title + "&inputtype=textquery" + "&fields=photos,formatted_address,name,rating,opening_hours,geometry,place_id";
+
+
+
+        //Run the URL formed in above step and wait for result.
+        DownloadPlacesTask downloadPlacesTask = new DownloadPlacesTask();
+        downloadPlacesTask.execute(url);
+
+    }
+
     //method to get directions url
     public void getDirections(LatLng origin, LatLng destination) {
 
@@ -200,9 +230,9 @@ public class GoogleMapController {
 
         //IF THIS GENERATES ERROR, HARD CODE API KEY INTO URL.
         String apiKey = "AIzaSyCz0G1WVYtj1njKUMnPRf5A4FVfvxMvzZs";
+
         String url = "https://maps.googleapis.com/maps/api/directions/json?" + originString
                 + "&" + destinationString + "&key=" + apiKey + "&mode=walking";
-
 
         //Run the URL formed in above step and wait for result.
         DownloadTask downloadTask = new DownloadTask();
@@ -292,11 +322,11 @@ public class GoogleMapController {
                 /*Toast.makeText(getActivity(), "WELL WE MESSED UP!", Toast.LENGTH_LONG).show();*/
             }
 
-            //toastData(totalDistance, totalTravelTime);
+            getDistAndTime(totalDistance, totalTravelTime);
         }
-/*
-        //Simply displays a toast message containing total distance and total time required.
-        public void toastData(int totalDistance, int totalTravelTime) {
+
+        //Stores distance and time
+        public void getDistAndTime(int totalDistance, int totalTravelTime) {
             int km = 0, m = 0;
             String displayDistance = "";
 
@@ -323,12 +353,68 @@ public class GoogleMapController {
                 sec = totalTravelTime;
                 displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
             }
-            if (createRoute) {
-                UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
-                createRoute = false;
+
+            UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
+
+
+
+        }
+    }
+
+    private class DownloadPlacesTask extends AsyncTask<String, Void, String> {
+
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String data = "";
+
+            try {
+                data = downloadUrl(strings[0]);
+            } catch (Exception e) {
+                Log.d("ASYNC TASK", e.toString());
             }
 
-            Toast.makeText(getActivity(), "DISTANCE : " + displayDistance + "\nTIME REQUIRED : " + displayTravelTime, Toast.LENGTH_LONG).show();
-        }*/
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            //Toast.makeText(showPreviousOrder.this, s, Toast.LENGTH_LONG).show();
+            //set default values
+            double rating = 0;
+            boolean open = true;
+            String address;
+            String title;
+            //todo photos
+
+            try {
+                JSONObject parentMain = new JSONObject(s);
+                JSONObject result = parentMain.getJSONArray("candidates").getJSONObject(0);
+
+                //check for rating
+                if (result.has("rating"))
+                    rating = result.getDouble("rating");
+                parkInfo.put("rating", rating);
+
+                //check if open
+                if (result.has("opening_hours")) {
+                    if (result.getJSONObject("opening_hours").has("open_now"))
+                        open = result.getJSONObject("opening_hours").getBoolean("open_now");
+                }
+                parkInfo.put("open", open);
+
+                address = result.getString("formatted_address");
+                parkInfo.put("address", address);
+                title = result.getString("name");
+                parkInfo.put("name", title);
+
+                placeListener.onChange();
+
+            } catch (JSONException e) {
+                // TODO: 24-Mar-20
+                Log.e("JSON call", e.getMessage());
+            }
+        }
     }
 }
