@@ -29,6 +29,10 @@ public class UserRoute {
         this.timeTaken = timeTaken;
     }
 
+    public String output() {
+        return startPointName + " " + endPointName;
+    }
+
     public String getStartPointName() {
         return startPointName;
     }

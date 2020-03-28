@@ -2,7 +2,6 @@ package com.example.cz2006trial.historyPage;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
@@ -86,7 +85,6 @@ public class HistoryPageActivity extends AppCompatActivity implements RecyclerVi
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Log.d(TAG, "onDataChange: after fetching key (History Route) = " + postSnapshot.getKey());
-//                    UserLocationSessionEntity cur = postSnapshot.getValue(UserLocationSessionEntity.class);
                     mDatasetHistoryRoutes.add(postSnapshot.getKey());
                 }
 
