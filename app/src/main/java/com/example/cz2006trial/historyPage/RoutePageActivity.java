@@ -3,6 +3,7 @@ package com.example.cz2006trial.historyPage;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.GoogleMapController;
@@ -24,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Queue;
@@ -133,7 +135,18 @@ public class RoutePageActivity extends AppCompatActivity {
         });
     }
 
+    private TextView title, duration;
+
     private void showHistoryRoute() {
+        String pattern = "EEE, MMM dd";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+        title = findViewById(R.id.textView1);
+        title.setText(simpleDateFormat.format(mUserLocationSession.getTimestamp()));
+
+        duration = findViewById(R.id.textView2);
+        duration.setText("Duration: " + mUserLocationSession.getTimeTaken());
+
         ArrayList < LatLng > locations = new ArrayList <> ();
 
         Log.d(TAG, "showHistoryRoute: started");
@@ -170,6 +183,16 @@ public class RoutePageActivity extends AppCompatActivity {
     private GoogleMapController controller = GoogleMapController.getController();
 
     private void showSavedRoute() {
+        String pattern = "EEE, MMM dd";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+        title = findViewById(R.id.textView1);
+        title.setText(simpleDateFormat.format(mUserRoute.getDate()));
+
+        duration = findViewById(R.id.textView2);
+        duration.setText("Approx. duration: " + mUserRoute.getTimeTaken());
+
+
         Log.d(TAG, "showSavedRoute: started");
         controller.setCreateListener(new GoogleMapController.CreateListener() {
             @Override
