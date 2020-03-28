@@ -45,8 +45,10 @@ public class GoogleMapController {
     private String message;
 
     private ArrayList<LatLng> route;
+    private ArrayList<LatLng> historyRoute;
     private ArrayList<Marker> markers;
     private Marker pointChosen;
+    private boolean createHistoryRoute;
     private boolean createRoute;
     private PlaceListener placeListener;
 
@@ -235,8 +237,16 @@ public class GoogleMapController {
         return route;
     }
 
+    public ArrayList<LatLng> getHistoryRoute() {
+        return route;
+    }
+
     public boolean isCreateRoute() {
         return createRoute;
+    }
+
+    public void setCreateHistoryRoute(boolean createHistoryRoute) {
+        this.createHistoryRoute = createHistoryRoute;
     }
 
     public void getInfo(String title) {
@@ -344,7 +354,11 @@ public class GoogleMapController {
                         JSONObject polyline = steps.getJSONObject(j).getJSONObject("polyline");
                         List<LatLng> markers = PolyUtil.decode(polyline.getString("points"));
 
-                        route = (ArrayList) markers;
+                        if (!createHistoryRoute)
+                            route = (ArrayList) markers;
+                        else
+                            System.out.println("Inside");
+                        historyRoute = (ArrayList) markers;
                         routeListener.onChange();
 
                     }
