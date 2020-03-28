@@ -53,4 +53,9 @@ public class UserRouteController {
                 userRoute.getTimeTaken());
         databaseUserSavedRoutes.setValue(userSavedRoute);
     }
+
+    public static void setDistanceTimeTaken(UserRoute userRoute, String displayDistance, String displayTravelTime) {
+        userRoute.setDistance(displayDistance);
+        userRoute.setTimeTaken(displayTravelTime);
+    }
 }

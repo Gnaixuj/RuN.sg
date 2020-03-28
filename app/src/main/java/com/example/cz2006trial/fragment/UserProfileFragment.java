@@ -77,49 +77,10 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
-/*public class UserProfileActivity extends AppCompatActivity {
-
-    ImageView profilePhoto;
-    TextView usernameTextView;
-    TextView emailTextView;
-    TextView DOBTextView;
-    TextView heightTextView;
-    TextView weightTextView;
-    TextView BMITextView;
-    ImageView editProfileButton;
-    ProgressBar userProfileLoading;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
-
-        profilePhoto = findViewById(R.id.profile);
-        usernameTextView = findViewById(R.id.username);
-        emailTextView = findViewById(R.id.email);
-        DOBTextView = findViewById(R.id.DOB);
-        heightTextView = findViewById(R.id.height);
-        weightTextView = findViewById(R.id.weight);
-        BMITextView = findViewById(R.id.BMI);
-        editProfileButton = findViewById(R.id.edit);
-        userProfileLoading = findViewById(R.id.userProfileLoading);
-
-        displayProfileFromDatabase();
-
-        editProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(UserProfileActivity.this, EditProfileActivity.class));
-            }
-        });
-    }
-
- */
-
     public void displayProfile() {
-        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+        DatabaseManager.getProfileData(new DatabaseManager.ProfileDatabaseCallback() {
             @Override
-            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg) {
                 if (errorMsg[0] != null)
                     Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
                 else if (errorMsg[1] != null)
@@ -142,7 +103,7 @@ public class UserProfileFragment extends Fragment {
                         public void onCallback(String[] message) {
                         }
                     }, "retrieve", profilePhoto);
-                    DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+                    DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
                         @Override
                         public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                             double totalDistance = 0.0;
@@ -159,47 +120,11 @@ public class UserProfileFragment extends Fragment {
                             }
                             totalDistanceTextView.setText(Math.round(totalDistance * 10) / 10.0 + " km");
                         }
-                    }, "goals", null);
+                    }, null);
                     loadingComplete();
                 }
             }
-        }, "userProfile", null);
-
-        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference(UID).child("userProfile");
-        databaseUserProfile.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                final UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
-                if (userProfile != null) {
-                    heightTextView.setText("-");
-                    weightTextView.setText("-");
-                    BMITextView.setText("-");
-                    usernameTextView.setText(userProfile.getUsername());
-                    emailTextView.setText(userProfile.getEmail());
-                    DOBTextView.setText(userProfile.getDOB());
-                    if (userProfile.getHeight() != 0)
-                        heightTextView.setText("" + userProfile.getHeight());
-                    if (userProfile.getWeight() != 0)
-                        weightTextView.setText("" + userProfile.getWeight());
-                    if (userProfile.getBMI() != 0)
-                        BMITextView.setText("" + userProfile.getBMI());
-                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
-                        @Override
-                        public void onCallback(String[] message) {
-                        }
-                    }, "retrieve", profilePhoto);
-                    loadingComplete();
-                } else {
-                    Toast.makeText(getContext(), "Something went wrong. PLease re-login and try again", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });*/
+        });
     }
 
     private void loadingComplete() {

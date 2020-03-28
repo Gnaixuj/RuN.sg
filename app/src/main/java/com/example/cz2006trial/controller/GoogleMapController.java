@@ -32,9 +32,9 @@ public class GoogleMapController {
     private CreateListener createListener;
     private RouteListener routeListener;
     private PointListener pointListener;
+    private DisplayTrackingDistanceListener displayTrackingDistanceListener;
 
     private HashMap<String, Object> parkInfo = new HashMap<>();
-
 
     private boolean startTrack = false;
     private boolean setStartPoint = false;
@@ -80,6 +80,15 @@ public class GoogleMapController {
 
     public abstract static class PlaceListener implements Listener{};
 
+    public abstract static class DisplayTrackingDistanceListener implements Listener {
+    }
+
+    ;
+
+    public void setDisplayTrackingDistanceListener(DisplayTrackingDistanceListener listener) {
+        this.displayTrackingDistanceListener = listener;
+    }
+
     public void setPlaceListener(PlaceListener listener) {
         this.placeListener = listener;
     }
@@ -104,6 +113,7 @@ public class GoogleMapController {
         this.routeListener = routeListener;
     }
 
+
     public void setMarkers(ArrayList<Marker> markers) {
         this.markers = markers;
     }
@@ -122,8 +132,13 @@ public class GoogleMapController {
     }
 
     public void beginTracking(UserLocationSession userLocationSession) {
-        this.userLocationSession = userLocationSession;
         startTrack = true;
+        this.userLocationSession = userLocationSession;
+    }
+
+    public void displayTrackingDistance(UserLocationSession userLocationSession) {
+        if (displayTrackingDistanceListener != null) displayTrackingDistanceListener.onChange();
+        this.userLocationSession = userLocationSession;
     }
 
     public void resumeTracking() {
@@ -136,6 +151,10 @@ public class GoogleMapController {
 
     public boolean isStartTrack() {
         return startTrack;
+    }
+
+    public void setStartTrack(boolean startTrack) {
+        this.startTrack = startTrack;
     }
 
     public UserLocationSession getUserLocationSession() {
@@ -354,7 +373,7 @@ public class GoogleMapController {
                 displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
             }
 
-            UserLocationController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
+            UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
         }
     }
 

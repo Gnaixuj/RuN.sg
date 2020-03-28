@@ -109,19 +109,6 @@ public class EditProfileFragment extends Fragment {
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        /*BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                    Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
-                    getActivity().onBackPressed();
-                }
-            }
-        };*/
-
-        //getActivity().registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
         final Calendar myCalendar = Calendar.getInstance();
 
         final DatePickerDialog.OnDateSetListener dob = new DatePickerDialog.OnDateSetListener() {
@@ -156,7 +143,6 @@ public class EditProfileFragment extends Fragment {
         weightTextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
         BMITextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
 
-
         profilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,7 +163,6 @@ public class EditProfileFragment extends Fragment {
             public void onClick(View v) {
                 updateProfile();
                 if (photoChange && hasPhoto(profilePhoto)) {
-                    System.out.println("First");
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message) {
@@ -188,7 +173,6 @@ public class EditProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
                     getActivity().onBackPressed();
                 } else if (photoChange && !hasPhoto(profilePhoto)) {
-                    System.out.println("Second");
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message) {
@@ -198,129 +182,16 @@ public class EditProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
                     getActivity().onBackPressed();
                 } else {
-                    System.out.println("Third");
                     Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
                     getActivity().onBackPressed();
                 }
-
             }
         });
     }
-
-/*public class EditProfileActivity extends AppCompatActivity {
-
-    private static final int SELECT_FILE = 2;
-    private static final int REQUEST_CAMERA = 1;
-
-    ImageView profilePhoto;
-    TextView usernameTextView;
-    TextView emailTextView;
-    EditText DOBTextView;
-    EditText heightTextView;
-    EditText weightTextView;
-    EditText BMITextView;
-    Button updateProfileButton;
-    private boolean photoChange = false;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_profile);
-
-        profilePhoto = findViewById(R.id.profile);
-        usernameTextView = findViewById(R.id.username);
-        emailTextView = findViewById(R.id.email);
-        DOBTextView = findViewById(R.id.DOB);
-        heightTextView = findViewById(R.id.height);
-        weightTextView = findViewById(R.id.weight);
-        BMITextView = findViewById(R.id.BMI);
-        updateProfileButton = findViewById(R.id.updateProfileButton);
-
-        final Calendar myCalendar = Calendar.getInstance();
-
-        final DatePickerDialog.OnDateSetListener dob = new DatePickerDialog.OnDateSetListener() {
-
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                  int dayOfMonth) {
-                // TODO Auto-generated method stub
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                String myFormat = "dd/MM/yyyy"; //In which you need put here
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat);
-                DOBTextView.setText(sdf.format(myCalendar.getTime()));
-            }
-
-        };
-
-        DOBTextView.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new DatePickerDialog(EditProfileActivity.this, dob, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-
-        });
-
-
-
-        heightTextView.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(3,1)});
-        weightTextView.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(3,1)});
-        BMITextView.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(3,1)});
-
-
-        profilePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(checkPermission())
-                    editPhoto();
-                else
-                    requestPermission();
-            }
-        });
-
-        displayProfileFromDatabase();
-
-        updateProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateProfile();
-                if (photoChange && hasPhoto(profilePhoto)) {
-                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
-                        @Override
-                        public void onCallback(String[] message) {
-                            DownloadFileManager.downloadFile(EditProfileActivity.this, "profilePhoto", ".jpg", Environment.DIRECTORY_DOWNLOADS, message[0]);
-                            Toast.makeText(getApplicationContext(), message[0], Toast.LENGTH_SHORT).show();
-                        }
-                    },"update", profilePhoto);
-                }
-                else if (photoChange && !hasPhoto(profilePhoto)) {
-                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
-                        @Override
-                        public void onCallback(String[] message) {
-                            Toast.makeText(getApplicationContext(), message[0], Toast.LENGTH_SHORT).show();
-                        }
-                    },"delete", profilePhoto);
-                }
-                Toast.makeText(getApplicationContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
-                finish();
-            }
-        });
-
-    }
-
- */
 
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (result == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
+        return result == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermission() {
@@ -331,14 +202,6 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
-    public static void MyOnRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-        } else {
-
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -346,7 +209,6 @@ public class EditProfileFragment extends Fragment {
             case 225:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getContext(), "Permission Granted, Now you can edit profile photo.", Toast.LENGTH_LONG).show();
-                    EditProfileFragment.MyOnRequestPermissionResult(requestCode, permissions, grantResults);
                 } else {
                     Toast.makeText(getContext(), "Permission Denied, You cannot edit profile photo.", Toast.LENGTH_LONG).show();
                 }
@@ -378,9 +240,9 @@ public class EditProfileFragment extends Fragment {
     }
 
     public void displayProfile() {
-        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+        DatabaseManager.getProfileData(new DatabaseManager.ProfileDatabaseCallback() {
             @Override
-            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg) {
                 if (errorMsg[0] != null)
                     Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
                 else if (errorMsg[1] != null)
@@ -408,7 +270,7 @@ public class EditProfileFragment extends Fragment {
                             Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "retrieve", profilePhoto);
-                    DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+                    DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
                         @Override
                         public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                             double totalDistance = 0.0;
@@ -425,54 +287,10 @@ public class EditProfileFragment extends Fragment {
                             }
                             totalDistanceTextView.setText(Math.round(totalDistance * 10) / 10.0 + " km");
                         }
-                    }, "goals", null);
+                    }, null);
                 }
             }
-        }, "userProfile", null);
-
-        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference(UID).child("userProfile");
-        databaseUserProfile.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                final UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
-                if (userProfile != null) {
-                    usernameTextView.setText(userProfile.getUsername());
-                    emailTextView.setText(userProfile.getEmail());
-
-                    if (userProfile.getDOB() != null)
-                        DOBTextView.setText(userProfile.getDOB());
-                    DOBTextView.setHint("Please input your date of birth");
-
-                    if (userProfile.getHeight() != 0)
-                        heightTextView.setText("" + userProfile.getHeight());
-                    heightTextView.setHint("Please input your height in cm");
-
-                    if (userProfile.getWeight() != 0)
-                        weightTextView.setText("" + userProfile.getWeight());
-                    weightTextView.setHint("Please input your weight in kg");
-
-                    if (userProfile.getBMI() != 0)
-                        BMITextView.setText("" + userProfile.getBMI());
-                    BMITextView.setHint("Please input your BMI");
-                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
-                        @Override
-                        public void onCallback(String[] message) {
-                            Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
-                        }
-                    }, "retrieve", profilePhoto);
-
-                } else {
-                    Toast.makeText(getContext(),
-                            "Something went wrong. PLease re-login and try again", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });*/
+        });
     }
 
     /**

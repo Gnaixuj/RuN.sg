@@ -117,7 +117,6 @@ public class GoalsFragment extends Fragment {
                 else
                     newTargetLayout.setVisibility(View.VISIBLE);
 
-                //go to EditGoalActivity page when pressed
                 editGoalButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -127,7 +126,11 @@ public class GoalsFragment extends Fragment {
                         } else {
                             String newGoalTargetText = String.valueOf(newTargetView.getText());
                             String message = GoalController.validateGoalFields(newGoalTargetText);
-                            if (message.equals("Goal Target Updated")) {
+                            if (message.equals("noEdit")) {
+                                editGoalButton.setText("EDIT");
+                                newTargetView.setText("");
+                                newTargetLayout.setVisibility(View.GONE);
+                            } else if (message.equals("Goal Target Updated")) {
                                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
                                 DatabaseManager.updateGoalData(date, distance, Double.parseDouble(newGoalTargetText));
                                 editGoalButton.setText("EDIT");
@@ -139,9 +142,6 @@ public class GoalsFragment extends Fragment {
                                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
                             }
                         }
-                        /*MapsActivity activity = (MapsActivity) getActivity();
-                        activity.setDate(date);
-                        Navigation.findNavController(getView()).navigate(R.id.nav_editgoals);*/
                     }
                 });
 
@@ -149,29 +149,28 @@ public class GoalsFragment extends Fragment {
         });
     }
 
-    /*public void displayGoals(String date) {
-        dateView.setText("Date: " + date);
-        for (Goal goal : storedGoals) {
-            if (goal.getDate().equals(date)) {
-                if (goal.getTarget() != -1) {
-                    dailyGoalView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
-                    double progress = Math.max(0, Math.min(100 * goal.getDistance() / goal.getTarget(), 100));
-                    progressView.setText("Progress: " + Math.round(progress) + "%");
-                    return;
-                } else {
-                    progressView.setText("Distance travelled: " + (Math.round(goal.getDistance() * 10) / 10.0));
-                    dailyGoalView.setText(R.string.noTargetSet);
-                    return;
-                }
-            }
-        }
-        progressView.setText(R.string.zeroDistance);
-        dailyGoalView.setText(R.string.noTargetSet);
-    }*/
+    private void instantiateCalendar() {
+        //Set max and min date that can be shown on the calendar
+        Calendar cMin = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cMin.add(Calendar.MONTH, -1);
+        Calendar cMax = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cMax.add(Calendar.MONTH, 1);
+        calendarView.state().edit()
+                .setFirstDayOfWeek(Calendar.SUNDAY)
+                .setMinimumDate(CalendarDay.from(cMin))
+                .setMaximumDate(CalendarDay.from(cMax))
+                .setCalendarDisplayMode(CalendarMode.MONTHS)
+                .commit();
+        ;
+        //decorate current date
+        ArrayList<CalendarDay> currentDate = new ArrayList<CalendarDay>();
+        //code to decorate current date
+        currentDate.add(CalendarDay.today());
+        calendarView.addDecorators(new GoalDecorator(Color.WHITE, true, currentDate));
+    }
 
     public void decorateGoalDates() {
-
-        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+        DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
             @Override
             public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                 if (errorMsg[0] != null)
@@ -180,8 +179,7 @@ public class GoalsFragment extends Fragment {
                     final ArrayList<CalendarDay> completeGoalList = new ArrayList<CalendarDay>();
                     final ArrayList<CalendarDay> incompleteGoalList = new ArrayList<CalendarDay>();
                     for (int i = 0; i < goals.size(); i++) {
-                        System.out.println("" + goals.get(i).getDistance() + " " + goals.get(i).getTarget());
-                        if (goals.get(i).getTarget() != -1) {
+                        if (goals.get(i).getTarget() != -1 && goals.get(i).getTarget() != 0) {
                             if (goals.get(i).getDistance() >= goals.get(i).getTarget()) {
                                 completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(stringArgs.get(i))));
                             } else {
@@ -194,43 +192,11 @@ public class GoalsFragment extends Fragment {
                     calendarView.setVisibility(View.VISIBLE);
                 }
             }
-        }, "goals", null);
-
-
-        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoalDates = FirebaseDatabase.getInstance().getReference("goals").child(UID);
-        databaseGoalDates.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                final ArrayList<CalendarDay> completeGoalList = new ArrayList<CalendarDay>();
-                final ArrayList<CalendarDay> incompleteGoalList = new ArrayList<CalendarDay>();
-                for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    if (d != null) {
-                        Goal goal = d.getValue(Goal.class);
-                        String dateString = d.getKey();
-                        if (goal.getTarget() != -1) {
-                            if (goal.getDistance() >= goal.getTarget()) {
-                                completeGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
-                            } else {
-                                incompleteGoalList.add(CalendarDay.from(GoalController.convertStringToDate(dateString)));
-                            }
-                        }
-                    }
-                }
-                calendarView.addDecorators(new GoalDecorator(Color.GREEN, false, completeGoalList));
-                calendarView.addDecorators(new GoalDecorator(Color.RED, false, incompleteGoalList));
-                calendarView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });*/
+        }, null);
     }
 
     public void displayGoal(final String date) {
-        DatabaseManager.getData(new DatabaseManager.DatabaseCallback() {
+        DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
             @Override
             public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                 dateView.setText(date);
@@ -253,57 +219,7 @@ public class GoalsFragment extends Fragment {
                     }
                 }
             }
-        }, "goals", date);
-
-
-        /*String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference("goals").child(UID).child(date);
-        databaseGoals.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dateView.setText("Date: " + date);
-                Goal goal = dataSnapshot.getValue(Goal.class);
-                if (goal != null) {
-                    System.out.println("Target " + goal.getTarget());
-                    if (goal.getTarget() != -1) {
-                        dailyGoalView.setText("Target: " + (Math.round(goal.getDistance() * 10) / 10.0) + " / " + goal.getTarget() + " km");
-                        double progress = Math.max(0, Math.min(100 * goal.getDistance() / goal.getTarget(), 100));
-                        progressView.setText("Progress: " + Math.round(progress) + "%");
-                    } else {
-                        progressView.setText("Distance travelled: " + (Math.round(goal.getDistance() * 10) / 10.0));
-                        dailyGoalView.setText(R.string.noTargetSet);
-                    }
-                } else {
-                    progressView.setText(R.string.zeroDistance);
-                    dailyGoalView.setText(R.string.noTargetSet);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });*/
-    }
-
-    private void instantiateCalendar() {
-        //Set max and min date that can be shown on the calendar
-        Calendar cMin = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cMin.add(Calendar.MONTH, -1);
-        Calendar cMax = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cMax.add(Calendar.MONTH, 1);
-        calendarView.state().edit()
-                .setFirstDayOfWeek(Calendar.SUNDAY)
-                .setMinimumDate(CalendarDay.from(cMin))
-                .setMaximumDate(CalendarDay.from(cMax))
-                .setCalendarDisplayMode(CalendarMode.MONTHS)
-                .commit();
-        ;
-        //decorate current date
-        ArrayList<CalendarDay> currentDate = new ArrayList<CalendarDay>();
-        //code to decorate current date
-        currentDate.add(CalendarDay.today());
-        calendarView.addDecorators(new GoalDecorator(Color.WHITE, true, currentDate));
+        }, date);
     }
 
 }

@@ -497,8 +497,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 locations.add(lastLocation);
                 UserLocation userLocation = new UserLocation();
                 UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
-                UserLocationController.updateUserLocation(userLocationSession);
-
             }
                     /*Log.i("LAST LOCATION", lastLocation.toString());
                     for (LatLng loc: locations) {
