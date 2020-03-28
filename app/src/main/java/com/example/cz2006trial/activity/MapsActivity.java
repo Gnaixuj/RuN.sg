@@ -17,7 +17,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.cz2006trial.R;
-import com.example.cz2006trial.history.recyclerview.MainActivity;
 import com.example.cz2006trial.historyPage.HistoryPageActivity;
 import com.example.cz2006trial.model.Goal;
 import com.google.android.material.navigation.NavigationView;
