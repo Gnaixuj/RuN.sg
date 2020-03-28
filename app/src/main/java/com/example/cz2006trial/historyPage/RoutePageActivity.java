@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.GoogleMapController;
@@ -191,25 +192,22 @@ public class RoutePageActivity extends AppCompatActivity {
 
         duration = findViewById(R.id.textView2);
         duration.setText("Approx. duration: " + mUserRoute.getTimeTaken());
-
-
-        Log.d(TAG, "showSavedRoute: started");
-        controller.setCreateListener(new GoogleMapController.CreateListener() {
-            @Override
-            public void onChange() {
-                controller.getDirections(mUserRoute.getStartPoint(), mUserRoute.getEndPoint());
-                routeDone();
-            }
-        });
+        controller.getDirections(mUserRoute.getStartPoint(), mUserRoute.getEndPoint());
+        routeDone();
+        mMap.addMarker(new MarkerOptions().position(mUserRoute.getStartPoint())
+                .title(mUserRoute.getStartPointName())
+                .snippet("Your Starting Location"));
+        mMap.addMarker(new MarkerOptions().position(mUserRoute.getEndPoint())
+                .title(mUserRoute.getEndPointName())
+                .snippet("Your Ending Location"));
     }
 
     public void routeDone() {
-        Log.d(TAG, "routeDone: started");
         controller.setRouteListener(new GoogleMapController.RouteListener() {
             @Override
             public void onChange() {
                 ArrayList<LatLng> route = controller.getRoute();
-                Log.d(TAG, "routeDone: onChange: finished and printing");
+                Log.i("route", route.toString());
                 mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.GREEN));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.3521, 103.8198), 10));
             }

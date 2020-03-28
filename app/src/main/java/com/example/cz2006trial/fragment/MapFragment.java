@@ -69,6 +69,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private Marker pointChosen;
 
     private boolean startTrack = false;
+    private ArrayList<Polyline> startTrackLine = new ArrayList<>();
 
     private UserLocationSession userLocationSession = new UserLocationSession();
 
@@ -285,6 +286,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
+    public void clearTrack() {
+        controller.setClearTrackListener(new GoogleMapController.ClearTrackListener() {
+            @Override
+            public void onChange() {
+                System.out.println("Inside");
+                for (int i = 0; i < startTrackLine.size(); i++)
+                    startTrackLine.get(i).remove();
+                startTrackLine.clear();
+                locations.clear();
+
+            }
+        });
+    }
+
     public void setStartingPoint() {
         controller.setStartListener(new GoogleMapController.StartListener() {
             @Override
@@ -431,6 +446,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         setEndingPoint();
         createRoute();
         pointChosen();
+        clearTrack();
 
         userRoute = controller.getUserRoute();
 
@@ -495,6 +511,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             if (startTrack) {
                 userLocationSession = controller.getUserLocationSession();
                 locations.add(lastLocation);
+                startTrackLine.add(mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED)));
                 UserLocation userLocation = new UserLocation();
                 UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
             }
@@ -507,10 +524,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 userMarker.remove();
                 userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                if (startTrack) {
-                    mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED));
-                    //mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
-                }
             } else {
                 userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));

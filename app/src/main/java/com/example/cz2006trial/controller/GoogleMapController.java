@@ -33,6 +33,7 @@ public class GoogleMapController {
     private RouteListener routeListener;
     private PointListener pointListener;
     private DisplayTrackingDistanceListener displayTrackingDistanceListener;
+    private ClearTrackListener clearTrackListener;
 
     private HashMap<String, Object> parkInfo = new HashMap<>();
 
@@ -85,9 +86,10 @@ public class GoogleMapController {
 
     ;
 
-    public void setDisplayTrackingDistanceListener(DisplayTrackingDistanceListener listener) {
-        this.displayTrackingDistanceListener = listener;
+    public abstract static class ClearTrackListener implements Listener {
     }
+
+    ;
 
     public void setPlaceListener(PlaceListener listener) {
         this.placeListener = listener;
@@ -113,6 +115,13 @@ public class GoogleMapController {
         this.routeListener = routeListener;
     }
 
+    public void setDisplayTrackingDistanceListener(DisplayTrackingDistanceListener listener) {
+        this.displayTrackingDistanceListener = listener;
+    }
+
+    public void setClearTrackListener(ClearTrackListener listener) {
+        this.clearTrackListener = listener;
+    }
 
     public void setMarkers(ArrayList<Marker> markers) {
         this.markers = markers;
@@ -139,6 +148,11 @@ public class GoogleMapController {
     public void displayTrackingDistance(UserLocationSession userLocationSession) {
         if (displayTrackingDistanceListener != null) displayTrackingDistanceListener.onChange();
         this.userLocationSession = userLocationSession;
+    }
+
+    public void clearTrack() {
+        if (clearTrackListener != null) clearTrackListener.onChange();
+        userLocationSession = new UserLocationSession();
     }
 
     public void resumeTracking() {

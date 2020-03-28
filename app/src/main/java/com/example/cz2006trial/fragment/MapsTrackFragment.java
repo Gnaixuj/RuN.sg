@@ -60,6 +60,7 @@ public class MapsTrackFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (startButton.getText().equals("Start")) {
+                    controller.clearTrack();
                     endButton.setText("End");
                     mChronometer.setBase(SystemClock.elapsedRealtime() - timeElapsed);
                     startButton.setText("Pause");
@@ -121,7 +122,6 @@ public class MapsTrackFragment extends Fragment {
                             goalProgressView.setText(R.string.noTargetSet);
                         } else {
                             if (doubleArgs[1] != -1 && doubleArgs[1] != 0) {
-                                System.out.println("Target" + doubleArgs[0]);
                                 goalProgressView.setText("Target: " + (Math.round(doubleArgs[0] * 10) / 10.0) + " / " + doubleArgs[1] + " km");
                             } else {
                                 goalProgressView.setText(R.string.noTargetSet);

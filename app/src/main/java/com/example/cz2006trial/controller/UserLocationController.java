@@ -33,7 +33,6 @@ public class UserLocationController {
                     if (errorMsg[1] != null)
                         DatabaseManager.updateGoalData(dateString, 0, -1);
                     else {
-                        System.out.println("distance" + (doubleArgs[0] + distance));
                         DatabaseManager.updateGoalData(dateString, doubleArgs[0] + distance, doubleArgs[1]);
 
                     }
