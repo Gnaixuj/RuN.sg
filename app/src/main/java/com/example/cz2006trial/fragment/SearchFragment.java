@@ -40,7 +40,7 @@ public class SearchFragment extends Fragment {
         searchLoc = root.findViewById(R.id.searchBar);
         searchLoc.setQueryHint("Search for access points...");
 
-        accessPoint = controller.getMarkers();
+        //accessPoint = controller.getMarkers();
         ArrayList<String> accessStr = new ArrayList<>();
         for (Marker marker : accessPoint) {
             accessStr.add(marker.getTitle());
@@ -75,7 +75,7 @@ public class SearchFragment extends Fragment {
                 String loc = ((TextView)view).getText().toString();
                 for (Marker marker : accessPoint) {
                     if (marker.getTitle().equals(loc)) {
-                        controller.setPointChosen(marker);
+                        //controller.setPointChosen(marker);
                         break;
                     }
                 }

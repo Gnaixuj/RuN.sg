@@ -13,6 +13,48 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <Switch
+        android:id="@+id/switch_park"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|right"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="20dp"
+        android:text="Show All Parks" />
+
+    <Switch
+        android:id="@+id/switch_pcn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="20dp"
+        android:text="Show Park Connector Network" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <SearchView
+            android:id="@+id/search_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="#FFFFFF"
+            android:queryHint="Search for parks/access points...">
+
+        </SearchView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_point"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            tools:visibility="gone" />
+
+    </LinearLayout>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,23 +82,6 @@
         app:itemTextColor="@drawable/selector_bottombar"
         app:menu="@menu/menu_bottom_nav" />
 
-    <Switch
-        android:id="@+id/switch_park"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Show All Parks"
-        android:layout_gravity="top|right"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="80dp"/>
-
-    <Switch
-        android:id="@+id/switch_pcn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="Show Park Connector Network"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="50dp"/>
     <!--
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_access"

@@ -3,7 +3,10 @@ package com.example.cz2006trial.fragment;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,9 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -26,10 +31,14 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cz2006trial.PointArrayAdapter;
 import com.example.cz2006trial.controller.GoogleMapController;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserLocationController;
+import com.example.cz2006trial.model.Point;
 import com.example.cz2006trial.model.UserLocation;
 import com.example.cz2006trial.model.UserLocationSession;
 import com.example.cz2006trial.controller.UserRouteController;
@@ -38,6 +47,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -46,7 +56,6 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineString;
@@ -66,7 +75,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private ImageView arrowImg;
 
     private GoogleMap mMap;
-    private Marker pointChosen;
+    //private Marker pointChosen;
 
     private boolean startTrack = false;
 
@@ -109,23 +118,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private Marker userMarker;
     private GeoJsonLayer parksLayer;
     private ArrayList<Marker> parkPoint = new ArrayList<>();;
-    private ArrayList<Polyline> pcn = new ArrayList<>();
+    private ArrayList<Polyline> pcnLines = new ArrayList<>();
 
-    //method to check whether permission for location access has been granted
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    private SearchView searchBar;
+    private ArrayList<Point> pointList;
+    private PointArrayAdapter adapter;
 
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    //how often location is updated
-                    //startTrackerService();
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
-                }
-            }
-        }
-    }
+    private Point searchResult;
+    private Switch switchPark;
+    private Switch switchPcn;
+    private RecyclerView listPoints;
 
     @Override
     public View onCreateView (@NonNull LayoutInflater inflater,
@@ -135,8 +137,89 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         View root = inflater.inflate(R.layout.fragment_map, container, false);
 
-        Switch switchPark = root.findViewById(R.id.switch_park);
-        Switch switchPcn = root.findViewById(R.id.switch_pcn);
+
+        searchBar = root.findViewById(R.id.search_point);
+        listPoints = root.findViewById(R.id.list_point);
+        pointList = new ArrayList<>();
+
+        adapter = new PointArrayAdapter(R.layout.points_search_item, pointList, new PointArrayAdapter.PointsAdapterListener() {
+            @Override
+            public void onPointSelected(Point point) {
+                searchResult = point;
+                if (setStartPoint ) {
+                    //todo show dialog
+                    Log.i("Click","Start point chosen");
+                    startPoint = mMap.addMarker(new MarkerOptions().position(point.getLocation())
+                            .title(point.getName())
+                            .snippet("Your Starting Point")
+                            .zIndex(2f)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    UserRouteController.setStartMarkerInfo(userRoute, startPoint);
+                    setStartPoint = false;
+                }
+                else if (setEndPoint ) {
+                    //todo show dialog
+                    Log.i("Click","End point chosen");
+                    endPoint = mMap.addMarker(new MarkerOptions().position(point.getLocation())
+                            .title(point.getName())
+                            .snippet("Your Ending Point")
+                            .zIndex(2f)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    UserRouteController.setStartMarkerInfo(userRoute, endPoint);
+                    setEndPoint = false;
+                }
+                //todo bug with clicking
+                else {
+                    togglePoint(point, true);
+                }
+                searchBar.setIconified(true);
+
+
+            }
+        });
+        listPoints.setLayoutManager(new LinearLayoutManager(getContext()));
+        listPoints.setAdapter(adapter);
+
+        searchBar.setVisibility(View.GONE);
+        listPoints.setVisibility(View.GONE);
+
+        searchBar.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listPoints.setVisibility(View.VISIBLE);
+                if (searchResult != null)
+                    togglePoint(searchResult, false);
+            }
+        });
+
+
+        searchBar.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                listPoints.setVisibility(View.GONE);
+                return false;
+            }
+        });
+
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                //adapter.getFilter().filter(s);
+                //searchBar.setIconified(true);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                adapter.getFilter().filter(s);
+                return true;
+            }
+        });
+
+        switchPark = root.findViewById(R.id.switch_park);
+        switchPcn = root.findViewById(R.id.switch_pcn);
+        switchPark.setVisibility(View.GONE);
+        switchPcn.setVisibility(View.GONE);
 
         switchPark.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -153,8 +236,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 else removePcn();
             }
         });
-
-
 
         arrowImg = root.findViewById(R.id.arrow_bottom_sheet);
         arrowImg.setImageResource(R.drawable.ic_arrow_up);
@@ -198,31 +279,47 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_create, R.id.nav_track, R.id.nav_search)
+                R.id.nav_create, R.id.nav_track)
                 .build();
 
         NavHostFragment navHostFragment = (NavHostFragment) getChildFragmentManager().findFragmentById(R.id.bottom_fragment);
         NavController navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(navigationView, navController);
 
-/*        //change text of bottom sheet
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                Log.i("navcontroller", String.valueOf(destination.getId()));
-                if (peekText.getText().equals("Track")) peekText.setText("Create");
-                else peekText.setText("Track");
-            }
-        });*/
-        //navigationView.setOnNavigationItemSelectedListener(this);
-
         return root;
     }
 
+    private void togglePoint(Point point, boolean show) {
+        if (mMap != null) {
+            if (point.getType().equals("access")) {
+                for (Marker marker: accessPoint) {
+                    if (marker.getTitle().equals(point.getName())) {
+                        if (show)
+                            marker.setVisible(true);
+                        else
+                            marker.setVisible(false);
+                        break;
+                    }
+                }
+            }
+            else {
+                for (Marker marker: parkPoint) {
+                    if (marker.getTitle().equals(point.getName())) {
+                        if (show)
+                            marker.setVisible(true);
+                        else
+                            marker.setVisible(false);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
+
+    //get the map fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-
         super.onActivityCreated(savedInstanceState);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -270,16 +367,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     }
 
     private void showPcn() {
-        if (mMap != null && pcn != null) {
-            for (Polyline line: pcn) {
+        if (mMap != null && pcnLines != null) {
+            for (Polyline line: pcnLines) {
                 line.setVisible(true);
             }
         }
     }
 
     private void removePcn() {
-        if (mMap != null && pcn != null) {
-            for (Polyline line : pcn) {
+        if (mMap != null && pcnLines != null) {
+            for (Polyline line : pcnLines) {
                 line.setVisible(false);
             }
         }
@@ -291,10 +388,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             public void onChange() {
                 setStartPoint = controller.isSetStartPoint();
                 userRoute = controller.getUserRoute();
+
                 if (setStartPoint) {
-                    for (Marker marker : accessPoint) {
+/*                    for (Marker marker : accessPoint) {
                         marker.setVisible(true);
-                    }
+                    }*/
+                    listPoints.setVisibility(View.VISIBLE);
+                    if (startPoint != null)
+                        startPoint.remove();
+
+                    /*
                     mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
@@ -314,13 +417,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         }
 
 
-                    });
+                    });*/
                 }
-                else {
+/*                else {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(false);
                     }
-                }
+                }*/
             }
         });
     }
@@ -332,10 +435,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 setEndPoint = controller.isSetEndPoint();
                 userRoute = controller.getUserRoute();
                 if (setEndPoint) {
-                    for (Marker marker : accessPoint) {
+                    listPoints.setVisibility(View.VISIBLE);
+                    if (endPoint != null)
+                        endPoint.remove();
+/*                    for (Marker marker : accessPoint) {
                         marker.setVisible(true);
-                    }
-                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    }*/
+                    /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
                             if (!marker.getTitle().equals("Your Location"))
@@ -351,13 +457,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                                 }
                             return false;
                         }
-                    });
+                    });*/
                 }
+/*
                 else {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(false);
                     }
                 }
+*/
             }
         });
     }
@@ -401,13 +509,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             public void onChange() {
                 ArrayList<LatLng> route = controller.getRoute();
                 Log.i("route", route.toString());
-                routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.GREEN)));
+                routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.BLACK)));
 
             }
         });
     }
 
-    public void pointChosen() {
+/*    public void pointChosen() {
         controller.setPointListener(new GoogleMapController.PointListener() {
             @Override
             public void onChange() {
@@ -421,16 +529,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pointChosen.getPosition(), ZOOM));
             }
         });
-    }
+    }*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        searchBar.setVisibility(View.VISIBLE);
+        switchPark.setVisibility(View.VISIBLE);
+        switchPcn.setVisibility(View.VISIBLE);
 
         setStartingPoint();
         setEndingPoint();
         createRoute();
-        pointChosen();
+        //pointChosen();
 
         userRoute = controller.getUserRoute();
 
@@ -439,14 +550,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     .title(userRoute.getStartPointName())
                     .snippet("Your Starting Point")
                     .zIndex(2f)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
         }
         if (userRoute.getEndPointName() != null) {
             endPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getEndPoint())
                     .title(userRoute.getEndPointName())
                     .snippet("Your Ending Point")
                     .zIndex(2f)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
         }
         if (!controller.getRoute().isEmpty()) {
             Toast.makeText(getActivity(), "Inside", Toast.LENGTH_SHORT).show();
@@ -457,205 +568,244 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
 
 
-    locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
 
-    locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
 
-        //to prevent camera to move back to user location every second
-        boolean isFirstTime = true;
+            //to prevent camera to move back to user location every second
+            boolean isFirstTime = true;
 
-        //method to move location according to user's position
-        @Override
-        public void onLocationChanged(Location location) {
+            //method to move location according to user's position
+            @Override
+            public void onLocationChanged(Location location) {
 
-            if (isFirstTime) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
-                isFirstTime = false;
-            }
-
-            if (userLocation != null)
-                lastLocation = userLocation;
-
-            //update current position of user
-            userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
-/*                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }*/
-            //Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            //lastLocation = new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude());
-            startTrack = controller.isStartTrack();
-            if (startTrack) {
-                userLocationSession = controller.getUserLocationSession();
-                locations.add(lastLocation);
-                UserLocation userLocation = new UserLocation();
-                UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
-                UserLocationController.updateUserLocation(userLocationSession);
-
-            }
-                    /*Log.i("LAST LOCATION", lastLocation.toString());
-                    for (LatLng loc: locations) {
-                        Log.i("LOCATION", loc.toString());
-                    }*/
-
-            if (userMarker != null) {
-                userMarker.remove();
-                userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                if (startTrack) {
-                    mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED));
-                    //mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
+                if (isFirstTime) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
+                    isFirstTime = false;
                 }
-            } else {
-                userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                if (userLocation != null)
+                    lastLocation = userLocation;
+
+                //update current position of user
+                userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+                //check if tracking is enabled
+                startTrack = controller.isStartTrack();
+                if (startTrack) {
+                    userLocationSession = controller.getUserLocationSession();
+                    locations.add(lastLocation);
+                    UserLocation userLocation = new UserLocation();
+                    UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
+                    UserLocationController.updateUserLocation(userLocationSession);
+                }
+
+                if (userMarker != null) {
+                    userMarker.remove();
+                    userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    if (startTrack) {
+                        mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED));
+                        //mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
+                    }
+                } else {
+                    userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                }
+
+
             }
 
-
-            //mMap.addPolyline(new PolylineOptions().add(new LatLng(lastLocation.latitude, lastLocation.longitude),
-            //        new LatLng(userLocation.latitude, userLocation.longitude)).width(Float.valueOf("10.0")).color(Color.BLACK));
-
-        }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String s) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
-
-        }
-    };
-
-        try {
-        pcnLayer = new GeoJsonLayer(mMap, R.raw.parkconnectorloopg, getContext());
-        accessLayer = new GeoJsonLayer(mMap, R.raw.accesspointsg, getContext());
-        parksLayer = new GeoJsonLayer(mMap, R.raw.parksg, getContext());
-    } catch (JSONException e) {
-        e.printStackTrace();
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-
-        try {
-        parklayer = new KmlLayer(mMap, R.raw.parkconnectorloop, getContext());
-        accesslayer = new KmlLayer(mMap, R.raw.accesspoints, getContext());
-        //parklayer.addLayerToMap();
-
-
-    } catch (XmlPullParserException e) {
-        e.printStackTrace();
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    //get the access points from geojson
-        for (GeoJsonFeature feature : accessLayer.getFeatures()) {
-        if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
-            GeoJsonPoint point = (GeoJsonPoint) feature.getGeometry();
-
-            LatLng latLng = point.getCoordinates();
-
-            Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name")).visible(false));
-            accessPoint.add(marker);
-        }
-        controller.setMarkers(accessPoint);
-    }
-
-    //get the points of parks from geojson
-        for (GeoJsonFeature feature : parksLayer.getFeatures()) {
-        if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
-            GeoJsonPoint point = (GeoJsonPoint) feature.getGeometry();
-
-            LatLng latLng = point.getCoordinates();
-
-            Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name")).visible(false));
-            parkPoint.add(marker);
-        }
-    }
-
-    //get the park connector network from geojson
-        for (GeoJsonFeature feature : pcnLayer.getFeatures()) {
-        if("LineString".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
-            GeoJsonLineString line = (GeoJsonLineString) feature.getGeometry();
-            ArrayList<LatLng> latLngList = (ArrayList)line.getCoordinates();
-            switch(feature.getProperty("PCN_LOOP")) {
-                case "Central Urban Loop":
-                    pcn.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.BLUE)));
-                    break;
-                case "Eastern Coastal Loop":
-                    pcn.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.GREEN)));
-                    break;
-                case "Northern Explorer Loop":
-                    pcn.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.DKGRAY)));
-                    break;
-                case "North Eastern Riverine Loop":
-                    pcn.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.MAGENTA)));
-                    break;
-                case "Southern Ridges Loop":
-                    pcn.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.BLACK)));
-                    break;
-                case "Western Adventure Loop":
-                    pcn.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.CYAN)));
-                    break;
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
 
             }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        };
+
+        try {
+            pcnLayer = new GeoJsonLayer(mMap, R.raw.parkconnectorloopg, getContext());
+            accessLayer = new GeoJsonLayer(mMap, R.raw.accesspointsg, getContext());
+            parksLayer = new GeoJsonLayer(mMap, R.raw.parksg, getContext());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
 
 
+        try {
+            parklayer = new KmlLayer(mMap, R.raw.parkconnectorloop, getContext());
+            accesslayer = new KmlLayer(mMap, R.raw.accesspoints, getContext());
+            //parklayer.addLayerToMap();
+
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //get the access points from geojson
+        extractGeodata(accessLayer);
+
+        //get the points of parks from geojson
+        extractGeodata(parksLayer);
+
+        //get the park connector network from geojson
+        extractGeodata(pcnLayer);
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
-    } else {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
-        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+        } else {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
+            Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        //mMap.clear();
-        userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+            //mMap.clear();
+            if (lastKnownLocation != null)
+                userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 
-    }
+        }
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-}
+    }
 
-    /*@Override
-    public void onStart() {
-        super.onStart();
-        userRoute = controller.getUserRouteEntity();
-        if (userRoute.getStartPointName() != null) {
-            startPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getStartPoint())
-                    .title(userRoute.getStartPointName())
-                    .snippet("Your Starting Point")
-                    .zIndex(2f)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+    private void extractGeodata(GeoJsonLayer layer) {
+        if (layer != null) {
+            if (layer.equals(pcnLayer)) {
+                for (GeoJsonFeature feature : pcnLayer.getFeatures()) {
+                    if("LineString".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
+                        GeoJsonLineString line = (GeoJsonLineString) feature.getGeometry();
+                        ArrayList<LatLng> latLngList = (ArrayList)line.getCoordinates();
+                        switch(feature.getProperty("PCN_LOOP")) {
+                            case "Central Urban Loop":
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.BLUE)));
+                                break;
+                            case "Eastern Coastal Loop":
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.GREEN)));
+                                break;
+                            case "Northern Explorer Loop":
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.DKGRAY)));
+                                break;
+                            case "North Eastern Riverine Loop":
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.MAGENTA)));
+                                break;
+                            case "Southern Ridges Loop":
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.BLACK)));
+                                break;
+                            case "Western Adventure Loop":
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.CYAN)));
+                                break;
+
+                        }
+                    }
+                }
+            }
+            else {
+                for (GeoJsonFeature feature : layer.getFeatures()) {
+                    if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
+                        GeoJsonPoint p = (GeoJsonPoint) feature.getGeometry();
+                        LatLng latLng = p.getCoordinates();
+
+                        if (layer.equals(accessLayer)) {
+                            Point point = new Point(feature.getProperty("Name"), latLng, "access", "access");
+                            pointList.add(point);
+                            Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
+                                    .visible(false));
+                            accessPoint.add(marker);
+                        }
+                        else {
+                            Point point = new Point(feature.getProperty("Name"), latLng, feature.getProperty("description"), "park");
+                            pointList.add(point);
+                            Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
+                                    .visible(false));
+                            parkPoint.add(marker);
+                        }
+                    }
+                }
+            }
+            adapter.notifyDataSetChanged();
         }
-        if (userRoute.getEndPointName() != null) {
-            endPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getEndPoint())
-                    .title(userRoute.getEndPointName())
-                    .snippet("Your Ending Point")
-                    .zIndex(2f)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+    }
+
+/*
+    private void getAccessPoints() {
+        if (accessLayer != null) {
+            for (GeoJsonFeature feature : accessLayer.getFeatures()) {
+                if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
+                    GeoJsonPoint p = (GeoJsonPoint) feature.getGeometry();
+                    LatLng latLng = p.getCoordinates();
+
+                    Point point = new Point(feature.getProperty("Name"), latLng, "access", "access");
+                    pointList.add(point);
+
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
+                            .visible(false));
+                    accessPoint.add(marker);
+                }
+                controller.setMarkers(accessPoint);
+            }
         }
-        if (!controller.getRoute().isEmpty())
-                routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(controller.getRoute()).width(10.0f).color(Color.GREEN)));
+        adapter.notifyDataSetChanged();
+    }
+
+
+    private void getParkPoints() {
+        if (parksLayer != null) {
+            for (GeoJsonFeature feature : parksLayer.getFeatures()) {
+                if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
+                    GeoJsonPoint p = (GeoJsonPoint) feature.getGeometry();
+                    LatLng latLng = p.getCoordinates();
+
+                    Point point = new Point(feature.getProperty("Name"), latLng, feature.getProperty("description"), "park");
+                    pointList.add(point);
+
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
+                            .visible(false));
+                    parkPoint.add(marker);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
     }*/
 
+    //method to check whether permission for location access has been granted
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    //how often location is updated
+                    //startTrackerService();
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
+                }
+            }
+        }
+    }
+
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
+        Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_point_red_48dp);
+        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
 
 }

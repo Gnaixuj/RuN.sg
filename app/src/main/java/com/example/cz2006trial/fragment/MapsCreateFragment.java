@@ -53,7 +53,7 @@ public class MapsCreateFragment extends Fragment {
                     createButton.setVisibility(View.GONE);
                     setEndButton.setVisibility(View.GONE);
                     endPoint.setVisibility(View.GONE);
-                    controller.setStartingPoint(userRoute);
+                    controller.setCreatePoint(true, userRoute);
                 } else {
                     setStartButton.setText("SET");
                     createButton.setVisibility(View.VISIBLE);
@@ -75,7 +75,7 @@ public class MapsCreateFragment extends Fragment {
                     createButton.setVisibility(View.GONE);
                     startPoint.setVisibility(View.GONE);
                     setStartButton.setVisibility(View.GONE);
-                    controller.setEndingPoint(userRoute);
+                    controller.setCreatePoint(false, userRoute);
                 } else {
                     setEndButton.setText("SET");
                     setStartButton.setVisibility(View.VISIBLE);

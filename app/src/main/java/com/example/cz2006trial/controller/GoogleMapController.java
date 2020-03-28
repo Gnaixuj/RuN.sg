@@ -31,7 +31,7 @@ public class GoogleMapController {
     private EndListener endListener;
     private CreateListener createListener;
     private RouteListener routeListener;
-    private PointListener pointListener;
+    //private PointListener pointListener;
 
     private HashMap<String, Object> parkInfo = new HashMap<>();
 
@@ -44,8 +44,8 @@ public class GoogleMapController {
     private String message;
 
     private ArrayList<LatLng> route;
-    private ArrayList<Marker> markers;
-    private Marker pointChosen;
+    //private ArrayList<Marker> markers;
+    //private Marker pointChosen;
     private boolean createRoute;
     private PlaceListener placeListener;
 
@@ -76,7 +76,7 @@ public class GoogleMapController {
 
     public abstract static class RouteListener implements Listener{};
 
-    public abstract static class PointListener implements Listener{};
+    //public abstract static class PointListener implements Listener{};
 
     public abstract static class PlaceListener implements Listener{};
 
@@ -96,15 +96,15 @@ public class GoogleMapController {
         this.createListener = listener;
     }
 
-    public void setPointListener(PointListener pointListener) {
+/*    public void setPointListener(PointListener pointListener) {
         this.pointListener = pointListener;
-    }
+    }*/
 
     public void setRouteListener(RouteListener routeListener) {
         this.routeListener = routeListener;
     }
 
-    public void setMarkers(ArrayList<Marker> markers) {
+/*    public void setMarkers(ArrayList<Marker> markers) {
         this.markers = markers;
     }
 
@@ -119,7 +119,7 @@ public class GoogleMapController {
 
     public Marker getPointChosen() {
         return pointChosen;
-    }
+    }*/
 
     public void beginTracking(UserLocationSession userLocationSession) {
         this.userLocationSession = userLocationSession;
@@ -142,7 +142,7 @@ public class GoogleMapController {
         return userLocationSession;
     }
 
-    public void setStartingPoint(UserRoute userRoute) {
+/*    public void setStartingPoint(UserRoute userRoute) {
         setStartPoint = true;
         if (startListener != null ) startListener.onChange();
         this.userRoute = userRoute;
@@ -154,6 +154,18 @@ public class GoogleMapController {
         if (endListener != null ) endListener.onChange();
         this.userRoute = userRoute;
 
+    }*/
+
+    public void setCreatePoint (boolean isStart, UserRoute userRoute) {
+        if (isStart) {
+            setStartPoint = true;
+            if (startListener != null ) startListener.onChange();
+        }
+        else {
+            setEndPoint = true;
+            if (endListener != null ) endListener.onChange();
+        }
+        this.userRoute = userRoute;
     }
 
     public void stopSettingPoints() {
@@ -212,8 +224,6 @@ public class GoogleMapController {
 
         String url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?" + "key=" + apiKey +
                 "&input=" + title + "&inputtype=textquery" + "&fields=photos,formatted_address,name,rating,opening_hours,geometry,place_id";
-
-
 
         //Run the URL formed in above step and wait for result.
         DownloadPlacesTask downloadPlacesTask = new DownloadPlacesTask();
