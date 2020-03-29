@@ -31,30 +31,6 @@
         android:layout_marginEnd="20dp"
         android:text="Show Park Connector Network" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <SearchView
-            android:id="@+id/search_point"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="#FFFFFF"
-            android:queryHint="Search for parks/access points...">
-
-        </SearchView>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list_point"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFFFF"
-            tools:visibility="gone" />
-
-    </LinearLayout>
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,6 +57,30 @@
         app:itemIconTint="@drawable/selector_bottombar"
         app:itemTextColor="@drawable/selector_bottombar"
         app:menu="@menu/menu_bottom_nav" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <SearchView
+            android:id="@+id/search_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="#FFFFFF"
+            android:queryHint="Search for parks/access points...">
+
+        </SearchView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_point"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            tools:visibility="gone" />
+
+    </LinearLayout>
 
     <!--
         <com.google.android.material.floatingactionbutton.FloatingActionButton

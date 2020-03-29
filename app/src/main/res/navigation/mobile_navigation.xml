@@ -16,9 +16,6 @@
         android:name="com.example.cz2006trial.fragment.GoalsFragment"
         android:label="@string/menu_goals"
         tools:layout="@layout/fragment_goals" >
-        <action
-            android:id="@+id/action_nav_goals_to_nav_editgoals"
-            app:destination="@id/nav_editgoals" />
     </fragment>
 
     <fragment
@@ -28,10 +25,27 @@
         tools:layout="@layout/fragment_faq" />
 
     <fragment
-        android:id="@+id/nav_editgoals"
-        android:name="com.example.cz2006trial.fragment.EditGoalsFragment"
-        android:label="Edit Goals"
-        tools:layout="@layout/fragment_edit_goals" />
+        android:id="@+id/nav_history"
+        android:name="com.example.cz2006trial.fragment.HistoryFragment"
+        android:label="@string/menu_history"
+        tools:layout="@layout/activity_history_page" >
+        <action
+            android:id="@+id/action_nav_history_to_nav_route"
+            app:destination="@id/nav_route" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_route"
+        android:name="com.example.cz2006trial.fragment.RouteFragment"
+        android:label="@string/menu_route"
+        tools:layout="@layout/activity_route_page" >
+        <argument
+            android:name="myArg"
+            app:argType="string"
+            android:defaultValue="@null"/>
+    </fragment>
+
+
 
     <fragment
         android:id="@+id/nav_profile"

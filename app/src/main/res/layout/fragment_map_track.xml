@@ -10,8 +10,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Track" />
+        android:fontFamily="sans-serif-light"
+        android:padding="15dp"
+        android:text="Track"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="italic" />
 
     <Chronometer
         android:id="@+id/chronometer"
@@ -51,7 +56,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:backgroundTint="#009688"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:textColor="@color/white"
         android:text="Start" />
 
     <Button
@@ -59,7 +65,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:backgroundTint="#009688"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:textColor="@color/white"
         android:text="End"
         android:visibility="invisible" />
 

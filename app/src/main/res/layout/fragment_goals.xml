@@ -10,7 +10,7 @@
         android:id="@+id/rellay1"
         android:layout_width="match_parent"
         android:layout_height="376dp"
-        android:background="@drawable/grad">
+        android:background="@drawable/side_nav_bar">
 
         <RelativeLayout
             android:id="@+id/imgUser"

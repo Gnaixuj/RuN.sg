@@ -78,6 +78,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     //private Marker pointChosen;
 
     private boolean startTrack = false;
+    private ArrayList<Polyline> startTrackLine = new ArrayList<>();
 
     private UserLocationSession userLocationSession = new UserLocationSession();
 
@@ -165,7 +166,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                             .snippet("Your Ending Point")
                             .zIndex(2f)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                    UserRouteController.setStartMarkerInfo(userRoute, endPoint);
+                    UserRouteController.setEndMarkerInfo(userRoute, endPoint);
                     setEndPoint = false;
                 }
                 //todo bug with clicking
@@ -382,6 +383,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
+    public void clearTrack() {
+        controller.setClearTrackListener(new GoogleMapController.ClearTrackListener() {
+            @Override
+            public void onChange() {
+                System.out.println("Inside");
+                for (int i = 0; i < startTrackLine.size(); i++)
+                    startTrackLine.get(i).remove();
+                startTrackLine.clear();
+                locations.clear();
+
+            }
+        });
+    }
+
     public void setStartingPoint() {
         controller.setStartListener(new GoogleMapController.StartListener() {
             @Override
@@ -595,10 +610,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 if (startTrack) {
                     userLocationSession = controller.getUserLocationSession();
                     locations.add(lastLocation);
+                    startTrackLine.add(mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED)));
                     UserLocation userLocation = new UserLocation();
                     UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
-                    UserLocationController.updateUserLocation(userLocationSession);
                 }
+
 
                 if (userMarker != null) {
                     userMarker.remove();

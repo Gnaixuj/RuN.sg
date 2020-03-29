@@ -2,9 +2,15 @@
 <resources>
     <color name="white">#FFFFFF</color>
     <color name="white_40">#9C9C9C</color>
-    <color name="colorPrimary">#49BEFF</color>
-    <color name="colorPrimaryDark">#65DCE5</color>
-    <color name="colorAccent">#0D5D98</color>
+
+    <color name="colorPrimary">#00a8cc</color>
+    <color name="colorPrimaryDark">#000839</color>
+    <color name="colorAccent">#005082</color>
+
+    <color name="colorSecondary">#ef962d</color>
+    <color name="colorSecondaryDark">#5a3f11</color>
+    <color name="colorSecondaryAccent">#9c5518</color>
+
 
     <color name="address">#2F7092</color>
     <color name="followers">#0D5D98</color>

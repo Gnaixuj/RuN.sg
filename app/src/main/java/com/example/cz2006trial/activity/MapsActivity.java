@@ -70,7 +70,7 @@ public class MapsActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_map, R.id.nav_goals, R.id.nav_faq, R.id.nav_profile)
+                R.id.nav_map, R.id.nav_goals, R.id.nav_faq, R.id.nav_profile, R.id.nav_history)
                 .setDrawerLayout(drawer)
                 .build();
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);

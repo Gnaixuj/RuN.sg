@@ -35,7 +35,7 @@ public class PointArrayAdapter extends RecyclerView.Adapter<PointArrayAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-        ViewHolder myViewHolder = new ViewHolder(view);
+        ViewHolder myViewHolder = new ViewHolder(view, listener);
         return myViewHolder;
     }
 
@@ -90,24 +90,24 @@ public class PointArrayAdapter extends RecyclerView.Adapter<PointArrayAdapter.Vi
 
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView item;
-        public ImageView image;
+        ImageView image;
+        PointsAdapterListener listener;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView, PointsAdapterListener listener) {
 
             super(itemView);
             item = itemView.findViewById(R.id.list_name);
             image = itemView.findViewById(R.id.list_icon);
+            this.listener = listener;
+            itemView.setOnClickListener(this);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // send selected contact in callback
-                    listener.onPointSelected(pointListFiltered.get(getAdapterPosition()));
-                }
-            });
+        }
 
+        @Override
+        public void onClick(View view) {
+            listener.onPointSelected(pointListFiltered.get(getAdapterPosition()));
         }
     }
 

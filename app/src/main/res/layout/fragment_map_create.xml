@@ -10,8 +10,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:padding="15dp"
         android:text="Create"
-        android:padding="16dp"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="italic"  />
 
     <LinearLayout
         android:id="@+id/fragment_map_create"
@@ -25,7 +30,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:text="Start Point: Select an access point marker"
-            android:textColor="#013220"
+            android:textColor="@color/colorPrimaryDark"
             android:paddingLeft="10dp"
             android:maxLines="2"/>
 
@@ -33,7 +38,8 @@
             android:id="@+id/buttonSetStart"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:backgroundTint="#009688"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:textColor="@color/white"
             android:text="SET" />
 
 
@@ -53,13 +59,14 @@
             android:maxLines="2"
             android:paddingLeft="10dp"
             android:text="End Point: Select an access point marker"
-            android:textColor="#013220" />
+            android:textColor="@color/colorPrimaryDark" />
 
         <Button
             android:id="@+id/buttonSetEnd"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:backgroundTint="#009688"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:textColor="@color/white"
             android:text="SET" />
     </LinearLayout>
 
@@ -73,7 +80,8 @@
             android:id="@+id/buttonCreate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#009688"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:textColor="@color/white"
             android:layout_marginStart="80dp"
             android:text="Create" />
 
@@ -81,7 +89,8 @@
             android:id="@+id/buttonSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#009688"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:textColor="@color/white"
             android:text="Save"
             android:visibility="gone"
             android:layout_marginEnd="80dp"/>

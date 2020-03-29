@@ -13,6 +13,10 @@
             android:icon="@drawable/ic_menu_goals"
             android:title="@string/menu_goals" />
         <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_menu_history"
+            android:title="@string/menu_history" />
+        <item
             android:id="@+id/nav_faq"
             android:icon="@drawable/ic_menu_faq"
             android:title="@string/menu_faq" />

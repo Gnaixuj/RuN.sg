@@ -31,7 +31,7 @@ public class GoogleMapController {
     private EndListener endListener;
     private CreateListener createListener;
     private RouteListener routeListener;
-    private PointListener pointListener;
+    //private PointListener pointListener;
     private DisplayTrackingDistanceListener displayTrackingDistanceListener;
     private ClearTrackListener clearTrackListener;
 
@@ -80,7 +80,7 @@ public class GoogleMapController {
 
     public abstract static class RouteListener implements Listener{};
 
-    public abstract static class PointListener implements Listener{};
+    //public abstract static class PointListener implements Listener{};
 
     public abstract static class PlaceListener implements Listener{};
 
@@ -110,9 +110,11 @@ public class GoogleMapController {
         this.createListener = listener;
     }
 
+/*
     public void setPointListener(PointListener pointListener) {
         this.pointListener = pointListener;
     }
+*/
 
     public void setRouteListener(RouteListener routeListener) {
         this.routeListener = routeListener;
@@ -126,7 +128,7 @@ public class GoogleMapController {
         this.clearTrackListener = listener;
     }
 
-    public void setMarkers(ArrayList<Marker> markers) {
+ /*   public void setMarkers(ArrayList<Marker> markers) {
         this.markers = markers;
     }
 
@@ -142,7 +144,7 @@ public class GoogleMapController {
     public Marker getPointChosen() {
         return pointChosen;
     }
-
+*/
     public void beginTracking(UserLocationSession userLocationSession) {
         startTrack = true;
         this.userLocationSession = userLocationSession;
@@ -169,16 +171,18 @@ public class GoogleMapController {
     public boolean isStartTrack() {
         return startTrack;
     }
+/*
 
     public void setStartTrack(boolean startTrack) {
         this.startTrack = startTrack;
     }
+*/
 
     public UserLocationSession getUserLocationSession() {
         return userLocationSession;
     }
 
-    public void setStartingPoint(UserRoute userRoute) {
+/*    public void setStartingPoint(UserRoute userRoute) {
         setStartPoint = true;
         if (startListener != null ) startListener.onChange();
         this.userRoute = userRoute;
@@ -225,6 +229,13 @@ public class GoogleMapController {
         if (createListener != null ) createListener.onChange();
     }
 
+    public ArrayList<LatLng> getHistoryRoute() {
+        return route;
+    }
+
+    public void setCreateHistoryRoute(boolean createHistoryRoute) {
+        this.createHistoryRoute = createHistoryRoute;
+    }
 
     public boolean isSetStartPoint() {
         return setStartPoint;
