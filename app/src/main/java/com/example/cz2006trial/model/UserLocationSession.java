@@ -35,11 +35,6 @@ public class UserLocationSession {
         }
     }
 
-    public void clearAllUserLocation() {
-        distance = 0;
-        session.clear();
-    }
-
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }

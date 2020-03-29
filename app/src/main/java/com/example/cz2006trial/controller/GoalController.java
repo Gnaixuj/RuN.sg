@@ -1,5 +1,7 @@
 package com.example.cz2006trial.controller;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 
 import com.example.cz2006trial.DatabaseManager;
@@ -14,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class GoalController {
@@ -33,7 +36,7 @@ public class GoalController {
     public static String validateGoalFields(String target) {
 
         if (target.equals("")) {
-            return "Please enter a positive value";
+            return "noEdit";
         }
 
         double targetDouble = Double.parseDouble(target);
@@ -54,10 +57,21 @@ public class GoalController {
         return true;
     }*/
 
-    public static void getDistanceDatabase(final Date date, final double distance) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    /*public static void updateTrackingDistance(final Date date, final double distance) {
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         final String dateString = dateFormat.format(date);
+        DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                //if (errorMsg[0] != null)
+                    //Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                if (errorMsg[1] != null)
+                    DatabaseManager.updateGoalData(dateString, 0, -1);
+                else
+                    DatabaseManager.updateGoalData(dateString, doubleArgs[0] + distance, doubleArgs[1]);
+            }
+        }, dateString);
+
         DatabaseReference databaseGoals = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(dateString);
         databaseGoals.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -77,7 +91,7 @@ public class GoalController {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
         });
-    }
+    }*/
 
 
 

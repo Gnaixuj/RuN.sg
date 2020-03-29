@@ -31,7 +31,9 @@ public class GoogleMapController {
     private EndListener endListener;
     private CreateListener createListener;
     private RouteListener routeListener;
-    //private PointListener pointListener;
+    private PointListener pointListener;
+    private DisplayTrackingDistanceListener displayTrackingDistanceListener;
+    private ClearTrackListener clearTrackListener;
 
     private HashMap<String, Object> parkInfo = new HashMap<>();
 
@@ -44,8 +46,10 @@ public class GoogleMapController {
     private String message;
 
     private ArrayList<LatLng> route;
-    //private ArrayList<Marker> markers;
-    //private Marker pointChosen;
+    private ArrayList<LatLng> historyRoute;
+    private ArrayList<Marker> markers;
+    private Marker pointChosen;
+    private boolean createHistoryRoute;
     private boolean createRoute;
     private PlaceListener placeListener;
 
@@ -76,9 +80,19 @@ public class GoogleMapController {
 
     public abstract static class RouteListener implements Listener{};
 
-    //public abstract static class PointListener implements Listener{};
+    public abstract static class PointListener implements Listener{};
 
     public abstract static class PlaceListener implements Listener{};
+
+    public abstract static class DisplayTrackingDistanceListener implements Listener {
+    }
+
+    ;
+
+    public abstract static class ClearTrackListener implements Listener {
+    }
+
+    ;
 
     public void setPlaceListener(PlaceListener listener) {
         this.placeListener = listener;
@@ -96,15 +110,23 @@ public class GoogleMapController {
         this.createListener = listener;
     }
 
-/*    public void setPointListener(PointListener pointListener) {
+    public void setPointListener(PointListener pointListener) {
         this.pointListener = pointListener;
-    }*/
+    }
 
     public void setRouteListener(RouteListener routeListener) {
         this.routeListener = routeListener;
     }
 
-/*    public void setMarkers(ArrayList<Marker> markers) {
+    public void setDisplayTrackingDistanceListener(DisplayTrackingDistanceListener listener) {
+        this.displayTrackingDistanceListener = listener;
+    }
+
+    public void setClearTrackListener(ClearTrackListener listener) {
+        this.clearTrackListener = listener;
+    }
+
+    public void setMarkers(ArrayList<Marker> markers) {
         this.markers = markers;
     }
 
@@ -119,11 +141,21 @@ public class GoogleMapController {
 
     public Marker getPointChosen() {
         return pointChosen;
-    }*/
+    }
 
     public void beginTracking(UserLocationSession userLocationSession) {
-        this.userLocationSession = userLocationSession;
         startTrack = true;
+        this.userLocationSession = userLocationSession;
+    }
+
+    public void displayTrackingDistance(UserLocationSession userLocationSession) {
+        if (displayTrackingDistanceListener != null) displayTrackingDistanceListener.onChange();
+        this.userLocationSession = userLocationSession;
+    }
+
+    public void clearTrack() {
+        if (clearTrackListener != null) clearTrackListener.onChange();
+        userLocationSession = new UserLocationSession();
     }
 
     public void resumeTracking() {
@@ -138,11 +170,15 @@ public class GoogleMapController {
         return startTrack;
     }
 
+    public void setStartTrack(boolean startTrack) {
+        this.startTrack = startTrack;
+    }
+
     public UserLocationSession getUserLocationSession() {
         return userLocationSession;
     }
 
-/*    public void setStartingPoint(UserRoute userRoute) {
+    public void setStartingPoint(UserRoute userRoute) {
         setStartPoint = true;
         if (startListener != null ) startListener.onChange();
         this.userRoute = userRoute;
@@ -224,6 +260,8 @@ public class GoogleMapController {
 
         String url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?" + "key=" + apiKey +
                 "&input=" + title + "&inputtype=textquery" + "&fields=photos,formatted_address,name,rating,opening_hours,geometry,place_id";
+
+
 
         //Run the URL formed in above step and wait for result.
         DownloadPlacesTask downloadPlacesTask = new DownloadPlacesTask();
@@ -321,7 +359,11 @@ public class GoogleMapController {
                         JSONObject polyline = steps.getJSONObject(j).getJSONObject("polyline");
                         List<LatLng> markers = PolyUtil.decode(polyline.getString("points"));
 
-                        route = (ArrayList) markers;
+                        if (!createHistoryRoute)
+                            route = (ArrayList) markers;
+                        else
+                            System.out.println("Inside");
+                        historyRoute = (ArrayList) markers;
                         routeListener.onChange();
 
                     }
@@ -364,7 +406,7 @@ public class GoogleMapController {
                 displayTravelTime = String.valueOf(min) + ":" + String.valueOf(sec) + " minutes";
             }
 
-            UserLocationController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
+            UserRouteController.setDistanceTimeTaken(userRoute, displayDistance, displayTravelTime);
         }
     }
 

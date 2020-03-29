@@ -1,32 +1,49 @@
 package com.example.cz2006trial.controller;
 
+import com.example.cz2006trial.DatabaseManager;
+import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.model.UserLocation;
 import com.example.cz2006trial.model.UserLocationSession;
 import com.example.cz2006trial.model.UserRoute;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class UserLocationController {
 
     public static void addUserLocation(UserLocationSession userLocationSession, LatLng geopoints, Date timestamp) {
+        GoogleMapController controller = GoogleMapController.getController();
         double latitude = geopoints.latitude;
         double longitude = geopoints.longitude;
         UserLocation userLocation = new UserLocation(latitude, longitude, timestamp);
 
         ArrayList<UserLocation> userSession = userLocationSession.getSession();
         if (!userSession.isEmpty()) {
-            double distance = calculateDistance(userSession.get(userSession.size() - 1).getLatitude(),
+            final double distance = calculateDistance(userSession.get(userSession.size() - 1).getLatitude(),
                     userSession.get(userSession.size() - 1).getLongitude(),
                     latitude, longitude);
-            GoalController.getDistanceDatabase(timestamp, distance);
+            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            final String dateString = dateFormat.format(timestamp);
+            DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
+                @Override
+                public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
+                    if (errorMsg[1] != null)
+                        DatabaseManager.updateGoalData(dateString, 0, -1);
+                    else {
+                        DatabaseManager.updateGoalData(dateString, doubleArgs[0] + distance, doubleArgs[1]);
+
+                    }
+                }
+            }, dateString);
+
+            //GoalController.updateTrackingDistance(timestamp, distance);
             userLocationSession.addDistance(distance);
         }
         userLocationSession.addUserLocation(userLocation);
+        controller.displayTrackingDistance(userLocationSession);
     }
 
     private static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
@@ -44,31 +61,12 @@ public class UserLocationController {
         }
     }
 
-    public static boolean updateUserLocation(UserLocationSession userLocationSession) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference()
-                .child(UID).child("userLocationSessions").child(userLocationSession.getTimestamp().toString());
-        databaseUserSession.setValue(new UserLocationSession(userLocationSession.getTimestamp(), userLocationSession.getDistance(), userLocationSession.getTimeTaken()));
-        for (int i = 0; i < userLocationSession.getSession().size(); i++) {
-            DatabaseReference databaseUserLocation = databaseUserSession.child(userLocationSession.getSession().get(i).getTimestamp().toString());
-            databaseUserLocation.setValue(new UserLocation(userLocationSession.getSession().get(i).getLatitude(),
-                    userLocationSession.getSession().get(i).getLongitude(),
-                    userLocationSession.getSession().get(i).getTimestamp()));
-        }
-        return true;
-    }
-
-    public static void calculateNSetTimeTaken(UserLocationSession userLocationSession, long diff) {
+    public static void setTimeTaken(UserLocationSession userLocationSession, long diff) {
         long diffSeconds = diff / 1000 % 60;
         long diffMinutes = diff / (60 * 1000) % 60;
         long diffHours = diff / (60 * 60 * 1000) % 24;
         String timeTaken = diffHours + "hr " + diffMinutes + "min " + diffSeconds + "s";
         userLocationSession.setTimeTaken(timeTaken);
-    }
-
-    public static void setDistanceTimeTaken(UserRoute userRoute, String displayDistance, String displayTravelTime) {
-        userRoute.setDistance(displayDistance);
-        userRoute.setTimeTaken(displayTravelTime);
     }
 
 }

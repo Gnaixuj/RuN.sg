@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.GoogleMapController;
@@ -40,11 +41,20 @@ public class RoutePageActivity extends AppCompatActivity {
     private String keyDB, routeType;
     private UserLocationSession mUserLocationSession;
     private UserRoute mUserRoute;
+    private TextView dateView;
+    private TextView distanceView;
+    private TextView durationView;
+    private TextView durationHeaderView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_page);
+
+        dateView = findViewById(R.id.date);
+        distanceView = findViewById(R.id.distance);
+        durationView = findViewById(R.id.duration);
+        durationHeaderView = findViewById(R.id.duration_header);
         
         Log.d(TAG, "onCreate: Started");
         
@@ -135,17 +145,12 @@ public class RoutePageActivity extends AppCompatActivity {
         });
     }
 
-    private TextView title, duration;
-
     private void showHistoryRoute() {
         String pattern = "EEE, MMM dd";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-
-        title = findViewById(R.id.textView1);
-        title.setText(simpleDateFormat.format(mUserLocationSession.getTimestamp()));
-
-        duration = findViewById(R.id.textView2);
-        duration.setText("Duration: " + mUserLocationSession.getTimeTaken());
+        dateView.setText(simpleDateFormat.format(mUserLocationSession.getTimestamp()));
+        distanceView.setText("" + mUserLocationSession.getDistance());
+        durationView.setText(mUserLocationSession.getTimeTaken());
 
         ArrayList < LatLng > locations = new ArrayList <> ();
 
@@ -185,32 +190,29 @@ public class RoutePageActivity extends AppCompatActivity {
     private void showSavedRoute() {
         String pattern = "EEE, MMM dd";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        dateView.setText(simpleDateFormat.format(mUserRoute.getDate()));
+        distanceView.setText("" + mUserRoute.getDistance());
+        durationHeaderView.setText("Approx. duration");
+        durationView.setText(mUserRoute.getTimeTaken());
 
-        title = findViewById(R.id.textView1);
-        title.setText(simpleDateFormat.format(mUserRoute.getDate()));
-
-        duration = findViewById(R.id.textView2);
-        duration.setText("Approx. duration: " + mUserRoute.getTimeTaken());
-
-
-        Log.d(TAG, "showSavedRoute: started");
-        controller.setCreateListener(new GoogleMapController.CreateListener() {
-            @Override
-            public void onChange() {
-                controller.getDirections(mUserRoute.getStartPoint(), mUserRoute.getEndPoint());
-                routeDone();
-            }
-        });
+        controller.setCreateHistoryRoute(true);
+        controller.getDirections(mUserRoute.getStartPoint(), mUserRoute.getEndPoint());
+        routeDone();
+        controller.setCreateHistoryRoute(false);
+        mMap.addMarker(new MarkerOptions().position(mUserRoute.getStartPoint())
+                .title(mUserRoute.getStartPointName())
+                .snippet("Your Starting Location"));
+        mMap.addMarker(new MarkerOptions().position(mUserRoute.getEndPoint())
+                .title(mUserRoute.getEndPointName())
+                .snippet("Your Ending Location"));
     }
 
     public void routeDone() {
-        Log.d(TAG, "routeDone: started");
         controller.setRouteListener(new GoogleMapController.RouteListener() {
             @Override
             public void onChange() {
-                ArrayList<LatLng> route = controller.getRoute();
-                Log.d(TAG, "routeDone: onChange: finished and printing");
-                mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.GREEN));
+                ArrayList<LatLng> historyRoute = controller.getHistoryRoute();
+                mMap.addPolyline(new PolylineOptions().addAll(historyRoute).width(10.0f).color(Color.GREEN));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.3521, 103.8198), 10));
             }
         });
