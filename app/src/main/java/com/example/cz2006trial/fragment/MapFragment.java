@@ -556,6 +556,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         setStartingPoint();
         setEndingPoint();
         createRoute();
+        clearTrack();
         //pointChosen();
 
         userRoute = controller.getUserRoute();
@@ -608,8 +609,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 //check if tracking is enabled
                 startTrack = controller.isStartTrack();
                 if (startTrack) {
+                    if (locations.isEmpty())
+                        locations = controller.getLocations();
                     userLocationSession = controller.getUserLocationSession();
                     locations.add(lastLocation);
+                    controller.setLocations(locations);
                     startTrackLine.add(mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED)));
                     UserLocation userLocation = new UserLocation();
                     UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
@@ -620,10 +624,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     userMarker.remove();
                     userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    if (startTrack) {
-                        mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED));
-                        //mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
-                    }
                 } else {
                     userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
