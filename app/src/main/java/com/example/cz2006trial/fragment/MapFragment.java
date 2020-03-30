@@ -3,6 +3,7 @@ package com.example.cz2006trial.fragment;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -710,24 +711,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     if("LineString".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
                         GeoJsonLineString line = (GeoJsonLineString) feature.getGeometry();
                         ArrayList<LatLng> latLngList = (ArrayList)line.getCoordinates();
+                        Resources res = getActivity().getResources();
                         switch(feature.getProperty("PCN_LOOP")) {
                             case "Central Urban Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.BLUE)));
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false)
+                                        .color(res.getColor(R.color.color1, getActivity().getTheme()))));
                                 break;
                             case "Eastern Coastal Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.GREEN)));
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false)
+                                        .color(res.getColor(R.color.color2, getActivity().getTheme()))));
                                 break;
                             case "Northern Explorer Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.DKGRAY)));
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList)
+                                        .color(res.getColor(R.color.color3, getActivity().getTheme()))));
                                 break;
                             case "North Eastern Riverine Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.MAGENTA)));
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false)
+                                        .color(res.getColor(R.color.color4, getActivity().getTheme()))));
                                 break;
                             case "Southern Ridges Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.BLACK)));
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false)
+                                        .color(res.getColor(R.color.color5, getActivity().getTheme()))));
                                 break;
                             case "Western Adventure Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false).color(Color.CYAN)));
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false)
+                                        .color(res.getColor(R.color.color6, getActivity().getTheme()))));
                                 break;
 
                         }
