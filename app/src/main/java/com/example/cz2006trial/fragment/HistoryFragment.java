@@ -3,6 +3,7 @@ package com.example.cz2006trial.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cz2006trial.R;
-import com.example.cz2006trial.historyPage.HistoryRecyclerViewAdapter;
+import com.example.cz2006trial.HistoryRecyclerViewAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,17 +31,21 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdapter.OnItemListener {
 
     private static final String TAG = "HistoryFragment";
-    private ArrayList< String > mDatasetHistoryRoutes = new ArrayList <> ();
-    private ArrayList < String > mDatasetSavedRoutes = new ArrayList <> ();
-    //private ArrayList < String > mDataset;
+
+    private ArrayList < Pair < String, Date > > mDatasetHistoryRoutes = new ArrayList < Pair < String, Date > > ();
+    private ArrayList < Pair < String, Date > > mDatasetSavedRoutes = new ArrayList < Pair < String, Date > > ();
+
     private enum DataType {
         HISTORY_ROUTES,
         SAVED_ROUTES
     }
+
     private DataType currentDataType;
 
     private RadioButton historyRoutesRadioButton;
@@ -75,13 +80,8 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //initialize dataset
-        //initDataset();
-
-
         currentDataType = DataType.HISTORY_ROUTES;
 
-        //mDataset = new ArrayList<>();
         this.root = view;
         historyRoutesRadioButton = view.findViewById(R.id.history_routes_rb);
         savedRoutesRadioButton = view.findViewById(R.id.saved_routes_rb);
@@ -103,7 +103,6 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
         deleteButton = view.findViewById(R.id.delete_hist);
         layout = view.findViewById(R.id.delete);
-        //layout.setVisibility(View.GONE);
 
         Button deleteSelected = view.findViewById(R.id.delete_selected);
         checkAll = view.findViewById(R.id.check_all_hist);
@@ -115,31 +114,23 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
             public void onClick(View view) {
                 //todo delete selected
                 if (adapter != null) {
-                    ArrayList<String> checkedItems = adapter.removeAllChecked();
-                    for (String item: checkedItems) {
-                        debugOutput("item is " + item);
-                        deleteData(item);
-/*                        if (currentDataType == DataType.HISTORY_ROUTES) {
-                            historyRoutesAdapter.removeItems();
-                            historyRoutesAdapter.notifyDataSetChanged();
-                            adapter = historyRoutesAdapter;
-                        }
-                            //mDatasetHistoryRoutes.remove(item);
-                        else {
-                            savedRoutesAdapter.removeItems();
-                            savedRoutesAdapter.notifyDataSetChanged();
-                            adapter = savedRoutesAdapter;*/
-                        }
-                         /*   mDatasetSavedRoutes.remove(item);
-                        adapter.removeItem(i);
-                        i++;*/
+                    ArrayList<Pair<String, Date>> checkedItems = adapter.removeAllChecked();
+
+                    if (currentDataType == DataType.HISTORY_ROUTES) {
+                        mDatasetHistoryRoutes.removeAll(checkedItems);
+                    } else {
+                        mDatasetHistoryRoutes.removeAll(checkedItems);
                     }
+
+                    for (Pair<String, Date> item : checkedItems) {
+                        debugOutput("item is " + item.first);
+                        deleteDataFromFirebase(item.first);
+                    }
+                }
+
                 toggleVisibility();
                 adapter.notifyDataSetChanged();
                 Toast.makeText(getContext(), "Selected items deleted", Toast.LENGTH_SHORT).show();
-/*                    if (currentDataType == DataType.HISTORY_ROUTES) initRecyclerView(root, mDatasetHistoryRoutes);
-                    else initRecyclerView(root, mDatasetSavedRoutes);*/
-//                }
             }
         });
 
@@ -164,14 +155,9 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                     checkAll.setChecked(false);
                     if (adapter != null) adapter.showCheckBox(false);
                     layout.setVisibility(View.GONE);
-
                 }
-
             }
         });
-        //adapter = new RecyclerViewAdapter(getActivity().getApplicationContext(), mDataset, this);
-        //recyclerView.setAdapter(adapter);
-        //adapter.notifyDataSetChanged();
 
         historyRoutesRadioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -180,40 +166,14 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                     currentDataType = DataType.HISTORY_ROUTES;
                     adapter = historyRoutesAdapter;
                     toggleVisibility();
-                    //currentDataType = HistoryFragment.DataType.HISTORY_ROUTES;
-                    //mDataset = (ArrayList<String>) mDatasetHistoryRoutes.clone();
-                    //debugOutput(String.valueOf(mDataset.size()));
-                    //adapter.notifyDataSetChanged();
-                    //initRecyclerView(root, mDatasetHistoryRoutes);
                 }
                 else {
                     currentDataType = DataType.SAVED_ROUTES;
                     adapter = savedRoutesAdapter;
                     toggleVisibility();
-                    //mDataset = (ArrayList<String>) mDatasetSavedRoutes.clone();
-                    //adapter.notifyDataSetChanged();
-                    //initRecyclerView(root, mDatasetSavedRoutes);
                 }
             }
         });
-
-/*        historyRoutesRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-
-        savedRoutesRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
-
-        //initDataset();
-        //debugOutput(String.valueOf(mDatasetHistoryRoutes.size()));
     }
 
     private void toggleVisibility() {
@@ -231,10 +191,9 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
         checkAll.setChecked(false);
         deleteButton.setText("Delete History");
         if (adapter != null) adapter.showCheckBox(false);
-
     }
 
-    private void deleteData(String item) {
+    private void deleteDataFromFirebase(String item) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseReference;
         if (currentDataType == DataType.HISTORY_ROUTES)
@@ -250,81 +209,61 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
         debugOutput("initDataset: UID = " + UID);
 
         final DatabaseReference databaseLocationSessions= FirebaseDatabase.getInstance().getReference().child(UID).child("userLocationSessions");
-        final DatabaseReference databaseSavedRoutes = FirebaseDatabase.getInstance().getReference().child(UID).child("userSavedRoutes");
-
         databaseLocationSessions.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-/*                if (mDatasetHistoryRoutes != null)
-                    mDatasetHistoryRoutes.clear();*/
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: after fetching key (History Route) = " + postSnapshot.getKey());
+                    String key = postSnapshot.getKey();
+                    Date value = postSnapshot.child("timestamp").getValue(Date.class);
 
-                    mDatasetHistoryRoutes.add(postSnapshot.getKey());
+                    Log.d(TAG, "onDataChange: HistoryRoute: key = " + key);
+                    Log.d(TAG, "onDataChange: HistoryRoute: timestamp = " + value);
+
+                    mDatasetHistoryRoutes.add(new Pair < String, Date > (key, value));
                 }
-
                 historyRoutesAdapter.notifyDataSetChanged();
-
-                //currentDataType = HistoryFragment.DataType.HISTORY_ROUTES;
-                //mDataset = mDatasetHistoryRoutes;
-                //adapter.notifyDataSetChanged();
-                //initRecyclerView(root, mDatasetHistoryRoutes);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                debugOutput("initDatasetHistoryRoute: Fail = " + databaseError.getCode());
+                debugOutput("initDataset: HistoryRoute: fail = " + databaseError.getCode());
             }
         });
 
+        final DatabaseReference databaseSavedRoutes = FirebaseDatabase.getInstance().getReference().child(UID).child("userSavedRoutes");
         databaseSavedRoutes.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-/*                if (mDatasetSavedRoutes != null)
-                    mDatasetSavedRoutes.clear();*/
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: after fetching key (Saved Route) = " + postSnapshot.getKey());
+                    String key = postSnapshot.getKey();
+                    Date value = postSnapshot.child("timestamp").getValue(Date.class);
 
-                    mDatasetSavedRoutes.add(postSnapshot.getKey());
+                    Log.d(TAG, "onDataChange: SavedRoute: key = " + key);
+                    Log.d(TAG, "onDataChange: SavedRoute: timestamp = " + value);
+
+                    mDatasetSavedRoutes.add(new Pair < String, Date > (key, value));
                 }
-                //currentDataType = DataType.SAVED_ROUTES;
-                //mDataset = mDatasetHistoryRoutes;
-                //adapter.notifyDataSetChanged();
-                //initRecyclerView(root, mDatasetSavedRoutes);
-
                 savedRoutesAdapter.notifyDataSetChanged();
             }
 
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                debugOutput("initDatasetSavedRoute: Fail = " + databaseError.getCode());
+                debugOutput("initDataset: SavedRoute: fail = " + databaseError.getCode());
             }
         });
     }
-
-/*    private void initRecyclerView(View view, ArrayList<String> dataset) {
-        debugOutput("initRecyclerView: Started");
-
-        adapter = new HistoryRecyclerViewAdapter(getActivity().getApplicationContext(), dataset, this);
-        recyclerView.setAdapter(adapter);
-
-    }*/
 
     @Override
     public void onItemClick(int position) {
         debugOutput("onNoteClick: Clicked position = " + position);
         Bundle bundle = new Bundle();
         bundle.putString("route_type", (currentDataType == HistoryFragment.DataType.HISTORY_ROUTES ? "userLocationSessions" : "userSavedRoutes"));
-        bundle.putString("selected_route", (currentDataType == HistoryFragment.DataType.HISTORY_ROUTES ? mDatasetHistoryRoutes.get(position):
-                mDatasetSavedRoutes.get(position)));
-
+        bundle.putString("selected_route", (currentDataType == HistoryFragment.DataType.HISTORY_ROUTES ? mDatasetHistoryRoutes.get(position).first:
+                mDatasetSavedRoutes.get(position).first));
         Navigation.findNavController(getView()).navigate(R.id.nav_route, bundle);
-
     }
 
     private void debugOutput(String msg) {
         Log.d(TAG, msg);
-//        System.out.println(TAG + " === " + msg);
     }
 }

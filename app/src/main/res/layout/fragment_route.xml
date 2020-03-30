@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.cz2006trial.historyPage.RoutePageActivity">
+    tools:context="com.example.cz2006trial.fragment.RouteFragment">
 
     <RelativeLayout
         android:id="@+id/rellay1"

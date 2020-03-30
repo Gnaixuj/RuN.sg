@@ -32,16 +32,6 @@
         </activity>
 
         <activity
-            android:name=".historyPage.HistoryPageActivity"
-            android:launchMode="singleTop">
-        </activity>
-
-        <activity
-            android:name=".historyPage.RoutePageActivity"
-            android:launchMode="singleTop">
-        </activity>
-
-        <activity
             android:name=".activity.LoginActivity"
             android:launchMode="singleTop" />
 

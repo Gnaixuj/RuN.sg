@@ -1,7 +1,8 @@
-package com.example.cz2006trial.historyPage;
+package com.example.cz2006trial;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +11,18 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.cz2006trial.R;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRecyclerViewAdapter.ViewHolder > {
     private static final String TAG = "RecyclerViewAdapter";
 
-    private ArrayList < String > mDataset;
-    private ArrayList < String > checkedItems;
+    private ArrayList <Pair< String, Date>> mDataset;
+    private ArrayList <Pair< String, Date>> checkedItems;
+
     private Context mContext;
     private OnItemListener mOnItemListener;
     private ViewHolder holder;
@@ -30,7 +32,6 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
 
     private void debugOutput(String msg) {
         Log.d(TAG, msg);
-//        System.out.println(TAG + " === " + msg);
     }
 
     public interface OnItemListener {
@@ -81,12 +82,6 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
             onItemListener.onItemClick(getAdapterPosition());
         }
 
-/*        public void remove() {
-            if (checked) {
-                removeItem(getAdapterPosition());
-            }
-        }*/
-
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
@@ -96,8 +91,8 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
                 if (textName!= null) {
                     if (checkedItems != null) {
                         debugOutput(String.valueOf(textName.getText()));
-                        checkedItems.add(String.valueOf(textName.getText()));
-                        debugOutput("position"+getAdapterPosition());
+                        checkedItems.add(mDataset.get(getAdapterPosition()));
+                        debugOutput("added position " + getAdapterPosition());
                     }
                 }
 
@@ -109,15 +104,15 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
                 if (textName!= null) {
                     if (checkedItems != null) {
                         debugOutput(String.valueOf(textName.getText()));
-                        checkedItems.remove(String.valueOf(textName.getText()));
-                        debugOutput("position"+getAdapterPosition());
+                        checkedItems.remove(mDataset.get(getAdapterPosition()));
+                        debugOutput("removed position " + getAdapterPosition());
                     }
                 }
             }
         }
     }
 
-    public HistoryRecyclerViewAdapter(Context context, ArrayList < String > dataset, OnItemListener onItemListener) {
+    public HistoryRecyclerViewAdapter(Context context, ArrayList <Pair< String, Date>>  dataset, OnItemListener onItemListener) {
         mDataset = dataset;
         mContext = context;
         mOnItemListener = onItemListener;
@@ -134,17 +129,18 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         debugOutput("onBindViewHolder: called for position = " + position);
-        viewHolder.textName.setText(mDataset.get(position));
+
+        String pattern = "E, MMM dd - HH:mm";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        Date timestamp = mDataset.get(position).second;
+        viewHolder.textName.setText((position + 1) + ". " + simpleDateFormat.format(timestamp));
+
         viewHolder.setCheckedItem(checkAll);
         viewHolder.setShowCheckBox(showAll);
 
         if (viewHolder.checked) {
             checkedItems.add(mDataset.get(position));
         }
-/*        if (removeAll) {
-            viewHolder.remove();
-            removeAll= false;
-        }*/
     }
 
     @Override
@@ -164,11 +160,10 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
     }
 
 
-    public ArrayList<String> removeAllChecked() {
+    public ArrayList <Pair< String, Date>>  removeAllChecked() {
         mDataset.removeAll(checkedItems);
         if (checkedItems != null)
             return checkedItems;
         return null;
-        //notifyDataSetChanged();
     }
 }
