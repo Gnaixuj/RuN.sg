@@ -258,8 +258,10 @@ public class EditProfileFragment extends Fragment {
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message, byte[] bytes) {
-                            profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                            profilePhoto.setVisibility(View.VISIBLE);
+                            if (bytes != null) {
+                                profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                profilePhoto.setVisibility(View.VISIBLE);
+                            }
                         }
                     }, "retrieve", profilePhoto);
                     DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {

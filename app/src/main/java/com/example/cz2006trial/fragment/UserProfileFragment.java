@@ -96,8 +96,10 @@ public class UserProfileFragment extends Fragment {
                         @Override
                         public void onCallback(String[] message, byte[] bytes) {
                             Log.d("inside", "profilephoto");
-                            profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                            profilePhoto.setVisibility(View.VISIBLE);
+                            if (bytes != null) {
+                                profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                profilePhoto.setVisibility(View.VISIBLE);
+                            }
                         }
                     }, "retrieve", profilePhoto);
                     DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {

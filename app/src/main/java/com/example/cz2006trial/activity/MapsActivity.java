@@ -97,7 +97,7 @@ public class MapsActivity extends AppCompatActivity {
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message, byte[] bytes) {
-                            userImage.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            if (bytes != null ) userImage.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                         }
                     }, "retrieve",userImage);
 

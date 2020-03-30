@@ -50,27 +50,22 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
     private DataType currentDataType;
 
-    private RadioButton historyRoutesRadioButton;
-    private RadioButton savedRoutesRadioButton;
-
-    HistoryRecyclerViewAdapter historyRoutesAdapter;
-    HistoryRecyclerViewAdapter savedRoutesAdapter;
-    HistoryRecyclerViewAdapter adapter;
-    RecyclerView historyRoutesView;
-    RecyclerView savedRoutesView;
-    View root;
-    LinearLayout layout;
-    CheckBox checkAll;
-    Button deleteButton;
-    TextView noDataTextView;
+    private HistoryRecyclerViewAdapter historyRoutesAdapter;
+    private HistoryRecyclerViewAdapter savedRoutesAdapter;
+    private HistoryRecyclerViewAdapter adapter;
+    private RecyclerView historyRoutesView;
+    private RecyclerView savedRoutesView;
+    private LinearLayout layout;
+    private CheckBox checkAll;
+    private Button deleteButton;
+    private TextView noDataTextView;
 
     //implement 2 recycler views that alternate visibility based on the radio button
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_history, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_history, container, false);
     }
 
     @Override
@@ -85,9 +80,8 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
         currentDataType = DataType.HISTORY_ROUTES;
 
-        this.root = view;
-        historyRoutesRadioButton = view.findViewById(R.id.history_routes_rb);
-        savedRoutesRadioButton = view.findViewById(R.id.saved_routes_rb);
+        RadioButton historyRoutesRadioButton = view.findViewById(R.id.history_routes_rb);
+        RadioButton savedRoutesRadioButton = view.findViewById(R.id.saved_routes_rb);
 
         noDataTextView = view.findViewById(R.id.no_data_text_view);
 
@@ -135,9 +129,6 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
                 toggleVisibility();
                 adapter.notifyDataSetChanged();
-                if (adapter.getItemCount() == 0) {
-                    //todo
-                }
                 Toast.makeText(getContext(), "Selected items deleted", Toast.LENGTH_SHORT).show();
             }
         });
@@ -222,18 +213,12 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
         databaseReference.removeValue();
     }
 
-    private class SortByDate implements Comparator<Pair < String, Date >>  {
+    private static class SortByDate implements Comparator<Pair < String, Date >>  {
         public int compare(Pair < String, Date > a, Pair < String, Date > b) {
-            if(a.second.compareTo(b.second) > 0) {
-//                System.out.println("Date 1 occurs after Date 2");
-                return 1;
-            } else if(a.second.compareTo(b.second) < 0) {
-//                System.out.println("Date 1 occurs before Date 2");
-                return -1;
-            } else {
-//                System.out.println("Both dates are equal");
-                return 0;
-            }
+            //                System.out.println("Date 1 occurs after Date 2");
+            //                System.out.println("Date 1 occurs before Date 2");
+            //                System.out.println("Both dates are equal");
+            return Integer.compare(a.second.compareTo(b.second), 0);
         }
     }
 
@@ -254,9 +239,16 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
                     mDatasetHistoryRoutes.add(new Pair < String, Date > (key, value));
                 }
-                Collections.sort(mDatasetHistoryRoutes, new SortByDate());
 
-                historyRoutesAdapter.notifyDataSetChanged();
+
+                if (mDatasetHistoryRoutes.isEmpty())
+                    noDataTextView.setVisibility(View.VISIBLE);
+                else {
+                    Collections.sort(mDatasetHistoryRoutes, new SortByDate());
+                    noDataTextView.setVisibility(View.INVISIBLE);
+                    historyRoutesAdapter.notifyDataSetChanged();
+                }
+
             }
 
             @Override
@@ -278,9 +270,14 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
                     mDatasetSavedRoutes.add(new Pair < String, Date > (key, value));
                 }
-                Collections.sort(mDatasetSavedRoutes, new SortByDate());
 
-                savedRoutesAdapter.notifyDataSetChanged();
+                if (mDatasetSavedRoutes.isEmpty())
+                    noDataTextView.setVisibility(View.VISIBLE);
+                else {
+                    noDataTextView.setVisibility(View.INVISIBLE);
+                    savedRoutesAdapter.notifyDataSetChanged();
+                    Collections.sort(mDatasetSavedRoutes, new SortByDate());
+                }
             }
 
             @Override
