@@ -560,14 +560,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         userRoute = controller.getUserRoute();
 
         if (userRoute.getStartPointName() != null) {
-            startPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getStartPoint())
+            startPoint = mMap.addMarker(new MarkerOptions().position(userRoute.startPointRetrieve())
                     .title(userRoute.getStartPointName())
                     .snippet("Your Starting Point")
                     .zIndex(2f)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
         }
         if (userRoute.getEndPointName() != null) {
-            endPoint = mMap.addMarker(new MarkerOptions().position(userRoute.getEndPoint())
+            endPoint = mMap.addMarker(new MarkerOptions().position(userRoute.endPointRetrieve())
                     .title(userRoute.getEndPointName())
                     .snippet("Your Ending Point")
                     .zIndex(2f)

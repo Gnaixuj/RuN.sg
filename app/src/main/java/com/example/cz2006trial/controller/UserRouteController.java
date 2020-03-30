@@ -13,12 +13,12 @@ import java.util.Date;
 public class UserRouteController {
 
     public static void setStartMarkerInfo(UserRoute userRoute, Marker marker) {
-        userRoute.setStartPoint(marker.getPosition());
+        userRoute.startPointUpdate(marker.getPosition());
         userRoute.setStartPointName(marker.getTitle());
     }
 
     public static void setEndMarkerInfo(UserRoute userRoute, Marker marker) {
-        userRoute.setEndPoint(marker.getPosition());
+        userRoute.endPointUpdate(marker.getPosition());
         userRoute.setEndPointName(marker.getTitle());
     }
 
@@ -31,11 +31,11 @@ public class UserRouteController {
     }
 
     public static LatLng getStartPointPos(UserRoute userRoute) {
-        return userRoute.getStartPoint();
+        return userRoute.startPointRetrieve();
     }
 
     public static LatLng getEndPointPos(UserRoute userRoute) {
-        return userRoute.getEndPoint();
+        return userRoute.endPointRetrieve();
     }
 
     public static void updateUserRouteDatabase(UserRoute userRoute) {
@@ -47,8 +47,10 @@ public class UserRouteController {
                 date,
                 userRoute.getStartPointName(),
                 userRoute.getEndPointName(),
-                userRoute.getStartPoint(),
-                userRoute.getEndPoint(),
+                userRoute.getStartLatitude(),
+                userRoute.getStartLongitude(),
+                userRoute.getEndLatitude(),
+                userRoute.getEndLongitude(),
                 userRoute.getDistance(),
                 userRoute.getTimeTaken());
         databaseUserSavedRoutes.setValue(userSavedRoute);

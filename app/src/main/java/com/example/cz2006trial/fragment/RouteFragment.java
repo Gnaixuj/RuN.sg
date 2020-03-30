@@ -33,7 +33,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class RouteFragment extends Fragment {
 
@@ -122,13 +121,13 @@ public class RouteFragment extends Fragment {
         durationView.setText(mUserRoute.getTimeTaken());
 
         controller.setCreateHistoryRoute(true);
-        controller.getDirections(mUserRoute.getStartPoint(), mUserRoute.getEndPoint());
+        controller.getDirections(mUserRoute.startPointRetrieve(), mUserRoute.endPointRetrieve());
         routeDone();
         controller.setCreateHistoryRoute(false);
-        mMap.addMarker(new MarkerOptions().position(mUserRoute.getStartPoint())
+        mMap.addMarker(new MarkerOptions().position(mUserRoute.startPointRetrieve())
                 .title(mUserRoute.getStartPointName())
                 .snippet("Your Starting Location"));
-        mMap.addMarker(new MarkerOptions().position(mUserRoute.getEndPoint())
+        mMap.addMarker(new MarkerOptions().position(mUserRoute.endPointRetrieve())
                 .title(mUserRoute.getEndPointName())
                 .snippet("Your Ending Location"));
     }
@@ -192,20 +191,7 @@ public class RouteFragment extends Fragment {
                 else {
                     Log.d(TAG, "trying to fetch userRoute");
 
-                    mUserRoute = new UserRoute();
-                    mUserRoute.setDate(dataSnapshot.child("date").getValue(Date.class));
-                    mUserRoute.setDistance(dataSnapshot.child("distance").getValue(String.class));
-
-                    mUserRoute.setEndPoint(new LatLng(dataSnapshot.child("endPoint").child("latitude").getValue(Double.class),
-                            dataSnapshot.child("endPoint").child("longitude").getValue(Double.class)));
-
-                    mUserRoute.setEndPointName(dataSnapshot.child("endPointName").getValue(String.class));
-
-                    mUserRoute.setStartPoint(new LatLng(dataSnapshot.child("startPoint").child("latitude").getValue(Double.class),
-                            dataSnapshot.child("startPoint").child("longitude").getValue(Double.class)));
-
-                    mUserRoute.setStartPointName(dataSnapshot.child("startPointName").getValue(String.class));
-                    mUserRoute.setTimeTaken(dataSnapshot.child("timeTaken").getValue(String.class));
+                    mUserRoute = dataSnapshot.getValue(UserRoute.class);
 
                     Log.d(TAG, "onDataChange: userRoute = " + mUserRoute.output());
 //                    mUserRoute = dataSnapshot.getValue(UserRoute.class);

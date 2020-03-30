@@ -9,11 +9,8 @@ public class UserRoute {
     private Date date;
     private String startPointName;
     private String endPointName;
-
-    //private LatLng startPoint;
     private double startLatitude;
     private double startLongitude;
-    //private LatLng endPoint;
     private double endLatitude;
     private double endLongitude;
     private String distance;
@@ -23,14 +20,14 @@ public class UserRoute {
 
     }
 
-    public UserRoute(Date date, String startPointName, String endPointName, LatLng startPoint, LatLng endPoint, String distance, String timeTaken) {
+    public UserRoute(Date date, String startPointName, String endPointName, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String distance, String timeTaken) {
         this.date = date;
         this.startPointName = startPointName;
         this.endPointName = endPointName;
-        this.startLatitude = startPoint.latitude;
-        this.startLongitude = startPoint.longitude;
-        this.endLatitude = endPoint.latitude;
-        this.endLongitude = endPoint.longitude;
+        this.startLatitude = startLatitude;
+        this.startLongitude = startLongitude;
+        this.endLatitude = endLatitude;
+        this.endLongitude = endLongitude;
         this.distance = distance;
         this.timeTaken = timeTaken;
     }
@@ -55,20 +52,20 @@ public class UserRoute {
         this.endPointName = endPointName;
     }
 
-    public LatLng getStartPoint() {
+    public LatLng startPointRetrieve() {
         return new LatLng(startLatitude, startLongitude);
     }
 
-    public void setStartPoint(LatLng startPoint) {
+    public void startPointUpdate(LatLng startPoint) {
         startLatitude = startPoint.latitude;
         startLongitude = startPoint.longitude;
     }
 
-    public LatLng getEndPoint() {
+    public LatLng endPointRetrieve() {
         return new LatLng(endLatitude, endLongitude);
     }
 
-    public void setEndPoint(LatLng endPoint) {
+    public void endPointUpdate(LatLng endPoint) {
         endLatitude = endPoint.latitude;
         endLongitude = endPoint.longitude;
     }
