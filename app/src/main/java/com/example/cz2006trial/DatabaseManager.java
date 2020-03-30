@@ -13,7 +13,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DatabaseManager {
 
@@ -136,5 +139,17 @@ public class DatabaseManager {
                     userLocationSession.getSession().get(i).getLongitude(),
                     userLocationSession.getSession().get(i).getTimestamp()));
         }
+    }
+
+    public static Date convertStringToDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        Date convertedDate = new Date();
+        try {
+            convertedDate = dateFormat.parse(date);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return convertedDate;
     }
 }

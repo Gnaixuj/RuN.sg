@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class UserProfileFragment extends Fragment {
 
@@ -108,8 +111,11 @@ public class UserProfileFragment extends Fragment {
                         public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                             double totalDistance = 0.0;
                             double todayTarget;
-                            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                            String date = dateFormat.format(Calendar.getInstance().getTime());
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+                            TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+                            sdf.setTimeZone(tz);
+                            java.util.Date curDate = new java.util.Date();
+                            String date = sdf.format(curDate);
                             for (Goal goal : goals) {
                                 totalDistance += goal.getDistance();
                                 if (goal.getDate().equals(date)) {

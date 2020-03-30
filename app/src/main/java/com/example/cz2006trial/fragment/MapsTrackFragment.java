@@ -33,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MapsTrackFragment extends Fragment {
 
@@ -68,7 +70,13 @@ public class MapsTrackFragment extends Fragment {
                     endButton.setVisibility(View.VISIBLE);
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
-                    userLocationSession = new UserLocationSession(Calendar.getInstance().getTime());
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+                    TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+                    sdf.setTimeZone(tz);
+                    java.util.Date curdate = new java.util.Date();
+                    String dateStr = sdf.format(curdate);
+                    Date date = DatabaseManager.convertStringToDate(dateStr);
+                    userLocationSession = new UserLocationSession(date);
                     controller.beginTracking(userLocationSession);
                     displaySession(userLocationSession);
                 } else if (startButton.getText().equals("Resume")) {
@@ -137,8 +145,10 @@ public class MapsTrackFragment extends Fragment {
                 controller.setTimeElapsed(SystemClock.elapsedRealtime() - mChronometer.getBase());
                 distanceTravelledView.setText("Distance travelled: " + Math.round(userLocationSession.getDistance() * 10) / 10.0 + " km");
                 distanceTravelledView.setVisibility(View.VISIBLE);
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                final String dateString = dateFormat.format(userLocationSession.getTimestamp());
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+                final String dateString = dateFormat.format(userLocationSession.getTimestamp()).substring(0, 10);
+                Log.d("date", dateString);
                 DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
                     @Override
                     public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {

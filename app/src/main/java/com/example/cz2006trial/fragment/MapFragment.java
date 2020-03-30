@@ -34,6 +34,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.PointRecyclerViewAdapter;
 import com.example.cz2006trial.controller.GoogleMapController;
 import com.example.cz2006trial.R;
@@ -66,9 +67,12 @@ import org.json.JSONException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback{
 
@@ -614,7 +618,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     controller.setLocations(locations);
                     startTrackLine.add(mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED)));
                     UserLocation userLocation = new UserLocation();
-                    UserLocationController.addUserLocation(userLocationSession, lastLocation, Calendar.getInstance().getTime());
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+                    TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+                    sdf.setTimeZone(tz);
+                    java.util.Date curDate = new java.util.Date();
+                    String date = sdf.format(curDate);
+                    UserLocationController.addUserLocation(userLocationSession, lastLocation, DatabaseManager.convertStringToDate(date));
                 }
 
 

@@ -44,6 +44,7 @@ import com.example.cz2006trial.DecimalDigitsInputFilter;
 import com.example.cz2006trial.DownloadFileManager;
 import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
+import com.example.cz2006trial.controller.GoalController;
 import com.example.cz2006trial.controller.UserProfileController;
 import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.model.UserProfile;
@@ -57,12 +58,16 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -108,8 +113,15 @@ public class EditProfileFragment extends Fragment {
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+        TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+        sdf.setTimeZone(tz);
+        java.util.Date curDate = new java.util.Date();
+        String dateStr = sdf.format(curDate);
+        Date date = GoalController.convertStringToDate(dateStr);
 
         final Calendar myCalendar = Calendar.getInstance();
+        myCalendar.setTime(date);
 
         final DatePickerDialog.OnDateSetListener dob = new DatePickerDialog.OnDateSetListener() {
 
@@ -274,9 +286,11 @@ public class EditProfileFragment extends Fragment {
                         @Override
                         public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                             double totalDistance = 0.0;
-                            double todayTarget;
-                            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                            String date = dateFormat.format(Calendar.getInstance().getTime());
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+                            TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+                            sdf.setTimeZone(tz);
+                            java.util.Date curDate = new java.util.Date();
+                            String date = sdf.format(curDate);
                             for (Goal goal : goals) {
                                 totalDistance += goal.getDistance();
                                 if (goal.getDate().equals(date)) {

@@ -42,6 +42,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class GoalsFragment extends Fragment {
@@ -151,9 +153,17 @@ public class GoalsFragment extends Fragment {
 
     private void instantiateCalendar() {
         //Set max and min date that can be shown on the calendar
-        Calendar cMin = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+        TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+        sdf.setTimeZone(tz);
+        java.util.Date curDate = new java.util.Date();
+        String date = sdf.format(curDate);
+        Date todayDate = GoalController.convertStringToDate(date);
+        Calendar cMin = Calendar.getInstance();
+        cMin.setTime(todayDate);
         cMin.add(Calendar.MONTH, -1);
-        Calendar cMax = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar cMax = Calendar.getInstance();
+        cMax.setTime(todayDate);
         cMax.add(Calendar.MONTH, 1);
         calendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
