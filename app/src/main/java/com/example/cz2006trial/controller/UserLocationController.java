@@ -11,6 +11,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class UserLocationController {
 
@@ -25,8 +27,15 @@ public class UserLocationController {
             final double distance = calculateDistance(userSession.get(userSession.size() - 1).getLatitude(),
                     userSession.get(userSession.size() - 1).getLongitude(),
                     latitude, longitude);
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            final String dateString = dateFormat.format(timestamp);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+            TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+            sdf.setTimeZone(tz);
+            java.util.Date curDate = new java.util.Date();
+            final String dateString = sdf.format(curDate);
+
+            //DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            //final String dateString = dateFormat.format(timestamp);
             DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
                 @Override
                 public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
