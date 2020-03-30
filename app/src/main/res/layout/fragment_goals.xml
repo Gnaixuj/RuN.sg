@@ -10,7 +10,7 @@
         android:id="@+id/rellay1"
         android:layout_width="match_parent"
         android:layout_height="376dp"
-        android:background="@drawable/side_nav_bar">
+        android:background="@drawable/grad">
 
         <RelativeLayout
             android:id="@+id/imgUser"
@@ -34,8 +34,9 @@
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="10dp"
                 android:layout_marginVertical="10dp"
+                android:background="@color/white"
                 android:scaleType="centerCrop"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:mcv_selectionColor="#808080"
                 app:mcv_showOtherDates="all" />
 
