@@ -73,10 +73,14 @@ public class RouteFragment extends Fragment {
     }
 
     private void showHistoryRoute() {
-        String pattern = "EEE, MMM dd";
+//        String pattern = "EEE, MMM dd";
+        String pattern = "EEEE, MMMM dd - HH:mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         dateView.setText(simpleDateFormat.format(mUserLocationSession.getTimestamp()));
-        distanceView.setText("" + mUserLocationSession.getDistance());
+
+        String roundedDistance = String.format("%.3f", mUserLocationSession.getDistance());
+        distanceView.setText("" + roundedDistance + " km");
+
         durationView.setText(mUserLocationSession.getTimeTaken());
 
         ArrayList< LatLng > locations = new ArrayList <> ();
@@ -93,6 +97,11 @@ public class RouteFragment extends Fragment {
 
         mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.BLUE));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.3521, 103.8198), 10));
+
+        mMap.addMarker(new MarkerOptions().position(locations.get(0))
+                .title("Your Starting Location"));
+        mMap.addMarker(new MarkerOptions().position(locations.get(locations.size() - 1))
+                .title("Your Ending Location"));
 
 //        Example
 //        // Add polylines and polygons to the map. This section shows just
@@ -113,7 +122,8 @@ public class RouteFragment extends Fragment {
     }
 
     private void showSavedRoute() {
-        String pattern = "EEE, MMM dd";
+//        String pattern = "EEE, MMM dd";
+        String pattern = "EEEE, MMMM dd - HH:mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         dateView.setText(simpleDateFormat.format(mUserRoute.getDate()));
         distanceView.setText("" + mUserRoute.getDistance());
@@ -132,7 +142,16 @@ public class RouteFragment extends Fragment {
                 .snippet("Your Ending Location"));
     }
 
-
+    private void routeDone() {
+        controller.setRouteListener(new GoogleMapController.RouteListener() {
+            @Override
+            public void onChange() {
+                ArrayList<LatLng> historyRoute = controller.getHistoryRoute();
+                mMap.addPolyline(new PolylineOptions().addAll(historyRoute).width(10.0f).color(Color.BLACK));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.3521, 103.8198), 10));
+            }
+        });
+    }
 
     @Nullable
     @Override
@@ -189,17 +208,6 @@ public class RouteFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.d(TAG, "onCancelled: fail = " + databaseError.getCode());
-            }
-        });
-    }
-
-    private void routeDone() {
-        controller.setRouteListener(new GoogleMapController.RouteListener() {
-            @Override
-            public void onChange() {
-                ArrayList<LatLng> historyRoute = controller.getHistoryRoute();
-                mMap.addPolyline(new PolylineOptions().addAll(historyRoute).width(10.0f).color(Color.BLACK));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.3521, 103.8198), 10));
             }
         });
     }

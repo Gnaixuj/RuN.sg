@@ -31,6 +31,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -204,6 +206,21 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
         databaseReference.removeValue();
     }
 
+    private class SortByDate implements Comparator<Pair < String, Date >>  {
+        public int compare(Pair < String, Date > a, Pair < String, Date > b) {
+            if(a.second.compareTo(b.second) > 0) {
+//                System.out.println("Date 1 occurs after Date 2");
+                return 1;
+            } else if(a.second.compareTo(b.second) < 0) {
+//                System.out.println("Date 1 occurs before Date 2");
+                return -1;
+            } else {
+//                System.out.println("Both dates are equal");
+                return 0;
+            }
+        }
+    }
+
     private void initDataset() {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         debugOutput("initDataset: UID = " + UID);
@@ -221,6 +238,8 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
                     mDatasetHistoryRoutes.add(new Pair < String, Date > (key, value));
                 }
+                Collections.sort(mDatasetHistoryRoutes, new SortByDate());
+
                 historyRoutesAdapter.notifyDataSetChanged();
             }
 
@@ -236,13 +255,15 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     String key = postSnapshot.getKey();
-                    Date value = postSnapshot.child("timestamp").getValue(Date.class);
+                    Date value = postSnapshot.child("date").getValue(Date.class);
 
                     Log.d(TAG, "onDataChange: SavedRoute: key = " + key);
                     Log.d(TAG, "onDataChange: SavedRoute: timestamp = " + value);
 
                     mDatasetSavedRoutes.add(new Pair < String, Date > (key, value));
                 }
+                Collections.sort(mDatasetSavedRoutes, new SortByDate());
+
                 savedRoutesAdapter.notifyDataSetChanged();
             }
 
