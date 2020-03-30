@@ -32,26 +32,31 @@ public class GoogleMapController {
     private CreateListener createListener;
     private RouteListener routeListener;
     //private PointListener pointListener;
+    private PlaceListener placeListener;
     private DisplayTrackingDistanceListener displayTrackingDistanceListener;
     private ClearTrackListener clearTrackListener;
 
-    private HashMap<String, Object> parkInfo = new HashMap<>();
-
-
     private boolean startTrack = false;
-    private boolean setStartPoint = false;
+    private boolean trackPaused = false;
+    private boolean trackEnded = false;
+    private long timeElapsed = 0;
+    private ArrayList<LatLng> locations = new ArrayList<>();
     private UserLocationSession userLocationSession;
+
+    private boolean setStartPoint = false;
     private UserRoute userRoute;
     private boolean setEndPoint;
     private String message;
 
     private ArrayList<LatLng> route;
-    private ArrayList<LatLng> historyRoute;
     private ArrayList<Marker> markers;
     private Marker pointChosen;
+
+    private ArrayList<LatLng> historyRoute;
     private boolean createHistoryRoute;
     private boolean createRoute;
-    private PlaceListener placeListener;
+
+    private HashMap<String, Object> parkInfo = new HashMap<>();
 
     private GoogleMapController () {
         userLocationSession = new UserLocationSession();
@@ -63,20 +68,18 @@ public class GoogleMapController {
         return controller;
     }
 
-    public HashMap<String, Object> getParkInfo () {
-        return parkInfo;
-    }
-
-
     public interface Listener {
         void onChange();
     }
 
     public abstract static class StartListener implements Listener{};
 
-    public abstract static class CreateListener implements Listener{};
+    public abstract static class EndListener implements Listener {
+    }
 
-    public abstract static class EndListener implements Listener{};
+    ;
+
+    public abstract static class CreateListener implements Listener{};
 
     public abstract static class RouteListener implements Listener{};
 
@@ -110,15 +113,15 @@ public class GoogleMapController {
         this.createListener = listener;
     }
 
-/*
+    public void setRouteListener(RouteListener routeListener) {
+        this.routeListener = routeListener;
+    }
+
+    /*
     public void setPointListener(PointListener pointListener) {
         this.pointListener = pointListener;
     }
 */
-
-    public void setRouteListener(RouteListener routeListener) {
-        this.routeListener = routeListener;
-    }
 
     public void setDisplayTrackingDistanceListener(DisplayTrackingDistanceListener listener) {
         this.displayTrackingDistanceListener = listener;
@@ -145,9 +148,38 @@ public class GoogleMapController {
         return pointChosen;
     }
 */
-    public void beginTracking(UserLocationSession userLocationSession) {
-        startTrack = true;
-        this.userLocationSession = userLocationSession;
+
+    // FOR ROUTE TRACKING
+    public boolean isStartTrack() {
+        return startTrack;
+    }
+
+    public boolean isTrackPaused() {
+        return trackPaused;
+    }
+
+    public boolean isTrackEnded() {
+        return trackEnded;
+    }
+
+    public long getTimeElapsed() {
+        return timeElapsed;
+    }
+
+    public void setTimeElapsed(long timeElapsed) {
+        this.timeElapsed = timeElapsed;
+    }
+
+    public ArrayList<LatLng> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(ArrayList<LatLng> locations) {
+        this.locations = locations;
+    }
+
+    public UserLocationSession getUserLocationSession() {
+        return userLocationSession;
     }
 
     public void displayTrackingDistance(UserLocationSession userLocationSession) {
@@ -157,32 +189,59 @@ public class GoogleMapController {
 
     public void clearTrack() {
         if (clearTrackListener != null) clearTrackListener.onChange();
+        locations.clear();
         userLocationSession = new UserLocationSession();
     }
 
-    public void resumeTracking() {
+    public void beginTracking(UserLocationSession userLocationSession) {
         startTrack = true;
+        trackPaused = false;
+        trackEnded = false;
+        this.userLocationSession = userLocationSession;
     }
 
-    public void endTracking() {
+    public void resumeTracking(UserLocationSession userLocationSession, long timeElapsed) {
+        startTrack = true;
+        trackPaused = false;
+        this.timeElapsed = timeElapsed;
+        this.userLocationSession = userLocationSession;
+    }
+
+    public void pauseTracking(UserLocationSession userLocationSession, long timeElapsed) {
         startTrack = false;
+        trackPaused = true;
+        Log.d("pause", "startTrack: " + startTrack + " " + trackPaused);
+        this.timeElapsed = timeElapsed;
+        this.userLocationSession = userLocationSession;
     }
 
-    public boolean isStartTrack() {
-        return startTrack;
-    }
-/*
-
-    public void setStartTrack(boolean startTrack) {
-        this.startTrack = startTrack;
-    }
-*/
-
-    public UserLocationSession getUserLocationSession() {
-        return userLocationSession;
+    public void endTracking(UserLocationSession userLocationSession, long timeElapsed) {
+        startTrack = false;
+        trackEnded = true;
+        this.timeElapsed = timeElapsed;
+        this.userLocationSession = userLocationSession;
     }
 
-/*    public void setStartingPoint(UserRoute userRoute) {
+
+    // FOR ROUTE HISTORY
+    public ArrayList<LatLng> getHistoryRoute() {
+        return route;
+    }
+
+    public void setCreateHistoryRoute(boolean createHistoryRoute) {
+        this.createHistoryRoute = createHistoryRoute;
+    }
+
+
+    // FOR DISPLAYING PARK CONNECTORS
+    public HashMap<String, Object> getParkInfo() {
+        return parkInfo;
+    }
+
+
+    // FOR CREATING ROUTE
+
+    /*    public void setStartingPoint(UserRoute userRoute) {
         setStartPoint = true;
         if (startListener != null ) startListener.onChange();
         this.userRoute = userRoute;
@@ -196,47 +255,6 @@ public class GoogleMapController {
 
     }*/
 
-    public void setCreatePoint (boolean isStart, UserRoute userRoute) {
-        if (isStart) {
-            setStartPoint = true;
-            if (startListener != null ) startListener.onChange();
-        }
-        else {
-            setEndPoint = true;
-            if (endListener != null ) endListener.onChange();
-        }
-        this.userRoute = userRoute;
-    }
-
-    public void stopSettingPoints() {
-        setStartPoint = false;
-        setEndPoint = false;
-        if (endListener != null ) endListener.onChange();
-        if (startListener != null ) startListener.onChange();
-
-    }
-
-    public void create(UserRoute userRoute) {
-        createRoute = true;
-        if (createListener != null ) createListener.onChange();
-        this.userRoute = userRoute;
-    }
-
-    public void clearRoute() {
-        createRoute = false;
-        route.clear();
-        userRoute = new UserRoute();
-        if (createListener != null ) createListener.onChange();
-    }
-
-    public ArrayList<LatLng> getHistoryRoute() {
-        return route;
-    }
-
-    public void setCreateHistoryRoute(boolean createHistoryRoute) {
-        this.createHistoryRoute = createHistoryRoute;
-    }
-
     public boolean isSetStartPoint() {
         return setStartPoint;
     }
@@ -249,14 +267,6 @@ public class GoogleMapController {
         return userRoute;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
     public ArrayList<LatLng> getRoute() {
         return route;
     }
@@ -264,6 +274,39 @@ public class GoogleMapController {
     public boolean isCreateRoute() {
         return createRoute;
     }
+
+    public void setCreatePoint(boolean isStart, UserRoute userRoute) {
+        if (isStart) {
+            setStartPoint = true;
+            if (startListener != null) startListener.onChange();
+        } else {
+            setEndPoint = true;
+            if (endListener != null) endListener.onChange();
+        }
+        this.userRoute = userRoute;
+    }
+
+    public void stopSettingPoints() {
+        setStartPoint = false;
+        setEndPoint = false;
+        if (endListener != null) endListener.onChange();
+        if (startListener != null) startListener.onChange();
+
+    }
+
+    public void create(UserRoute userRoute) {
+        createRoute = true;
+        if (createListener != null) createListener.onChange();
+        this.userRoute = userRoute;
+    }
+
+    public void clearRoute() {
+        createRoute = false;
+        route.clear();
+        userRoute = new UserRoute();
+        if (createListener != null) createListener.onChange();
+    }
+
 
     public void getInfo(String title) {
 
@@ -477,4 +520,13 @@ public class GoogleMapController {
             }
         }
     }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
 }

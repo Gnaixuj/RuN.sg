@@ -2,6 +2,7 @@ package com.example.cz2006trial.fragment;
 
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,18 +69,18 @@ public class MapsTrackFragment extends Fragment {
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
                     userLocationSession = new UserLocationSession(Calendar.getInstance().getTime());
-                    displaySession(userLocationSession);
                     controller.beginTracking(userLocationSession);
+                    displaySession(userLocationSession);
                 } else if (startButton.getText().equals("Resume")) {
                     mChronometer.setBase(SystemClock.elapsedRealtime() - timeElapsed);
                     startButton.setText("Pause");
                     mChronometer.start();
-                    controller.resumeTracking();
+                    controller.resumeTracking(userLocationSession, SystemClock.elapsedRealtime() - mChronometer.getBase());
                 } else {
                     startButton.setText("Resume");
                     mChronometer.stop();
                     timeElapsed = SystemClock.elapsedRealtime() - mChronometer.getBase();
-                    controller.endTracking();
+                    controller.pauseTracking(userLocationSession, timeElapsed);
                 }
             }
         });
@@ -92,7 +93,7 @@ public class MapsTrackFragment extends Fragment {
                     startButton.setText("Start");
                     mChronometer.stop();
                     timeElapsed = SystemClock.elapsedRealtime() - mChronometer.getBase();
-                    controller.endTracking();
+                    controller.endTracking(userLocationSession, timeElapsed);
                 } else {
                     UserLocationController.setTimeTaken(userLocationSession, timeElapsed);
                     DatabaseManager.updateUserLocationSession(userLocationSession);
@@ -105,10 +106,35 @@ public class MapsTrackFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("inside", "onStart");
+        this.userLocationSession = controller.getUserLocationSession();
+        Log.d("paused", "" + controller.isStartTrack() + controller.isTrackPaused());
+        if (controller.isStartTrack() || controller.isTrackPaused()) {
+            startButton.setText("Resume");
+            mChronometer.setBase(SystemClock.elapsedRealtime() - controller.getTimeElapsed());
+            distanceTravelledView.setText("Distance travelled: " + Math.round(userLocationSession.getDistance() * 10) / 10.0 + " km");
+            distanceTravelledView.setVisibility(View.VISIBLE);
+            timeElapsed = controller.getTimeElapsed();
+            endButton.setVisibility(View.VISIBLE);
+        } else if (controller.isTrackEnded()) {
+            endButton.setText("Save");
+            endButton.setVisibility(View.VISIBLE);
+            startButton.setText("Start");
+            timeElapsed = controller.getTimeElapsed();
+            distanceTravelledView.setText("Distance travelled: " + Math.round(userLocationSession.getDistance() * 10) / 10.0 + " km");
+            distanceTravelledView.setVisibility(View.VISIBLE);
+        }
+
+    }
+
     public void displaySession(final UserLocationSession userLocationSession) {
         controller.setDisplayTrackingDistanceListener(new GoogleMapController.DisplayTrackingDistanceListener() {
             @Override
             public void onChange() {
+                controller.setTimeElapsed(SystemClock.elapsedRealtime() - mChronometer.getBase());
                 distanceTravelledView.setText("Distance travelled: " + Math.round(userLocationSession.getDistance() * 10) / 10.0 + " km");
                 distanceTravelledView.setVisibility(View.VISIBLE);
                 DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
