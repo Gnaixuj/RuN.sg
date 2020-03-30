@@ -3,36 +3,27 @@ package com.example.cz2006trial.fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.content.CursorLoader;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -41,31 +32,18 @@ import android.widget.Toast;
 
 import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.DecimalDigitsInputFilter;
-import com.example.cz2006trial.DownloadFileManager;
 import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
+import com.example.cz2006trial.activity.MapsActivity;
 import com.example.cz2006trial.controller.GoalController;
-import com.example.cz2006trial.controller.UserProfileController;
 import com.example.cz2006trial.model.Goal;
-import com.example.cz2006trial.model.UserProfile;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -177,17 +155,18 @@ public class EditProfileFragment extends Fragment {
                 if (photoChange && hasPhoto(profilePhoto)) {
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
-                        public void onCallback(String[] message) {
+                        public void onCallback(String[] message, byte[] bytes) {
+                            getActivity().onBackPressed();
+                            ((MapsActivity) getActivity()).displayProfile();
+                            Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
                             //DownloadFileManager.downloadFile(getContext(), "profilePhoto", ".jpg", Environment.DIRECTORY_DOWNLOADS, message[0]);
                             //Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "update", profilePhoto);
-                    Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
-                    getActivity().onBackPressed();
                 } else if (photoChange && !hasPhoto(profilePhoto)) {
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
-                        public void onCallback(String[] message) {
+                        public void onCallback(String[] message, byte[] bytes) {
                             //Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "delete", profilePhoto);
@@ -278,8 +257,9 @@ public class EditProfileFragment extends Fragment {
                     BMITextView.setHint("Please input your BMI");
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
-                        public void onCallback(String[] message) {
-                            Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
+                        public void onCallback(String[] message, byte[] bytes) {
+                            profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            profilePhoto.setVisibility(View.VISIBLE);
                         }
                     }, "retrieve", profilePhoto);
                     DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {

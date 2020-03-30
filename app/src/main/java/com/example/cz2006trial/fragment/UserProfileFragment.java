@@ -5,13 +5,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,18 +19,9 @@ import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.model.Goal;
-import com.example.cz2006trial.model.UserProfile;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -103,7 +94,10 @@ public class UserProfileFragment extends Fragment {
                         BMITextView.setText("" + doubleArgs[2]);
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
-                        public void onCallback(String[] message) {
+                        public void onCallback(String[] message, byte[] bytes) {
+                            Log.d("inside", "profilephoto");
+                            profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            profilePhoto.setVisibility(View.VISIBLE);
                         }
                     }, "retrieve", profilePhoto);
                     DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
@@ -144,4 +138,9 @@ public class UserProfileFragment extends Fragment {
         editProfileButton.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        displayProfile();
+    }
 }

@@ -64,6 +64,7 @@ public class MapsTrackFragment extends Fragment {
             public void onClick(View view) {
                 if (startButton.getText().equals("Start")) {
                     controller.clearTrack();
+                    distanceTravelledView.setText("Distance travelled: 0.0 km");
                     endButton.setText("End");
                     mChronometer.setBase(SystemClock.elapsedRealtime() - timeElapsed);
                     startButton.setText("Pause");
@@ -105,6 +106,7 @@ public class MapsTrackFragment extends Fragment {
                 } else {
                     UserLocationController.setTimeTaken(userLocationSession, timeElapsed);
                     DatabaseManager.updateUserLocationSession(userLocationSession);
+                    Toast.makeText(getContext(), "Route saved successfully", Toast.LENGTH_SHORT).show();
                     endButton.setText("End");
                     endButton.setVisibility(View.INVISIBLE);
                 }
