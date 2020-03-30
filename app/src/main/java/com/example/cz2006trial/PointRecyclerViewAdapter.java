@@ -14,9 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cz2006trial.model.Point;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class PointArrayAdapter extends RecyclerView.Adapter<PointArrayAdapter.ViewHolder> implements Filterable {
+public class PointRecyclerViewAdapter extends RecyclerView.Adapter<PointRecyclerViewAdapter.ViewHolder> implements Filterable {
 
     private int layout;
     private ArrayList<Point> pointList;
@@ -24,7 +23,7 @@ public class PointArrayAdapter extends RecyclerView.Adapter<PointArrayAdapter.Vi
     private PointsAdapterListener listener;
 
     // Constructor of the class
-    public PointArrayAdapter(int layoutId, ArrayList<Point> pointList, PointsAdapterListener listener) {
+    public PointRecyclerViewAdapter(int layoutId, ArrayList<Point> pointList, PointsAdapterListener listener) {
         layout = layoutId;
         this.pointList = pointList;
         this.listener = listener;
