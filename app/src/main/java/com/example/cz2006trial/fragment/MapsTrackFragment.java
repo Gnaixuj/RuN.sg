@@ -127,6 +127,7 @@ public class MapsTrackFragment extends Fragment {
             distanceTravelledView.setVisibility(View.VISIBLE);
             timeElapsed = controller.getTimeElapsed();
             endButton.setVisibility(View.VISIBLE);
+            displaySession(userLocationSession);
         } else if (controller.isTrackEnded()) {
             endButton.setText("Save");
             endButton.setVisibility(View.VISIBLE);
