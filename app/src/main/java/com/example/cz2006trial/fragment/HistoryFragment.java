@@ -1,12 +1,17 @@
 package com.example.cz2006trial.fragment;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,9 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cz2006trial.R;
-import com.example.cz2006trial.historyPage.HistoryPageActivity;
-import com.example.cz2006trial.historyPage.RecyclerViewAdapter;
-import com.example.cz2006trial.historyPage.RoutePageActivity;
+import com.example.cz2006trial.historyPage.HistoryRecyclerViewAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,12 +31,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class HistoryFragment extends Fragment implements RecyclerViewAdapter.OnNoteListener {
+public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdapter.OnItemListener {
 
     private static final String TAG = "HistoryFragment";
     private ArrayList< String > mDatasetHistoryRoutes = new ArrayList <> ();
     private ArrayList < String > mDatasetSavedRoutes = new ArrayList <> ();
-    private ArrayList < String > mDataset;
+    //private ArrayList < String > mDataset;
     private enum DataType {
         HISTORY_ROUTES,
         SAVED_ROUTES
@@ -43,56 +46,203 @@ public class HistoryFragment extends Fragment implements RecyclerViewAdapter.OnN
     private RadioButton historyRoutesRadioButton;
     private RadioButton savedRoutesRadioButton;
 
-    RecyclerViewAdapter adapter;
-    RecyclerView recyclerView;
+    HistoryRecyclerViewAdapter historyRoutesAdapter;
+    HistoryRecyclerViewAdapter savedRoutesAdapter;
+    HistoryRecyclerViewAdapter adapter;
+    RecyclerView historyRoutesView;
+    RecyclerView savedRoutesView;
     View root;
+    LinearLayout layout;
+    CheckBox checkAll;
+    Button deleteButton;
+
+    //implement 2 recycler views that alternate visibility based on the radio button
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_history_page, container, false);
+        View view = inflater.inflate(R.layout.fragment_history, container, false);
         return view;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        initDataset();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initDataset();
+        //initialize dataset
+        //initDataset();
 
-        mDataset = new ArrayList<>();
+
+        currentDataType = DataType.HISTORY_ROUTES;
+
+        //mDataset = new ArrayList<>();
         this.root = view;
         historyRoutesRadioButton = view.findViewById(R.id.history_routes_rb);
-        recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        savedRoutesRadioButton = view.findViewById(R.id.saved_routes_rb);
+
+        //initialize both recycler views
+        historyRoutesView = view.findViewById(R.id.history_routes_view);
+        savedRoutesView = view.findViewById(R.id.saved_routes_view);
+
+        historyRoutesView.setLayoutManager(new LinearLayoutManager(getContext()));
+        savedRoutesView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        historyRoutesAdapter = new HistoryRecyclerViewAdapter(getActivity().getApplicationContext(), mDatasetHistoryRoutes, this);
+        savedRoutesAdapter = new HistoryRecyclerViewAdapter(getActivity().getApplicationContext(), mDatasetSavedRoutes, this);
+
+        historyRoutesView.setAdapter(historyRoutesAdapter);
+        savedRoutesView.setAdapter(savedRoutesAdapter);
+
+        adapter = historyRoutesAdapter;
+
+        deleteButton = view.findViewById(R.id.delete_hist);
+        layout = view.findViewById(R.id.delete);
+        //layout.setVisibility(View.GONE);
+
+        Button deleteSelected = view.findViewById(R.id.delete_selected);
+        checkAll = view.findViewById(R.id.check_all_hist);
+
+        toggleVisibility();
+
+        deleteSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //todo delete selected
+                if (adapter != null) {
+                    ArrayList<String> checkedItems = adapter.removeAllChecked();
+                    for (String item: checkedItems) {
+                        debugOutput("item is " + item);
+                        deleteData(item);
+/*                        if (currentDataType == DataType.HISTORY_ROUTES) {
+                            historyRoutesAdapter.removeItems();
+                            historyRoutesAdapter.notifyDataSetChanged();
+                            adapter = historyRoutesAdapter;
+                        }
+                            //mDatasetHistoryRoutes.remove(item);
+                        else {
+                            savedRoutesAdapter.removeItems();
+                            savedRoutesAdapter.notifyDataSetChanged();
+                            adapter = savedRoutesAdapter;*/
+                        }
+                         /*   mDatasetSavedRoutes.remove(item);
+                        adapter.removeItem(i);
+                        i++;*/
+                    }
+                toggleVisibility();
+                adapter.notifyDataSetChanged();
+                Toast.makeText(getContext(), "Selected items deleted", Toast.LENGTH_SHORT).show();
+/*                    if (currentDataType == DataType.HISTORY_ROUTES) initRecyclerView(root, mDatasetHistoryRoutes);
+                    else initRecyclerView(root, mDatasetSavedRoutes);*/
+//                }
+            }
+        });
+
+
+        checkAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (adapter != null) adapter.setChecked(b);
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (deleteButton.getText().equals("Delete History")) {
+                    deleteButton.setText("Done");
+                    if (adapter != null) adapter.showCheckBox(true);
+                    layout.setVisibility(View.VISIBLE);
+                }
+                else {
+                    deleteButton.setText("Delete History");
+                    checkAll.setChecked(false);
+                    if (adapter != null) adapter.showCheckBox(false);
+                    layout.setVisibility(View.GONE);
+
+                }
+
+            }
+        });
         //adapter = new RecyclerViewAdapter(getActivity().getApplicationContext(), mDataset, this);
         //recyclerView.setAdapter(adapter);
         //adapter.notifyDataSetChanged();
 
-        historyRoutesRadioButton.setOnClickListener(new View.OnClickListener() {
+        historyRoutesRadioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                currentDataType = HistoryFragment.DataType.HISTORY_ROUTES;
-                //mDataset = (ArrayList<String>) mDatasetHistoryRoutes.clone();
-                //debugOutput(String.valueOf(mDataset.size()));
-                //adapter.notifyDataSetChanged();
-                initRecyclerView(root, mDatasetHistoryRoutes);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    currentDataType = DataType.HISTORY_ROUTES;
+                    adapter = historyRoutesAdapter;
+                    toggleVisibility();
+                    //currentDataType = HistoryFragment.DataType.HISTORY_ROUTES;
+                    //mDataset = (ArrayList<String>) mDatasetHistoryRoutes.clone();
+                    //debugOutput(String.valueOf(mDataset.size()));
+                    //adapter.notifyDataSetChanged();
+                    //initRecyclerView(root, mDatasetHistoryRoutes);
+                }
+                else {
+                    currentDataType = DataType.SAVED_ROUTES;
+                    adapter = savedRoutesAdapter;
+                    toggleVisibility();
+                    //mDataset = (ArrayList<String>) mDatasetSavedRoutes.clone();
+                    //adapter.notifyDataSetChanged();
+                    //initRecyclerView(root, mDatasetSavedRoutes);
+                }
             }
         });
 
-        savedRoutesRadioButton = view.findViewById(R.id.saved_routes_rb);
+/*        historyRoutesRadioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
         savedRoutesRadioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentDataType = HistoryFragment.DataType.SAVED_ROUTES;
-                //mDataset = (ArrayList<String>) mDatasetSavedRoutes.clone();
-                //adapter.notifyDataSetChanged();
-                initRecyclerView(root, mDatasetSavedRoutes);
+
             }
-        });
+        });*/
 
         //initDataset();
         //debugOutput(String.valueOf(mDatasetHistoryRoutes.size()));
+    }
+
+    private void toggleVisibility() {
+        if (historyRoutesView != null && savedRoutesView != null) {
+            if (currentDataType == DataType.HISTORY_ROUTES) {
+                historyRoutesView.setVisibility(View.VISIBLE);
+                savedRoutesView.setVisibility(View.GONE);
+            }
+            else {
+                historyRoutesView.setVisibility(View.GONE);
+                savedRoutesView.setVisibility(View.VISIBLE);
+            }
+        }
+        layout.setVisibility(View.GONE);
+        checkAll.setChecked(false);
+        deleteButton.setText("Delete History");
+        if (adapter != null) adapter.showCheckBox(false);
+
+    }
+
+    private void deleteData(String item) {
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference databaseReference;
+        if (currentDataType == DataType.HISTORY_ROUTES)
+            databaseReference = FirebaseDatabase.getInstance().getReference().child(UID).child("userLocationSessions").child(item);
+        else
+            databaseReference = FirebaseDatabase.getInstance().getReference().child(UID).child("userSavedRoutes").child(item);
+        debugOutput(item);
+        databaseReference.removeValue();
     }
 
     private void initDataset() {
@@ -105,15 +255,20 @@ public class HistoryFragment extends Fragment implements RecyclerViewAdapter.OnN
         databaseLocationSessions.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+/*                if (mDatasetHistoryRoutes != null)
+                    mDatasetHistoryRoutes.clear();*/
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Log.d(TAG, "onDataChange: after fetching key (History Route) = " + postSnapshot.getKey());
+
                     mDatasetHistoryRoutes.add(postSnapshot.getKey());
                 }
 
-                currentDataType = HistoryFragment.DataType.HISTORY_ROUTES;
+                historyRoutesAdapter.notifyDataSetChanged();
+
+                //currentDataType = HistoryFragment.DataType.HISTORY_ROUTES;
                 //mDataset = mDatasetHistoryRoutes;
                 //adapter.notifyDataSetChanged();
-                initRecyclerView(root, mDatasetHistoryRoutes);
+                //initRecyclerView(root, mDatasetHistoryRoutes);
             }
 
             @Override
@@ -125,14 +280,19 @@ public class HistoryFragment extends Fragment implements RecyclerViewAdapter.OnN
         databaseSavedRoutes.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+/*                if (mDatasetSavedRoutes != null)
+                    mDatasetSavedRoutes.clear();*/
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Log.d(TAG, "onDataChange: after fetching key (Saved Route) = " + postSnapshot.getKey());
+
                     mDatasetSavedRoutes.add(postSnapshot.getKey());
                 }
-                currentDataType = DataType.SAVED_ROUTES;
+                //currentDataType = DataType.SAVED_ROUTES;
                 //mDataset = mDatasetHistoryRoutes;
                 //adapter.notifyDataSetChanged();
-                initRecyclerView(root, mDatasetSavedRoutes);
+                //initRecyclerView(root, mDatasetSavedRoutes);
+
+                savedRoutesAdapter.notifyDataSetChanged();
             }
 
 
@@ -143,16 +303,16 @@ public class HistoryFragment extends Fragment implements RecyclerViewAdapter.OnN
         });
     }
 
-    private void initRecyclerView(View view, ArrayList<String> dataset) {
+/*    private void initRecyclerView(View view, ArrayList<String> dataset) {
         debugOutput("initRecyclerView: Started");
 
-        adapter = new RecyclerViewAdapter(getActivity().getApplicationContext(), dataset, this);
+        adapter = new HistoryRecyclerViewAdapter(getActivity().getApplicationContext(), dataset, this);
         recyclerView.setAdapter(adapter);
 
-    }
+    }*/
 
     @Override
-    public void onNoteClick(int position) {
+    public void onItemClick(int position) {
         debugOutput("onNoteClick: Clicked position = " + position);
         Bundle bundle = new Bundle();
         bundle.putString("route_type", (currentDataType == HistoryFragment.DataType.HISTORY_ROUTES ? "userLocationSessions" : "userSavedRoutes"));

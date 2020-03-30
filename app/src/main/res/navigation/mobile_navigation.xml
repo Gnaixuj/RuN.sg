@@ -28,7 +28,7 @@
         android:id="@+id/nav_history"
         android:name="com.example.cz2006trial.fragment.HistoryFragment"
         android:label="@string/menu_history"
-        tools:layout="@layout/activity_history_page" >
+        tools:layout="@layout/fragment_history" >
         <action
             android:id="@+id/action_nav_history_to_nav_route"
             app:destination="@id/nav_route" />
@@ -38,7 +38,7 @@
         android:id="@+id/nav_route"
         android:name="com.example.cz2006trial.fragment.RouteFragment"
         android:label="@string/menu_route"
-        tools:layout="@layout/activity_route_page" >
+        tools:layout="@layout/fragment_route" >
         <argument
             android:name="myArg"
             app:argType="string"

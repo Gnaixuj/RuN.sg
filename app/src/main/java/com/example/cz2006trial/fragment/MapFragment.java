@@ -34,7 +34,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.cz2006trial.PointArrayAdapter;
+import com.example.cz2006trial.PointRecyclerViewAdapter;
 import com.example.cz2006trial.controller.GoogleMapController;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserLocationController;
@@ -123,7 +123,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private SearchView searchBar;
     private ArrayList<Point> pointList;
-    private PointArrayAdapter adapter;
+    private PointRecyclerViewAdapter adapter;
 
     private Point searchResult;
     private Switch switchPark;
@@ -143,7 +143,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         listPoints = root.findViewById(R.id.list_point);
         pointList = new ArrayList<>();
 
-        adapter = new PointArrayAdapter(R.layout.points_search_item, pointList, new PointArrayAdapter.PointsAdapterListener() {
+        adapter = new PointRecyclerViewAdapter(R.layout.points_search_item, pointList, new PointRecyclerViewAdapter.PointsAdapterListener() {
             @Override
             public void onPointSelected(Point point) {
                 searchResult = point;
@@ -295,10 +295,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             if (point.getType().equals("access")) {
                 for (Marker marker: accessPoint) {
                     if (marker.getTitle().equals(point.getName())) {
-                        if (show)
-                            marker.setVisible(true);
-                        else
-                            marker.setVisible(false);
+                        marker.setVisible(show);
                         break;
                     }
                 }
@@ -306,10 +303,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             else {
                 for (Marker marker: parkPoint) {
                     if (marker.getTitle().equals(point.getName())) {
-                        if (show)
-                            marker.setVisible(true);
-                        else
-                            marker.setVisible(false);
+                        marker.setVisible(show);
                         break;
                     }
                 }
@@ -409,6 +403,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         marker.setVisible(true);
                     }*/
                     listPoints.setVisibility(View.VISIBLE);
+                    if (searchResult != null)
+                        togglePoint(searchResult, false);
                     if (startPoint != null)
                         startPoint.remove();
 
@@ -451,6 +447,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 userRoute = controller.getUserRoute();
                 if (setEndPoint) {
                     listPoints.setVisibility(View.VISIBLE);
+                    if (searchResult != null)
+                        togglePoint(searchResult, false);
                     if (endPoint != null)
                         endPoint.remove();
 /*                    for (Marker marker : accessPoint) {
@@ -593,6 +591,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             //method to move location according to user's position
             @Override
             public void onLocationChanged(Location location) {
+                //update current position of user
+                userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
                 if (isFirstTime) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
@@ -602,8 +602,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 if (userLocation != null)
                     lastLocation = userLocation;
 
-                //update current position of user
-                userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
                 //check if tracking is enabled
                 startTrack = controller.isStartTrack();

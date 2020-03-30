@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class HistoryPageActivity extends AppCompatActivity implements RecyclerViewAdapter.OnNoteListener {
+public class HistoryPageActivity extends AppCompatActivity implements HistoryRecyclerViewAdapter.OnItemListener {
 
     private static final String TAG = "HistoryPageActivity";
     private ArrayList < String > mDatasetHistoryRoutes = new ArrayList <> ();
@@ -46,7 +46,7 @@ public class HistoryPageActivity extends AppCompatActivity implements RecyclerVi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history_page);
+        setContentView(R.layout.fragment_history);
 
         debugOutput("onCreate: Started");
 
@@ -117,14 +117,14 @@ public class HistoryPageActivity extends AppCompatActivity implements RecyclerVi
 
     private void initRecyclerView() {
         debugOutput("initRecyclerView: Started");
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, mDataset, this);
+        RecyclerView recyclerView = findViewById(R.id.history_routes_view);
+        HistoryRecyclerViewAdapter adapter = new HistoryRecyclerViewAdapter(this, mDataset, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
-    public void onNoteClick(int position) {
+    public void onItemClick(int position) {
         debugOutput("onNoteClick: Clicked position = " + position);
 
         Intent intent = new Intent(this, RoutePageActivity.class);

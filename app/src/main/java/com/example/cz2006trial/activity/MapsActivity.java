@@ -80,8 +80,8 @@ public class MapsActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+
+/*    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -92,7 +92,7 @@ public class MapsActivity extends AppCompatActivity {
 
         switch (id) {
 
-/*            case R.id.action_restart: {
+          case R.id.action_restart: {
                 mMap.clear();
                 userMarker.remove();
                 destination = null;
@@ -129,7 +129,7 @@ public class MapsActivity extends AppCompatActivity {
                 return true;
 
             }
-*/
+
 
             case R.id.history: {
                 startActivity(new Intent(MapsActivity.this, HistoryPageActivity.class));
@@ -140,10 +140,9 @@ public class MapsActivity extends AppCompatActivity {
 
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     public void logOut(View view) {
-        Log.i("log out", "i am clicked");
         FirebaseAuth.getInstance().signOut();
         startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         finish();
