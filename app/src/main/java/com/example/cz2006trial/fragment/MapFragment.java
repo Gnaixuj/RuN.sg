@@ -113,6 +113,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private final long MINTIME = 1000 * 2;
     private final float MINDIST = 0;
     private final int ZOOM = 12;
+    private final int ZOOM_OUT = 10;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
     private LatLng userLocation;
@@ -707,9 +708,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             //mMap.clear();
-            if (lastKnownLocation != null)
+            if (lastKnownLocation != null) {
                 userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
+            }
+            else {
+                LatLng sgLoc = new LatLng(1.3521, 103.8198);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sgLoc, ZOOM_OUT));
+            }
         }
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);

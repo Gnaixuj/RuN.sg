@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cz2006trial.R;
@@ -25,12 +26,9 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
     private ArrayList <Pair< String, Date>> mDataset;
     private ArrayList <Pair< String, Date>> checkedItems;
 
-    private Context mContext;
     private OnItemListener mOnItemListener;
-    private ViewHolder holder;
-    boolean checkAll = false;
-    boolean showAll = false;
-    boolean removeAll = false;
+    private boolean checkAll = false;
+    private boolean showAll = false;
 
     private void debugOutput(String msg) {
         Log.d(TAG, msg);
@@ -48,7 +46,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
         boolean checked;
         boolean showed;
 
-        public ViewHolder(View itemView, OnItemListener onItemListener) {
+        ViewHolder(View itemView, OnItemListener onItemListener) {
             super(itemView);
             checked = false;
             showed = false;
@@ -66,12 +64,12 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
 
         }
 
-        public void setCheckedItem (boolean check) {
+        void setCheckedItem(boolean check) {
             checked = check;
             checkItem.setChecked(check);
         }
 
-        public void setShowCheckBox (boolean show) {
+        void setShowCheckBox(boolean show) {
             showed = show;
             if (show)
                 checkItem.setVisibility(View.VISIBLE);
@@ -116,16 +114,15 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
 
     public HistoryRecyclerViewAdapter(Context context, ArrayList <Pair< String, Date>>  dataset, OnItemListener onItemListener) {
         mDataset = dataset;
-        mContext = context;
         mOnItemListener = onItemListener;
         checkedItems = new ArrayList<>();
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_list_item, parent, false);
-        holder = new ViewHolder(view, mOnItemListener);
-        return holder;
+        return new ViewHolder(view, mOnItemListener);
     }
 
     @Override
