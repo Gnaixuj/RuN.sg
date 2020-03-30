@@ -67,25 +67,42 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        >
 
-        <SearchView
-            android:id="@+id/search_point"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="#FFFFFF"
-            android:queryHint="Search for parks/access points...">
 
-        </SearchView>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list_point"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="#FFFFFF"
-            tools:visibility="gone" />
+            android:layout_weight="90"
+            android:orientation="vertical"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp">
 
+            <SearchView
+                android:id="@+id/search_point"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:background="#FFFFFF"
+                android:queryHint="Search for parks/access points...">
+
+            </SearchView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list_point"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"
+                tools:visibility="gone" />
+
+        </LinearLayout>
+        <TextView
+            android:id="@+id/buffer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="15" />
     </LinearLayout>
 
     <!--

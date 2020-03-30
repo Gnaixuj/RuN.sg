@@ -20,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
@@ -134,6 +135,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private Switch switchPark;
     private Switch switchPcn;
     private RecyclerView listPoints;
+    private TextView buffer;
 
     @Override
     public View onCreateView (@NonNull LayoutInflater inflater,
@@ -147,6 +149,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         searchBar = root.findViewById(R.id.search_point);
         listPoints = root.findViewById(R.id.list_point);
         pointList = new ArrayList<>();
+
+        buffer = root.findViewById(R.id.buffer);
 
         adapter = new PointRecyclerViewAdapter(R.layout.points_search_item, pointList, new PointRecyclerViewAdapter.PointsAdapterListener() {
             @Override
@@ -181,6 +185,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     togglePoint(point, true);
                 //}
                 searchBar.setIconified(true);
+                listPoints.setVisibility(View.GONE);
+                buffer.setVisibility(View.VISIBLE);
             }
         });
         listPoints.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -195,6 +201,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 listPoints.setVisibility(View.VISIBLE);
                 if (searchResult != null)
                     togglePoint(searchResult, false);
+                buffer.setVisibility(View.GONE);
             }
         });
 
@@ -203,8 +210,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public boolean onClose() {
                 listPoints.setVisibility(View.GONE);
+                buffer.setVisibility(View.VISIBLE);
                 return false;
             }
+
         });
 
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -304,6 +313,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         break;
                     }
                 }
+
             }
             else {
                 for (Marker marker: parkPoint) {
@@ -313,6 +323,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     }
                 }
             }
+            if (show)
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point.getLocation(), mMap.getCameraPosition().zoom));
         }
     }
 
@@ -426,6 +438,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                                             .snippet("Your Starting Point")
                                             .zIndex(2f)
                                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startPoint.getPosition(), mMap.getCameraPosition().zoom));
                                     UserRouteController.setStartMarkerInfo(userRoute, startPoint);
 
                                 }
@@ -471,6 +485,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                                             .snippet("Your Ending Location")
                                             .zIndex(1f)
                                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(endPoint.getPosition(), mMap.getCameraPosition().zoom));
                                     UserRouteController.setEndMarkerInfo(userRoute, endPoint);
                                 }
                             return false;
@@ -528,7 +543,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 ArrayList<LatLng> route = controller.getRoute();
                 Log.i("route", route.toString());
                 routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.BLACK)));
-                if (startPoint != null) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint.getPosition(), ZOOM));
+                if (startPoint != null) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startPoint.getPosition(), mMap.getCameraPosition().zoom));
 
             }
         });
@@ -629,14 +644,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 }
 
 
-                if (userMarker != null) {
+                if (userMarker != null)
                     userMarker.remove();
-                    userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                } else {
-                    userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                }
+                userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
 
             }
@@ -827,7 +838,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-
+/*
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
         Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_point_red_48dp);
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
@@ -838,6 +849,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         background.draw(canvas);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
+    }*/
 
 }
