@@ -130,7 +130,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         debugOutput("onBindViewHolder: called for position = " + position);
 
-        String pattern = "E, MMM dd - HH:mm";
+        String pattern = "EEEE, MMMM dd - HH:mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         Date timestamp = mDataset.get(position).second;
         viewHolder.textName.setText((position + 1) + ". " + simpleDateFormat.format(timestamp));

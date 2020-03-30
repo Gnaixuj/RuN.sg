@@ -157,19 +157,6 @@ public class RouteFragment extends Fragment {
         }
 
         initData();
-/*        if (getIntent().hasExtra("selected_route")) {
-            keyDB = getIntent().getStringExtra("selected_route");
-            Log.d(TAG, "onCreate: keyDB = " + keyDB);
-        } else {
-            Log.d(TAG, "onCreate: error - intent didn't pass thru");
-        }
-
-        if (getIntent().hasExtra("route_type")) {
-            routeType = getIntent().getStringExtra("route_type");
-            Log.d(TAG, "onCreate: routeType = " + routeType);
-        } else {
-            Log.d(TAG, "onCreate: error - intent didn't pass thru");
-        }*/
     }
 
     private void initData() {
@@ -194,7 +181,6 @@ public class RouteFragment extends Fragment {
                     mUserRoute = dataSnapshot.getValue(UserRoute.class);
 
                     Log.d(TAG, "onDataChange: userRoute = " + mUserRoute.output());
-//                    mUserRoute = dataSnapshot.getValue(UserRoute.class);
                 }
                 Log.d(TAG, "onDataChange: data fetched");
                 initMap();
