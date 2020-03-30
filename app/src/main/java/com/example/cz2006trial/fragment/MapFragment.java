@@ -722,7 +722,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                                         .color(res.getColor(R.color.color2, getActivity().getTheme()))));
                                 break;
                             case "Northern Explorer Loop":
-                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList)
+                                pcnLines.add(mMap.addPolyline(new PolylineOptions().addAll(latLngList).visible(false)
                                         .color(res.getColor(R.color.color3, getActivity().getTheme()))));
                                 break;
                             case "North Eastern Riverine Loop":
