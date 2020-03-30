@@ -1,18 +1,16 @@
 package com.example.cz2006trial.activity;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.Constraints;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -22,14 +20,10 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
-import com.example.cz2006trial.model.Goal;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MapsActivity extends AppCompatActivity {
 
@@ -102,7 +96,8 @@ public class MapsActivity extends AppCompatActivity {
                     userEmail.setText(stringArgs.get(1));
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
-                        public void onCallback(String[] message) {
+                        public void onCallback(String[] message, byte[] bytes) {
+                            userImage.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                         }
                     }, "retrieve",userImage);
 
