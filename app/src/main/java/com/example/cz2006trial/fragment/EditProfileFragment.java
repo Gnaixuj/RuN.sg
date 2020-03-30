@@ -63,7 +63,7 @@ public class EditProfileFragment extends Fragment {
     private EditText DOBTextView;
     private EditText heightTextView;
     private EditText weightTextView;
-    private EditText BMITextView;
+    //private EditText BMITextView;
     private ImageView updateProfileButton;
     private TextView totalDistanceTextView;
     private TextView todayTargetTextView;
@@ -80,7 +80,7 @@ public class EditProfileFragment extends Fragment {
         DOBTextView = view.findViewById(R.id.DOB);
         heightTextView = view.findViewById(R.id.height);
         weightTextView = view.findViewById(R.id.weight);
-        BMITextView = view.findViewById(R.id.BMI);
+        //BMITextView = view.findViewById(R.id.BMI);
         updateProfileButton = view.findViewById(R.id.updateProfileButton);
         totalDistanceTextView = view.findViewById(R.id.totalDistance);
         todayTargetTextView = view.findViewById(R.id.todayTarget);
@@ -131,7 +131,7 @@ public class EditProfileFragment extends Fragment {
 
         heightTextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
         weightTextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
-        BMITextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
+        //BMITextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
 
         profilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,8 +224,12 @@ public class EditProfileFragment extends Fragment {
         if (!weightTextView.getEditableText().toString().equals(""))
             weight = Double.parseDouble(weightTextView.getEditableText().toString());
 
+        if (height != 0 && weight != 0) {
+            BMI = calculateBMI(height, weight);
+        }
+/*
         if (!BMITextView.getEditableText().toString().equals(""))
-            BMI = Double.parseDouble(BMITextView.getEditableText().toString());
+            BMI = Double.parseDouble(BMITextView.getEditableText().toString());*/
 
         DatabaseManager.updateProfileData(username, email, DOB, height, weight, BMI);
     }
@@ -252,9 +256,9 @@ public class EditProfileFragment extends Fragment {
                     if (doubleArgs[1] != 0)
                         weightTextView.setText("" + doubleArgs[1]);
                     weightTextView.setHint("Please input your weight in kg");
-                    if (doubleArgs[2] != 0)
+/*                    if (doubleArgs[2] != 0)
                         BMITextView.setText("" + doubleArgs[2]);
-                    BMITextView.setHint("Please input your BMI");
+                    BMITextView.setHint("Please input your BMI");*/
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message, byte[] bytes) {
@@ -427,4 +431,11 @@ public class EditProfileFragment extends Fragment {
             }
         }
     }
+
+    private double calculateBMI (double height, double weight) {
+        height = height/100.0;
+        double bmi = weight/(height * height);
+        return Math.round(bmi * 10)/10.0;
+    }
+
 }

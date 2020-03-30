@@ -489,6 +489,7 @@ public class GoogleMapController {
             boolean open = true;
             String address;
             String title;
+            LatLng location;
             //todo photos
 
             try {
@@ -511,6 +512,9 @@ public class GoogleMapController {
                 parkInfo.put("address", address);
                 title = result.getString("name");
                 parkInfo.put("name", title);
+                location = new LatLng(result.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
+                        result.getJSONObject("geometry").getJSONObject("location").getDouble("lng"));
+                parkInfo.put("location", location);
 
                 placeListener.onChange();
 

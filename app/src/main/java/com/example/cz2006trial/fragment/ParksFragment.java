@@ -1,7 +1,9 @@
 package com.example.cz2006trial.fragment;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.media.Rating;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +17,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.cz2006trial.R;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.text.BreakIterator;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class ParksFragment extends DialogFragment {
 
@@ -47,14 +51,19 @@ public class ParksFragment extends DialogFragment {
         TextView open = view.findViewById(R.id.park_open);
         RatingBar bar = view.findViewById(R.id.ratingBar);
         ImageButton button = view.findViewById(R.id.imageButton);
+        TextView openMap = view.findViewById(R.id.go_to_map);
+        TextView rating = view.findViewById(R.id.rating_text);
 
         bar.setStepSize(0.01f);
 
-        HashMap<String, Object> info = new HashMap<>();
+        HashMap<String, Object> info;
 
         info = (HashMap<String, Object>) getArguments().getSerializable("info");
-        title.setText(info.get("name").toString());
+        final String name = info.get("name").toString();
+        title.setText(name);
         address.setText(info.get("address").toString());
+        final LatLng location = (LatLng) info.get("location");
+
         if ((Boolean) info.get("open")) {
             open.setText("Open Now");
         }
@@ -62,11 +71,25 @@ public class ParksFragment extends DialogFragment {
             open.setText("Closed");
         }
         bar.setRating(Float.parseFloat(info.get("rating").toString()));
-
+        if (Float.parseFloat(info.get("rating").toString()) == 0.0f) {
+            rating.setText("No rating");
+        }
+        else {
+            rating.setText("Rating: " + info.get("rating").toString());
+        }
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dismiss();
+            }
+        });
+
+        openMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String uri = String.format(Locale.ENGLISH, "geo:%f,%f?q=%s", location.latitude, location.longitude, name);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                getContext().startActivity(intent);
             }
         });
 

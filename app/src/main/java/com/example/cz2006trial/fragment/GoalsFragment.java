@@ -1,9 +1,12 @@
 package com.example.cz2006trial.fragment;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,31 +22,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
 import com.example.cz2006trial.DatabaseManager;
 import com.example.cz2006trial.DecimalDigitsInputFilter;
 import com.example.cz2006trial.controller.GoalController;
-import com.example.cz2006trial.GoalDecorator;
 import com.example.cz2006trial.model.Goal;
-import com.example.cz2006trial.activity.MapsActivity;
 import com.example.cz2006trial.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -237,4 +235,31 @@ public class GoalsFragment extends Fragment {
         }, date);
     }
 
+    private static class GoalDecorator implements DayViewDecorator {
+
+        private final int color;
+        private final boolean bold;
+        private final HashSet<CalendarDay> markedDates;
+
+        GoalDecorator(int color, boolean bold, ArrayList<CalendarDay> dates) {
+            this.color = color;
+            this.bold = bold;
+            this.markedDates = new HashSet<>(dates);
+        }
+
+        @Override
+        public boolean shouldDecorate(CalendarDay day) {
+            return markedDates.contains(day);
+        }
+
+        @Override
+        public void decorate(DayViewFacade view) {
+            if (bold) {
+                view.addSpan(new StyleSpan(Typeface.BOLD));
+                view.addSpan(new RelativeSizeSpan(1.5f));
+            } else {
+                view.addSpan(new DotSpan(10, color));
+            }
+        }
+    }
 }

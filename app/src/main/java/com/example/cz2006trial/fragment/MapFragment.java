@@ -72,6 +72,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -112,7 +114,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private final long MINTIME = 1000 * 2;
     private final float MINDIST = 0;
-    private final int ZOOM = 12;
+    private final int ZOOM = 13;
     private final int ZOOM_OUT = 10;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
@@ -635,7 +637,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     locations.add(lastLocation);
                     controller.setLocations(locations);
                     startTrackLine.add(mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED)));
-                    UserLocation userLocation = new UserLocation();
+                    //UserLocation userLocation = new UserLocation();
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
                     TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
                     sdf.setTimeZone(tz);
@@ -694,9 +696,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         //get the access points from geojson
         extractGeodata(accessLayer);
-
         //get the points of parks from geojson
         extractGeodata(parksLayer);
+
 
         //get the park connector network from geojson
         extractGeodata(pcnLayer);
@@ -711,6 +713,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             if (lastKnownLocation != null) {
                 userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
+                sortLocations(pointList, userLocation);
+                adapter.notifyDataSetChanged();
             }
             else {
                 LatLng sgLoc = new LatLng(1.3521, 103.8198);
@@ -783,7 +787,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     }
                 }
             }
-            adapter.notifyDataSetChanged();
+
         }
     }
 
@@ -843,6 +847,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             }
         }
     }
+
+    public static void sortLocations(ArrayList<Point> locations, final LatLng user) {
+        Comparator comp = new Comparator<Point>() {
+            @Override
+            public int compare(Point o, Point o2) {
+                float[] result1 = new float[3];
+                android.location.Location.distanceBetween(user.latitude, user.longitude,
+                        o.getLocation().latitude, o.getLocation().longitude, result1);
+                Float distance1 = result1[0];
+
+                float[] result2 = new float[3];
+                android.location.Location.distanceBetween(user.latitude, user.longitude,
+                        o2.getLocation().latitude, o2.getLocation().longitude, result2);
+                Float distance2 = result2[0];
+
+                return distance1.compareTo(distance2);
+            }
+        };
+
+
+        Collections.sort(locations, comp);
+        //return locations;
+    }
+
 
 /*
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
