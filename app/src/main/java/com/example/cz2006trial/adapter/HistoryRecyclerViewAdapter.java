@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.cz2006trial.R;
 
 public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRecyclerViewAdapter.ViewHolder > {
     private static final String TAG = "RecyclerViewAdapter";

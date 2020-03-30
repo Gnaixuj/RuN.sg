@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cz2006trial.R;
-import com.example.cz2006trial.HistoryRecyclerViewAdapter;
+import com.example.cz2006trial.adapter.HistoryRecyclerViewAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,7 +32,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdapter.OnItemListener {
 

@@ -152,7 +152,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onPointSelected(Point point) {
                 searchResult = point;
-                if (setStartPoint ) {
+/*                if (setStartPoint ) {
                     //todo show dialog
                     Log.i("Click","Start point chosen");
                     startPoint = mMap.addMarker(new MarkerOptions().position(point.getLocation())
@@ -160,6 +160,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                             .snippet("Your Starting Point")
                             .zIndex(2f)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint.getPosition(), ZOOM));
                     UserRouteController.setStartMarkerInfo(userRoute, startPoint);
                     setStartPoint = false;
                 }
@@ -171,16 +172,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                             .snippet("Your Ending Point")
                             .zIndex(2f)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(endPoint.getPosition(), ZOOM));
                     UserRouteController.setEndMarkerInfo(userRoute, endPoint);
                     setEndPoint = false;
                 }
                 //todo bug with clicking
-                else {
+                else {*/
                     togglePoint(point, true);
-                }
+                //}
                 searchBar.setIconified(true);
-
-
             }
         });
         listPoints.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -404,16 +404,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 userRoute = controller.getUserRoute();
 
                 if (setStartPoint) {
-/*                    for (Marker marker : accessPoint) {
+                    for (Marker marker : accessPoint) {
                         marker.setVisible(true);
-                    }*/
-                    listPoints.setVisibility(View.VISIBLE);
+                    }
+                    //listPoints.setVisibility(View.VISIBLE);
                     if (searchResult != null)
                         togglePoint(searchResult, false);
                     if (startPoint != null)
                         startPoint.remove();
 
-                    /*
+
                     mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
@@ -433,13 +433,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         }
 
 
-                    });*/
+                    });
                 }
-/*                else {
+                else {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(false);
                     }
-                }*/
+                }
             }
         });
     }
@@ -451,15 +451,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 setEndPoint = controller.isSetEndPoint();
                 userRoute = controller.getUserRoute();
                 if (setEndPoint) {
-                    listPoints.setVisibility(View.VISIBLE);
+                    //listPoints.setVisibility(View.VISIBLE);
                     if (searchResult != null)
                         togglePoint(searchResult, false);
                     if (endPoint != null)
                         endPoint.remove();
-/*                    for (Marker marker : accessPoint) {
+                    for (Marker marker : accessPoint) {
                         marker.setVisible(true);
-                    }*/
-                    /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    }
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
                             if (!marker.getTitle().equals("Your Location"))
@@ -475,15 +475,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                                 }
                             return false;
                         }
-                    });*/
+                    });
                 }
-/*
+
                 else {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(false);
                     }
                 }
-*/
+
             }
         });
     }
@@ -528,6 +528,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 ArrayList<LatLng> route = controller.getRoute();
                 Log.i("route", route.toString());
                 routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.BLACK)));
+                if (startPoint != null) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint.getPosition(), ZOOM));
 
             }
         });
