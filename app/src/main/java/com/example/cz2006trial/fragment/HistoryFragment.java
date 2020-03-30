@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -61,6 +62,7 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
     LinearLayout layout;
     CheckBox checkAll;
     Button deleteButton;
+    TextView noDataTextView;
 
     //implement 2 recycler views that alternate visibility based on the radio button
 
@@ -86,6 +88,8 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
         this.root = view;
         historyRoutesRadioButton = view.findViewById(R.id.history_routes_rb);
         savedRoutesRadioButton = view.findViewById(R.id.saved_routes_rb);
+
+        noDataTextView = view.findViewById(R.id.no_data_text_view);
 
         //initialize both recycler views
         historyRoutesView = view.findViewById(R.id.history_routes_view);
@@ -131,6 +135,9 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
 
                 toggleVisibility();
                 adapter.notifyDataSetChanged();
+                if (adapter.getItemCount() == 0) {
+                    //todo
+                }
                 Toast.makeText(getContext(), "Selected items deleted", Toast.LENGTH_SHORT).show();
             }
         });
@@ -182,10 +189,20 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
             if (currentDataType == DataType.HISTORY_ROUTES) {
                 historyRoutesView.setVisibility(View.VISIBLE);
                 savedRoutesView.setVisibility(View.GONE);
+
+                if (mDatasetHistoryRoutes.isEmpty())
+                    noDataTextView.setVisibility(View.VISIBLE);
+                else
+                    noDataTextView.setVisibility(View.INVISIBLE);
             }
             else {
                 historyRoutesView.setVisibility(View.GONE);
                 savedRoutesView.setVisibility(View.VISIBLE);
+
+                if (mDatasetSavedRoutes.isEmpty())
+                    noDataTextView.setVisibility(View.VISIBLE);
+                else
+                    noDataTextView.setVisibility(View.INVISIBLE);
             }
         }
         layout.setVisibility(View.GONE);
