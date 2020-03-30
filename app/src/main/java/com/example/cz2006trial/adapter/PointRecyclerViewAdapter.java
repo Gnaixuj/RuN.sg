@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cz2006trial.R;
 import com.example.cz2006trial.model.Point;
 
 import java.util.ArrayList;

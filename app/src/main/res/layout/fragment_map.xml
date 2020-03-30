@@ -18,18 +18,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|right"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="110dp"
         android:layout_marginEnd="20dp"
-        android:text="Show All Parks" />
+        android:fontFamily="sans-serif-condensed-medium"
+        android:switchPadding="15dp"
+        android:text="Show All Parks"
+        android:textSize="16dp" />
 
     <Switch
         android:id="@+id/switch_pcn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right|top"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="70dp"
         android:layout_marginEnd="20dp"
-        android:text="Show Park Connector Network" />
+        android:fontFamily="sans-serif-condensed-medium"
+        android:switchPadding="15dp"
+        android:text="Show Park Connector Network"
+        android:textSize="16dp" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"

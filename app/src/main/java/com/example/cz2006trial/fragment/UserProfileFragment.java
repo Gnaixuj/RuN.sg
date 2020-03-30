@@ -144,13 +144,4 @@ public class UserProfileFragment extends Fragment {
         editProfileButton.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
-            @Override
-            public void onCallback(String[] message) {
-            }
-        }, "retrieve", profilePhoto);
-    }
 }

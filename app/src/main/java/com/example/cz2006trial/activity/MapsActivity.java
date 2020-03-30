@@ -3,41 +3,41 @@ package com.example.cz2006trial.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageSwitcher;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.Constraints;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.cz2006trial.DatabaseManager;
+import com.example.cz2006trial.ImageDatabaseManager;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.model.Goal;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
 public class MapsActivity extends AppCompatActivity {
 
-
-
-    private String date;
-    //private Goal goal;
     private AppBarConfiguration mAppBarConfiguration;
+    private ImageView userImage;
+    private TextView userName;
+    private TextView userEmail;
 
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-    public String getDate(){
-        return this.date;
-    }
-    /*public Goal getGoal() {
-        return goal;
-    }
-    public void setGoal(Goal goal) {
-        this.goal = goal;
-    }*/
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -50,9 +50,13 @@ public class MapsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Log.i("MapsActivity", "oncreate");
 
         setContentView(R.layout.activity_main);
+
+
+
+        displayProfile();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -61,6 +65,15 @@ public class MapsActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
 
+        View headView = navigationView.getHeaderView(0);
+
+        userImage = headView.findViewById(R.id.user_image);
+        userName = headView.findViewById(R.id.user_name);
+        userEmail = headView.findViewById(R.id.user_email);
+
+        userEmail.setVisibility(View.INVISIBLE);
+        userName.setVisibility(View.INVISIBLE);
+        userImage.setVisibility(View.INVISIBLE);
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 
@@ -75,67 +88,46 @@ public class MapsActivity extends AppCompatActivity {
 
     }
 
+    public void displayProfile() {
+        DatabaseManager.getProfileData(new DatabaseManager.ProfileDatabaseCallback() {
+            @Override
+            public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg) {
+                if (errorMsg[0] != null)
+                    Toast.makeText(getApplicationContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                else if (errorMsg[1] != null)
+                    Toast.makeText(getApplicationContext(), errorMsg[1], Toast.LENGTH_LONG).show();
+                else {
 
-/*    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+                    userName.setText(stringArgs.get(0));
+                    userEmail.setText(stringArgs.get(1));
+                    ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
+                        @Override
+                        public void onCallback(String[] message) {
+                        }
+                    }, "retrieve",userImage);
+
+                    loadingComplete();
+                }
+            }
+        });
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+    private void loadingComplete() {
+        userEmail.setVisibility(View.VISIBLE);
+        userName.setVisibility(View.VISIBLE);
+        userImage.setVisibility(View.VISIBLE);
 
-        switch (id) {
+/*        RelativeLayout imageLayout = new RelativeLayout(this);
 
-          case R.id.action_restart: {
-                mMap.clear();
-                userMarker.remove();
-                destination = null;
-                locations.clear();
-                mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
-                return true;
-            }
+        userImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(24, 24);
+        imageLayout.addView(userImage, lp);*/
 
-            case R.id.action_track: {
+        userImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(200, 200);
+        userImage.setLayoutParams(lp);
+    }
 
-                return true;
-            }
-
-            case R.id.action_direction: {
-                mMap.clear();
-                button.setVisibility(View.VISIBLE);
-                mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-
-                for (Marker marker : accessPoint) {
-                    mMap.addMarker(new MarkerOptions().position(marker.getPosition()).title(marker.getTitle()).visible(true));
-                }
-
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(Marker marker) {
-                        destination = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-                        return false;
-                    }
-                });
-
-                return true;
-
-            }
-
-
-            case R.id.history: {
-                startActivity(new Intent(MapsActivity.this, HistoryPageActivity.class));
-                return true;
-            }
-
-
-
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
 
     public void logOut(View view) {
         FirebaseAuth.getInstance().signOut();

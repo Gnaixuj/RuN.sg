@@ -10,7 +10,7 @@ import android.widget.ExpandableListView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.cz2006trial.CustomExpandableListAdapter;
+import com.example.cz2006trial.adapter.CustomExpandableListAdapter;
 import com.example.cz2006trial.ExpandableListData;
 import com.example.cz2006trial.R;
 

@@ -11,6 +11,15 @@
     <color name="colorSecondaryDark">#5a3f11</color>
     <color name="colorSecondaryAccent">#9c5518</color>
 
+    <color name="color1">#ff1e56</color>
+    <color name="color2">#084177</color>
+    <color name="color3">#621055</color>
+    <color name="color4">#de7119</color>
+    <color name="color5">#8cba51</color>
+    <color name="color6">#4d4c7d</color>
+
+
+
 
     <color name="address">#2F7092</color>
     <color name="followers">#0D5D98</color>

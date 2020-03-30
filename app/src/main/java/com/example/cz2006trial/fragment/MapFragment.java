@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cz2006trial.DatabaseManager;
-import com.example.cz2006trial.PointRecyclerViewAdapter;
+import com.example.cz2006trial.adapter.PointRecyclerViewAdapter;
 import com.example.cz2006trial.controller.GoogleMapController;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserLocationController;
