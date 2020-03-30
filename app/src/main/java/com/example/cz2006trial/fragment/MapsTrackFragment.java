@@ -148,9 +148,15 @@ public class MapsTrackFragment extends Fragment {
                 controller.setTimeElapsed(SystemClock.elapsedRealtime() - mChronometer.getBase());
                 distanceTravelledView.setText("Distance travelled: " + Math.round(userLocationSession.getDistance() * 10) / 10.0 + " km");
                 distanceTravelledView.setVisibility(View.VISIBLE);
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
-                final String dateString = dateFormat.format(userLocationSession.getTimestamp()).substring(0, 10);
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+                TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+                sdf.setTimeZone(tz);
+                java.util.Date curDate = new java.util.Date();
+                String dateString = sdf.format(curDate);
+
+                //DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                //final String dateString = dateFormat.format(userLocationSession.getTimestamp()).substring(0, 10);
                 Log.d("date", dateString);
                 DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
                     @Override
