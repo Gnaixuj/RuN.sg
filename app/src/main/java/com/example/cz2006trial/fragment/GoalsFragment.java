@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,17 +154,21 @@ public class GoalsFragment extends Fragment {
 
     private void instantiateCalendar() {
         //Set max and min date that can be shown on the calendar
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
         TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
         sdf.setTimeZone(tz);
         java.util.Date curDate = new java.util.Date();
         String date = sdf.format(curDate);
-        Date todayDate = GoalController.convertStringToDate(date);
-        Calendar cMin = Calendar.getInstance();
-        cMin.setTime(todayDate);
+        Date todayDate = DatabaseManager.convertStringToDate(date);
+        Calendar cMin = Calendar.getInstance(Locale.ENGLISH);
+        cMin.setTimeInMillis(todayDate.getTime());
+        Log.d("calendar", cMin.toString());
         cMin.add(Calendar.MONTH, -1);
-        Calendar cMax = Calendar.getInstance();
-        cMax.setTime(todayDate);
+        Log.d("calendar", cMin.toString());
+        Calendar cMax = Calendar.getInstance(Locale.ENGLISH);
+        Log.d("calendar", cMax.toString());
+        cMax.setTimeInMillis(todayDate.getTime());
+        Log.d("calendar", cMax.toString());
         cMax.add(Calendar.MONTH, 1);
         calendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
@@ -175,7 +180,7 @@ public class GoalsFragment extends Fragment {
         //decorate current date
         ArrayList<CalendarDay> currentDate = new ArrayList<CalendarDay>();
         //code to decorate current date
-        currentDate.add(CalendarDay.today());
+        currentDate.add(CalendarDay.from(todayDate));
         calendarView.addDecorators(new GoalDecorator(Color.WHITE, true, currentDate));
     }
 

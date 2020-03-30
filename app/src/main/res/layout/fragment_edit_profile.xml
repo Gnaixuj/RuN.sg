@@ -112,7 +112,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="Distance travelled"
+                    android:text="Total Distance travelled"
                     android:textAllCaps="true"
                     android:textColor="@color/white"
                     android:textSize="13sp" />
