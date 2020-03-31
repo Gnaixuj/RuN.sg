@@ -2,6 +2,7 @@ package com.example.cz2006trial.fragment;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.Rating;
 import android.net.Uri;
 import android.os.Bundle;
@@ -66,9 +67,11 @@ public class ParksFragment extends DialogFragment {
 
         if ((Boolean) info.get("open")) {
             open.setText("Open Now");
+            open.setTextColor(getActivity().getResources().getColor(R.color.color5, getActivity().getTheme()));
         }
         else {
             open.setText("Closed");
+            open.setTextColor(Color.RED);
         }
         bar.setRating(Float.parseFloat(info.get("rating").toString()));
         if (Float.parseFloat(info.get("rating").toString()) == 0.0f) {

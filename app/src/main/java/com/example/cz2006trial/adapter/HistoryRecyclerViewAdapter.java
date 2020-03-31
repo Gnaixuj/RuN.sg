@@ -65,7 +65,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
         }
 
         void setCheckedItem(boolean check) {
-            checked = check;
+            //checked = check;
             checkItem.setChecked(check);
         }
 
@@ -139,6 +139,9 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter < HistoryRe
 
         if (viewHolder.checked) {
             checkedItems.add(mDataset.get(position));
+        }
+        else {
+            checkedItems.remove(mDataset.get(position));
         }
     }
 
