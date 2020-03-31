@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     startActivity(new Intent(getApplicationContext(), MapsActivity.class));
                     finish();

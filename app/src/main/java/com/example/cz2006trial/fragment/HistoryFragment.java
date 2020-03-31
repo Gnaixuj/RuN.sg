@@ -181,8 +181,11 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                 historyRoutesView.setVisibility(View.VISIBLE);
                 savedRoutesView.setVisibility(View.GONE);
 
-                if (mDatasetHistoryRoutes.isEmpty())
+                Log.d(TAG, "toggleVisibility: size = "+ mDatasetHistoryRoutes.size());
+                if (mDatasetHistoryRoutes.isEmpty()) {
                     noDataTextView.setVisibility(View.VISIBLE);
+                    Log.d(TAG, "toggleVisibility: visible");
+                }
                 else
                     noDataTextView.setVisibility(View.INVISIBLE);
             }
@@ -240,15 +243,18 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                     mDatasetHistoryRoutes.add(new Pair < String, Date > (key, value));
                 }
 
+                Log.d(TAG, "onDataChange: HistoryRoute: size = " + mDatasetHistoryRoutes.size());
 
-                if (mDatasetHistoryRoutes.isEmpty())
-                    noDataTextView.setVisibility(View.VISIBLE);
-                else {
-                    Collections.sort(mDatasetHistoryRoutes, new SortByDate());
-                    noDataTextView.setVisibility(View.INVISIBLE);
-                    historyRoutesAdapter.notifyDataSetChanged();
+                if (currentDataType.equals(DataType.HISTORY_ROUTES)) {
+                    if (mDatasetHistoryRoutes.isEmpty())
+                        noDataTextView.setVisibility(View.VISIBLE);
+                    else {
+                        Log.d(TAG, "onDataChange: HistoryRoute: invisible");
+                        noDataTextView.setVisibility(View.INVISIBLE);
+                    }
                 }
-
+                Collections.sort(mDatasetHistoryRoutes, new SortByDate());
+                historyRoutesAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -271,13 +277,15 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                     mDatasetSavedRoutes.add(new Pair < String, Date > (key, value));
                 }
 
-                if (mDatasetSavedRoutes.isEmpty())
+                if (mDatasetSavedRoutes.isEmpty() && currentDataType.equals(DataType.SAVED_ROUTES)) {
                     noDataTextView.setVisibility(View.VISIBLE);
-                else {
-                    noDataTextView.setVisibility(View.INVISIBLE);
-                    savedRoutesAdapter.notifyDataSetChanged();
-                    Collections.sort(mDatasetSavedRoutes, new SortByDate());
+                    Log.d(TAG, "onDataChange: SavedRoute: visible");
                 }
+                else if (!mDatasetSavedRoutes.isEmpty() && currentDataType.equals(DataType.SAVED_ROUTES)) {
+                    noDataTextView.setVisibility(View.INVISIBLE);
+                }
+                savedRoutesAdapter.notifyDataSetChanged();
+                Collections.sort(mDatasetSavedRoutes, new SortByDate());
             }
 
             @Override
