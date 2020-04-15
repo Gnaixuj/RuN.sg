@@ -15,8 +15,13 @@ import androidx.fragment.app.Fragment;
 import com.example.cz2006trial.controller.GoogleMapController;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserRouteController;
+import com.example.cz2006trial.database.DatabaseManager;
 import com.example.cz2006trial.model.UserRoute;
 
+/**
+ * This fragment is used to create route based on a starting location and an ending location
+ * chosen from access point markers on the map
+ */
 public class MapsCreateFragment extends Fragment {
 
     private static final String TAG = "MapsCreateFragment";
@@ -48,13 +53,17 @@ public class MapsCreateFragment extends Fragment {
         setStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // when button is 'SET', allow users to select a starting location
                 if (setStartButton.getText().equals("SET")) {
                     setStartButton.setText("DONE");
                     createButton.setVisibility(View.GONE);
                     setEndButton.setVisibility(View.GONE);
                     endPoint.setVisibility(View.GONE);
                     controller.setCreatePoint(true, userRoute);
-                } else {
+                }
+                // when button is 'DONE', prevent users from selecting a starting location
+                // display starting location chosen
+                else {
                     setStartButton.setText("SET");
                     createButton.setVisibility(View.VISIBLE);
                     setEndButton.setVisibility(View.VISIBLE);
@@ -70,13 +79,17 @@ public class MapsCreateFragment extends Fragment {
         setEndButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // when button is 'SET', allow users to select a ending location
                 if (setEndButton.getText().equals("SET")) {
                     setEndButton.setText("DONE");
                     createButton.setVisibility(View.GONE);
                     startPoint.setVisibility(View.GONE);
                     setStartButton.setVisibility(View.GONE);
                     controller.setCreatePoint(false, userRoute);
-                } else {
+                }
+                // when button is 'DONE', prevent users from selecting a ending location
+                // display ending location chosen
+                else {
                     setEndButton.setText("SET");
                     setStartButton.setVisibility(View.VISIBLE);
                     createButton.setVisibility(View.VISIBLE);
@@ -90,10 +103,10 @@ public class MapsCreateFragment extends Fragment {
         });
 
 
-
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // when button is 'Create', create route using GoogleMaps API via GoogleMapController
                 if (createButton.getText().equals("Create")) {
                     controller.create(userRoute);
                     String message = controller.getMessage();
@@ -104,7 +117,9 @@ public class MapsCreateFragment extends Fragment {
                         createButton.setText("Create New");
                         saveButton.setVisibility(View.VISIBLE);
                     }
-                } else {
+                }
+                // when button is 'Create New', clear route on map using GoogleMapController
+                else {
                     controller.clearRoute();
                     userRoute = new UserRoute();
                     createButton.setText("Create");
@@ -116,11 +131,12 @@ public class MapsCreateFragment extends Fragment {
             }
         });
 
+        // when button is clicked, update created route to firebase database via Database Manager
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveButton.setVisibility(View.GONE);
-                UserRouteController.updateUserRouteDatabase(userRoute);
+                DatabaseManager.updateUserRouteDatabase(userRoute);
                 Toast.makeText(getActivity(), "Route saved successfully", Toast.LENGTH_SHORT).show();
             }
         });
@@ -128,6 +144,7 @@ public class MapsCreateFragment extends Fragment {
         return view;
     }
 
+    // display starting and ending location if any
     public void displayStartEndText() {
         userRoute = controller.getUserRoute();
         String startPointText = UserRouteController.getStartPointName(userRoute);
@@ -142,6 +159,7 @@ public class MapsCreateFragment extends Fragment {
             endPoint.setText("End Point: Select an access point marker");
     }
 
+    // to make sure that the route created is still on the map when user comes back from different fragment
     @Override
     public void onStart() {
         super.onStart();

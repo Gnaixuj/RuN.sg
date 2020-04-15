@@ -39,17 +39,31 @@ public class LaunchActivity extends AppCompatActivity {
             }
         }, 3000);
 
+        // listen on firebase authentication to check if the user is logged in
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+                // if user is logged in, direct to Maps page immediately bypassing login and sign up page
                 if (user != null) {
-                    startActivity(new Intent(getApplicationContext(), MapsActivity.class));
-                    finish();
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+                            finish();
+                        }
+                    }, 2000);
 
-                } else {
-                    startActivity(new Intent(getApplicationContext(), StartActivity.class));
-                    finish();
+                }
+                // if user is not logged in, direct user to login and sign up page
+                else {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            startActivity(new Intent(getApplicationContext(), StartActivity.class));
+                            finish();
+                        }
+                    }, 2000);
                 }
             }
         };

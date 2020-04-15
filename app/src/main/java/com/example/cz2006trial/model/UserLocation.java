@@ -4,14 +4,19 @@ import java.util.Date;
 
 public class UserLocation {
 
+    // latitude of user location on map
     private double latitude;
+    // longitude of user location on map
     private double longitude;
+    // the date
     private Date timestamp;
 
+    // a constructor used dynamically when an instance of UserLocation is created from data retrieved from firebase database
     public UserLocation() {
 
     }
 
+    // a constructor mainly used to create an instance of UserLocation to update data on firebase database
     public UserLocation(double latitude, double longitude, Date timestamp) {
         this.latitude = latitude;
         this.longitude = longitude;

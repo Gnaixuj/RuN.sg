@@ -20,6 +20,9 @@ import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
 
+/**
+ * This fragment is used to list all the access points based on the text inputted by user in the search bar
+ */
 public class SearchFragment extends Fragment {
 
     private ListView listLoc;

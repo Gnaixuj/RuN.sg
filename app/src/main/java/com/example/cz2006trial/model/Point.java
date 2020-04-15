@@ -3,11 +3,16 @@ package com.example.cz2006trial.model;
 import com.google.android.gms.maps.model.LatLng;
 
 public class Point {
+    // name of a point marker on a map
     private String name;
+    // coordinates of a point marker on a map
     private LatLng location;
+    // description of a point marker on a map
     private String description;
+    // type of a point marker on a map
     private String type;
 
+    // constructor to initialize Point
     public Point(String name, LatLng location, String description, String type) {
         this.name = name;
         this.location = location;

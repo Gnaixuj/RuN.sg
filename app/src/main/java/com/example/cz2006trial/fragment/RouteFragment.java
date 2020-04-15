@@ -34,6 +34,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+/**
+ * This fragment is used to display saved routes on map and
+ * their related information such as distance travelled and time taken.
+ * Saved routes are retrieved from Firebase
+ */
 public class RouteFragment extends Fragment {
 
     private static final String TAG = "RoutePageActivity";
@@ -59,11 +64,6 @@ public class RouteFragment extends Fragment {
 
                 Log.d(TAG, "onMapReady: map is created and routeType = " + routeType);
 
-//                Example: add a marker in Sydney, Australia, and move the camera.
-//                LatLng sydney = new LatLng(-34, 151);
-//                mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
                 if (routeType.equals("userLocationSessions"))
                     showHistoryRoute();
                 else
@@ -73,7 +73,6 @@ public class RouteFragment extends Fragment {
     }
 
     private void showHistoryRoute() {
-//        String pattern = "EEE, MMM dd";
         String pattern = "EEEE, MMMM dd - HH:mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         dateView.setText(simpleDateFormat.format(mUserLocationSession.getTimestamp()));
@@ -102,27 +101,9 @@ public class RouteFragment extends Fragment {
                 .title("Your Starting Location"));
         mMap.addMarker(new MarkerOptions().position(locations.get(locations.size() - 1))
                 .title("Your Ending Location"));
-
-//        Example
-//        // Add polylines and polygons to the map. This section shows just
-//        // a single polyline. Read the rest of the tutorial to learn more.
-//        Polyline polyline1 = mMap.addPolyline(new PolylineOptions()
-//                .clickable(true)
-//                .add(
-//                        new LatLng(-35.016, 143.321),
-//                        new LatLng(-34.747, 145.592),
-//                        new LatLng(-34.364, 147.891),
-//                        new LatLng(-33.501, 150.217),
-//                        new LatLng(-32.306, 149.248),
-//                        new LatLng(-32.491, 147.309)));
-//
-//        // Position the map's camera near Alice Springs in the center of Australia,
-//        // and set the zoom factor so most of Australia shows on the screen.
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
     }
 
     private void showSavedRoute() {
-//        String pattern = "EEE, MMM dd";
         String pattern = "EEEE, MMMM dd - HH:mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         dateView.setText(simpleDateFormat.format(mUserRoute.getDate()));
@@ -193,8 +174,7 @@ public class RouteFragment extends Fragment {
                         Log.d(TAG, "onDataChange: user location = " + postSnapshot.getKey());
                         mUserLocationSession.getSession().add(postSnapshot.getValue(UserLocation.class));
                     }
-                }
-                else {
+                } else {
                     Log.d(TAG, "trying to fetch userRoute");
 
                     mUserRoute = dataSnapshot.getValue(UserRoute.class);

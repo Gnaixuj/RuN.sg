@@ -36,6 +36,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
+/**
+ * This fragment is used to display a list of saved routes to users.
+ * Saved routes can be either created routes or tracked routes.
+ */
 public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdapter.OnItemListener {
 
     private static final String TAG = "HistoryFragment";
@@ -148,8 +152,7 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                     deleteButton.setText("Done");
                     if (adapter != null) adapter.showCheckBox(true);
                     layout.setVisibility(View.VISIBLE);
-                }
-                else {
+                } else {
                     deleteButton.setText("Delete History");
                     checkAll.setChecked(false);
                     if (adapter != null) adapter.showCheckBox(false);
@@ -165,8 +168,7 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                     currentDataType = DataType.HISTORY_ROUTES;
                     adapter = historyRoutesAdapter;
                     toggleVisibility();
-                }
-                else {
+                } else {
                     currentDataType = DataType.SAVED_ROUTES;
                     adapter = savedRoutesAdapter;
                     toggleVisibility();
@@ -185,11 +187,9 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                 if (mDatasetHistoryRoutes.isEmpty()) {
                     noDataTextView.setVisibility(View.VISIBLE);
                     Log.d(TAG, "toggleVisibility: visible");
-                }
-                else
+                } else
                     noDataTextView.setVisibility(View.INVISIBLE);
-            }
-            else {
+            } else {
                 historyRoutesView.setVisibility(View.GONE);
                 savedRoutesView.setVisibility(View.VISIBLE);
 
@@ -280,8 +280,7 @@ public class HistoryFragment extends Fragment implements HistoryRecyclerViewAdap
                 if (mDatasetSavedRoutes.isEmpty() && currentDataType.equals(DataType.SAVED_ROUTES)) {
                     noDataTextView.setVisibility(View.VISIBLE);
                     Log.d(TAG, "onDataChange: SavedRoute: visible");
-                }
-                else if (!mDatasetSavedRoutes.isEmpty() && currentDataType.equals(DataType.SAVED_ROUTES)) {
+                } else if (!mDatasetSavedRoutes.isEmpty() && currentDataType.equals(DataType.SAVED_ROUTES)) {
                     noDataTextView.setVisibility(View.INVISIBLE);
                 }
                 savedRoutesAdapter.notifyDataSetChanged();

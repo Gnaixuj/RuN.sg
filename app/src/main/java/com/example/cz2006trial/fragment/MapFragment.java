@@ -4,10 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -23,7 +20,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -36,13 +32,12 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.cz2006trial.DatabaseManager;
+import com.example.cz2006trial.database.DatabaseManager;
 import com.example.cz2006trial.adapter.PointRecyclerViewAdapter;
 import com.example.cz2006trial.controller.GoogleMapController;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.controller.UserLocationController;
 import com.example.cz2006trial.model.Point;
-import com.example.cz2006trial.model.UserLocation;
 import com.example.cz2006trial.model.UserLocationSession;
 import com.example.cz2006trial.controller.UserRouteController;
 import com.example.cz2006trial.model.UserRoute;
@@ -50,7 +45,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -71,19 +65,21 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * This fragment is used to display google map along with its functionalities.
+ * Functionalities include search, GPS, sliders to display parks including park connectors, create and track route
+ */
 public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private ImageView arrowImg;
 
     private GoogleMap mMap;
-    //private Marker pointChosen;
 
     private boolean startTrack = false;
     private ArrayList<Polyline> startTrackLine = new ArrayList<>();
@@ -159,34 +155,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onPointSelected(Point point) {
                 searchResult = point;
-/*                if (setStartPoint ) {
-                    //todo show dialog
-                    Log.i("Click","Start point chosen");
-                    startPoint = mMap.addMarker(new MarkerOptions().position(point.getLocation())
-                            .title(point.getName())
-                            .snippet("Your Starting Point")
-                            .zIndex(2f)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint.getPosition(), ZOOM));
-                    UserRouteController.setStartMarkerInfo(userRoute, startPoint);
-                    setStartPoint = false;
-                }
-                else if (setEndPoint ) {
-                    //todo show dialog
-                    Log.i("Click","End point chosen");
-                    endPoint = mMap.addMarker(new MarkerOptions().position(point.getLocation())
-                            .title(point.getName())
-                            .snippet("Your Ending Point")
-                            .zIndex(2f)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(endPoint.getPosition(), ZOOM));
-                    UserRouteController.setEndMarkerInfo(userRoute, endPoint);
-                    setEndPoint = false;
-                }
-                //todo bug with clicking
-                else {*/
-                    togglePoint(point, true);
-                //}
+                togglePoint(point, true);
                 searchBar.setIconified(true);
                 listPoints.setVisibility(View.GONE);
                 buffer.setVisibility(View.VISIBLE);
@@ -266,14 +235,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             public void onClick(View view) {
                 if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
+                } else {
                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
             }
         });
 
-        //to set image of arrow
+        // to set image of arrow to allow create and track route functionality to minimize or maximize
         bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -317,8 +285,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     }
                 }
 
-            }
-            else {
+            } else {
                 for (Marker marker: parkPoint) {
                     if (marker.getTitle().equals(point.getName())) {
                         marker.setVisible(show);
@@ -332,7 +299,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     }
 
 
-    //get the map fragment
+    // get the map fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -422,7 +389,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     for (Marker marker : accessPoint) {
                         marker.setVisible(true);
                     }
-                    //listPoints.setVisibility(View.VISIBLE);
                     if (searchResult != null)
                         togglePoint(searchResult, false);
                     if (startPoint != null)
@@ -451,8 +417,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
 
                     });
-                }
-                else {
+                } else {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(false);
                     }
@@ -468,7 +433,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 setEndPoint = controller.isSetEndPoint();
                 userRoute = controller.getUserRoute();
                 if (setEndPoint) {
-                    //listPoints.setVisibility(View.VISIBLE);
                     if (searchResult != null)
                         togglePoint(searchResult, false);
                     if (endPoint != null)
@@ -494,9 +458,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                             return false;
                         }
                     });
-                }
-
-                else {
+                } else {
                     for (Marker marker : accessPoint) {
                         marker.setVisible(false);
                     }
@@ -523,8 +485,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         controller.setMessage("Route created");
 
                     }
-                }
-                else {
+                } else {
                     startPoint.remove();
                     endPoint.remove();
                     for (int i = 0; i < routeLine.size(); i++)
@@ -552,22 +513,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         });
     }
 
-/*    public void pointChosen() {
-        controller.setPointListener(new GoogleMapController.PointListener() {
-            @Override
-            public void onChange() {
-                if (bottomSheetBehavior != null) bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                Marker marker = controller.getPointChosen();
-                if (pointChosen != null) {
-                    pointChosen.remove();
-                }
-                pointChosen = mMap.addMarker(new MarkerOptions().position(marker.getPosition())
-                        .title(marker.getTitle()));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pointChosen.getPosition(), ZOOM));
-            }
-        });
-    }*/
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -579,7 +524,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         setEndingPoint();
         createRoute();
         clearTrack();
-        //pointChosen();
 
         userRoute = controller.getUserRoute();
 
@@ -600,10 +544,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         if (!controller.getRoute().isEmpty()) {
             Toast.makeText(getActivity(), "Inside", Toast.LENGTH_SHORT).show();
             controller.create(userRoute);
-            //ArrayList<LatLng> route = controller.getRoute();
-            //routeLine.add(mMap.addPolyline(new PolylineOptions().addAll(route).width(10.0f).color(Color.GREEN)));
         }
-
 
 
         locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
@@ -637,7 +578,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     locations.add(lastLocation);
                     controller.setLocations(locations);
                     startTrackLine.add(mMap.addPolyline(new PolylineOptions().addAll(locations).width(10.0f).color(Color.RED)));
-                    //UserLocation userLocation = new UserLocation();
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
                     TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
                     sdf.setTimeZone(tz);
@@ -685,7 +625,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         try {
             parklayer = new KmlLayer(mMap, R.raw.parkconnectorloop, getContext());
             accesslayer = new KmlLayer(mMap, R.raw.accesspoints, getContext());
-            //parklayer.addLayerToMap();
 
 
         } catch (XmlPullParserException e) {
@@ -709,14 +648,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
             Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-            //mMap.clear();
             if (lastKnownLocation != null) {
                 userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, ZOOM));
                 sortLocations(pointList, userLocation);
                 adapter.notifyDataSetChanged();
-            }
-            else {
+            } else {
                 LatLng sgLoc = new LatLng(1.3521, 103.8198);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sgLoc, ZOOM_OUT));
             }
@@ -763,8 +700,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 for (GeoJsonFeature feature : layer.getFeatures()) {
                     if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
                         GeoJsonPoint p = (GeoJsonPoint) feature.getGeometry();
@@ -776,8 +712,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                             Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
                                     .visible(false));
                             accessPoint.add(marker);
-                        }
-                        else {
+                        } else {
                             Point point = new Point(feature.getProperty("Name"), latLng, feature.getProperty("description"), "park");
                             pointList.add(point);
                             Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
@@ -791,47 +726,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-/*
-    private void getAccessPoints() {
-        if (accessLayer != null) {
-            for (GeoJsonFeature feature : accessLayer.getFeatures()) {
-                if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
-                    GeoJsonPoint p = (GeoJsonPoint) feature.getGeometry();
-                    LatLng latLng = p.getCoordinates();
-
-                    Point point = new Point(feature.getProperty("Name"), latLng, "access", "access");
-                    pointList.add(point);
-
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
-                            .visible(false));
-                    accessPoint.add(marker);
-                }
-                controller.setMarkers(accessPoint);
-            }
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-
-    private void getParkPoints() {
-        if (parksLayer != null) {
-            for (GeoJsonFeature feature : parksLayer.getFeatures()) {
-                if ("Point".equalsIgnoreCase(feature.getGeometry().getGeometryType())) {
-                    GeoJsonPoint p = (GeoJsonPoint) feature.getGeometry();
-                    LatLng latLng = p.getCoordinates();
-
-                    Point point = new Point(feature.getProperty("Name"), latLng, feature.getProperty("description"), "park");
-                    pointList.add(point);
-
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(feature.getProperty("Name"))
-                            .visible(false));
-                    parkPoint.add(marker);
-                }
-            }
-        }
-        adapter.notifyDataSetChanged();
-    }*/
-
     //method to check whether permission for location access has been granted
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -841,7 +735,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     //how often location is updated
-                    //startTrackerService();
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINTIME, MINDIST, locationListener);
                 }
             }
@@ -868,21 +761,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
 
         Collections.sort(locations, comp);
-        //return locations;
     }
-
-
-/*
-    private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
-        Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_point_red_48dp);
-        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
-        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
-        vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
-        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        background.draw(canvas);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }*/
 
 }

@@ -5,26 +5,34 @@ import java.util.Date;
 
 public class UserLocationSession {
 
+    // an array list to store instances of userLocation, also defines the tracking route
     private ArrayList<UserLocation> session = new ArrayList<>();
+    // the date
     private Date timestamp;
+    // the total tracking distance
     private double distance;
+    // the total time taken during tracking
     private String timeTaken;
 
+    // a constructor used dynamically when an instance of UserLocationSession is created from data retrieved from firebase database
     public UserLocationSession() {
 
     }
 
+    // a constructor to initialize userLocationSession with current date
     public UserLocationSession(Date timestamp) {
         this.timestamp = timestamp;
         distance = 0;
     }
 
+    // a constructor mainly used to create an instance of UserLocationSession to update data on firebase database
     public UserLocationSession(Date timestamp, double distance, String timeTaken) {
         this.timestamp = timestamp;
         this.distance = distance;
         this.timeTaken = timeTaken;
     }
 
+    // add instance of userLocation to session list and add distance travelled by user during tracking to attribute distance
     public void addUserLocation(UserLocation userLocation) {
         session.add(userLocation);
         if (!session.isEmpty()) {

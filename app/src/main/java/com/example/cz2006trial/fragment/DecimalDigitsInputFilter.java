@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.fragment;
 
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -10,7 +10,8 @@ public class DecimalDigitsInputFilter implements InputFilter {
 
     private Pattern mPattern;
 
-    public DecimalDigitsInputFilter(int digitsBeforeZero,int digitsAfterZero) {
+    // restrict input to allow up to 3 digits before and up to 1 digit after the decimal place
+    public DecimalDigitsInputFilter(int digitsBeforeZero, int digitsAfterZero) {
         mPattern=Pattern.compile("[0-9]{0," + (digitsBeforeZero-1) + "}+((\\.[0-9]{0," + (digitsAfterZero-1) + "})?)||(\\.)?");
     }
 

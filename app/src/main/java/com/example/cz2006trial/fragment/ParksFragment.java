@@ -20,10 +20,13 @@ import androidx.fragment.app.DialogFragment;
 import com.example.cz2006trial.R;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.text.BreakIterator;
 import java.util.HashMap;
 import java.util.Locale;
 
+/**
+ * This fragment is used to display park information using a dialog fragment and
+ * allow user to be directed to GoogleMaps application when dialog is clicked
+ */
 public class ParksFragment extends DialogFragment {
 
     static ParksFragment newInstance(HashMap<String, Object> info) {
@@ -33,10 +36,6 @@ public class ParksFragment extends DialogFragment {
         fragment.setArguments(args);
         return fragment;
     }
-
-/*    public ParksFragment (HashMap<String, Object> info) {
-        this.info = info;
-    }*/
 
     @Nullable
     @Override
@@ -68,16 +67,14 @@ public class ParksFragment extends DialogFragment {
         if ((Boolean) info.get("open")) {
             open.setText("Open Now");
             open.setTextColor(getActivity().getResources().getColor(R.color.color5, getActivity().getTheme()));
-        }
-        else {
+        } else {
             open.setText("Closed");
             open.setTextColor(Color.RED);
         }
         bar.setRating(Float.parseFloat(info.get("rating").toString()));
         if (Float.parseFloat(info.get("rating").toString()) == 0.0f) {
             rating.setText("No rating");
-        }
-        else {
+        } else {
             rating.setText("Rating: " + info.get("rating").toString());
         }
         button.setOnClickListener(new View.OnClickListener() {

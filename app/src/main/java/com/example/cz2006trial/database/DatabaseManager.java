@@ -1,4 +1,6 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.database;
+
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -6,6 +8,7 @@ import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.model.UserLocation;
 import com.example.cz2006trial.model.UserLocationSession;
 import com.example.cz2006trial.model.UserProfile;
+import com.example.cz2006trial.model.UserRoute;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,10 +20,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class DatabaseManager {
 
-
+    // retrieve goal data from firebase database and dynamically update the interface when the database reference updates
     public static void getGoalData(final GoalDatabaseCallback goalDatabaseCallback, final String date) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference(UID).child("goals");
@@ -57,6 +62,7 @@ public class DatabaseManager {
         });
     }
 
+    // retrieve profile data from firebase database and dynamically update the interface when the database reference updates
     public static void getProfileData(final ProfileDatabaseCallback profileDatabaseCallback) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference(UID).child("userProfile");
@@ -89,24 +95,19 @@ public class DatabaseManager {
         });
     }
 
+    // nested interface so as to allow relevant fragments to retrieve goal data
+    // only when the data has been retrieved fully from firebase database
     public interface GoalDatabaseCallback {
         void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals);
     }
 
+    // nested interface so as to allow relevant fragments to retrieve profile data
+    // only when the data has been retrieved fully from firebase database
     public interface ProfileDatabaseCallback {
         void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg);
     }
 
-
-
-
-
-
-
-
-
-
-
+    // update user profile information in firebase database upon registration
     public static void updateProfileData(String username, String email) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
@@ -114,6 +115,7 @@ public class DatabaseManager {
         databaseUserProfile.setValue(userProfile);
     }
 
+    // update user profile information in firebase database
     public static void updateProfileData(String username, String email, String DOB, double height, double weight, double BMI) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
@@ -121,6 +123,7 @@ public class DatabaseManager {
         databaseUserProfile.setValue(userProfile);
     }
 
+    // update goal information in firebase database
     public static void updateGoalData(String date, double distance, double target) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseGoal = FirebaseDatabase.getInstance().getReference().child(UID).child("goals").child(date);
@@ -128,6 +131,7 @@ public class DatabaseManager {
         databaseGoal.setValue(goal);
     }
 
+    // update user's tracking session information in firebase database
     public static void updateUserLocationSession(UserLocationSession userLocationSession) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseUserSession = FirebaseDatabase.getInstance().getReference()
@@ -141,6 +145,32 @@ public class DatabaseManager {
         }
     }
 
+    // update user's created route information in firebase database
+    public static void updateUserRouteDatabase(UserRoute userRoute) {
+        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+        TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
+        sdf.setTimeZone(tz);
+        java.util.Date curdate = new java.util.Date();
+        String dateStr = sdf.format(curdate);
+        Date date = DatabaseManager.convertStringToDate(dateStr);
+        Log.d("date", date.toString());
+        String dateString = date.toString();
+        DatabaseReference databaseUserSavedRoutes = FirebaseDatabase.getInstance().getReference().child(UID).child("userSavedRoutes").child(dateString);
+        UserRoute userSavedRoute = new UserRoute(
+                date,
+                userRoute.getStartPointName(),
+                userRoute.getEndPointName(),
+                userRoute.getStartLatitude(),
+                userRoute.getStartLongitude(),
+                userRoute.getEndLatitude(),
+                userRoute.getEndLongitude(),
+                userRoute.getDistance(),
+                userRoute.getTimeTaken());
+        databaseUserSavedRoutes.setValue(userSavedRoute);
+    }
+
+    // convert date in string format to appropriate date format
     public static Date convertStringToDate(String date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         Date convertedDate = new Date();

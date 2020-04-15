@@ -1,4 +1,4 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.database;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 
 public class ImageDatabaseManager {
 
+    // perform actions on profile photo in firebase storage
     public static void imageDatabase(final ImageCallback imageCallback, String type, final ImageView profilePhoto) {
         String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -29,6 +30,7 @@ public class ImageDatabaseManager {
         switch (type) {
 
             case "retrieve": //retrieve photo from database
+                // and dynamically update the nested interface when the firebase storage reference updates
                 FirebaseStorage storages = FirebaseStorage.getInstance();
                 StorageReference profilePhotoRefs = storages.getReference().child("profilePhoto/" + UID + ".jpg");
                 profilePhotoRefs.getBytes(Long.MAX_VALUE)
@@ -48,6 +50,7 @@ public class ImageDatabaseManager {
                 break;
 
             case "update": //update photo in database
+                // and dynamically update the nested interface when the firebase storage reference updates
                 profilePhoto.setDrawingCacheEnabled(true);
                 profilePhoto.buildDrawingCache();
                 Bitmap bitmap = ((BitmapDrawable) profilePhoto.getDrawable()).getBitmap();
@@ -68,22 +71,11 @@ public class ImageDatabaseManager {
                         message[0] = "Profile Photo updated";
                         imageCallback.onCallback(message, null);
                     }
-                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                        //Toast.makeText(getApplicationContext(), "Photo Upload is " + progress + "% done", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                        message[0] = "Photo Upload is paused";
-                        imageCallback.onCallback(message, null);
-                    }
                 });
                 break;
 
             case "delete":  //delete photo from database
+                // and dynamically update the nested interface when the firebase storage reference updates
                 profilePhotoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -104,6 +96,8 @@ public class ImageDatabaseManager {
         }
     }
 
+    // nested interface so as to allow relevant fragments to manipulate profile photo
+    // only when the data has been retrieved, updated or deleted fully in firebase storage
     public interface ImageCallback {
         void onCallback(String[] message, byte[] bytes);
     }

@@ -11,13 +11,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.cz2006trial.adapter.CustomExpandableListAdapter;
-import com.example.cz2006trial.ExpandableListData;
+import com.example.cz2006trial.adapter.ExpandableListData;
 import com.example.cz2006trial.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * This fragment is used to display FAQ.
+ */
 public class FaqFragment extends Fragment {
 
     ExpandableListView expandableListView;

@@ -17,8 +17,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.cz2006trial.DatabaseManager;
-import com.example.cz2006trial.ImageDatabaseManager;
+import com.example.cz2006trial.database.DatabaseManager;
+import com.example.cz2006trial.database.ImageDatabaseManager;
 import com.example.cz2006trial.R;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -82,6 +82,7 @@ public class MapsActivity extends AppCompatActivity {
 
     }
 
+    // retrieve profile data from firebase database via Database Manager and display it
     public void displayProfile() {
         DatabaseManager.getProfileData(new DatabaseManager.ProfileDatabaseCallback() {
             @Override
@@ -107,23 +108,17 @@ public class MapsActivity extends AppCompatActivity {
         });
     }
 
+    // display profile information which is called only when system has retrieved profile data from firebase database
     private void loadingComplete() {
         userEmail.setVisibility(View.VISIBLE);
         userName.setVisibility(View.VISIBLE);
         userImage.setVisibility(View.VISIBLE);
-
-/*        RelativeLayout imageLayout = new RelativeLayout(this);
-
-        userImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(24, 24);
-        imageLayout.addView(userImage, lp);*/
-
         userImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(200, 200);
         userImage.setLayoutParams(lp);
     }
 
-
+    // logged out user when log out button is pressed
     public void logOut(View view) {
         FirebaseAuth.getInstance().signOut();
         startActivity(new Intent(MapsActivity.this, LoginActivity.class));

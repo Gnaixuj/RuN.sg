@@ -1,24 +1,12 @@
 package com.example.cz2006trial.controller;
 
-import com.example.cz2006trial.model.UserProfile;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 public class UserProfileController {
 
-    /*public static void setEditedUserProfileOnDatabase(String username, String email, String DOB, double height, double weight, double BMI) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
-        UserProfile userProfile = new UserProfile(username, email, DOB, height, weight, BMI);
-        databaseUserProfile.setValue(userProfile);
+    // calculate BMI of user based on the user's height and weight
+    public static double calculateBMI(double height, double weight) {
+        height = height / 100.0;
+        double bmi = weight / (height * height);
+        return Math.round(bmi * 10) / 10.0;
     }
-
-    public static void setUserProfileOnDatabase(String username, String email) {
-        String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseUserProfile = FirebaseDatabase.getInstance().getReference().child(UID).child("userProfile");
-        UserProfile userProfile = new UserProfile(username, email);
-        databaseUserProfile.setValue(userProfile);
-    }*/
 
 }

@@ -1,13 +1,16 @@
-package com.example.cz2006trial;
+package com.example.cz2006trial.adapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class ExpandableListData {
+
+    // return data based on the type parameter passed
     public static HashMap<String, List<String>> getData(String type) {
         HashMap<String, List<String>> expandableListDetail = new HashMap<String, List<String>>();
 
+        // currently, there is only one type of data but it can be extended to multiple types
         if (type.equals("FAQ")) {
 
             List<String> qn_1 = new ArrayList<String>();

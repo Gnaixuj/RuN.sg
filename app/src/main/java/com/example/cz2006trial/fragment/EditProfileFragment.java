@@ -30,9 +30,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.cz2006trial.DatabaseManager;
-import com.example.cz2006trial.DecimalDigitsInputFilter;
-import com.example.cz2006trial.ImageDatabaseManager;
+import com.example.cz2006trial.controller.UserProfileController;
+import com.example.cz2006trial.database.DatabaseManager;
+import com.example.cz2006trial.database.ImageDatabaseManager;
 import com.example.cz2006trial.R;
 import com.example.cz2006trial.activity.MapsActivity;
 import com.example.cz2006trial.controller.GoalController;
@@ -91,16 +91,18 @@ public class EditProfileFragment extends Fragment {
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        // initialize calendar to current date in Singapore
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
         TimeZone tz = TimeZone.getTimeZone("Asia/Singapore");
         sdf.setTimeZone(tz);
         java.util.Date curDate = new java.util.Date();
         String dateStr = sdf.format(curDate);
         Date date = GoalController.convertStringToDate(dateStr);
-
         final Calendar myCalendar = Calendar.getInstance();
         myCalendar.setTime(date);
 
+        // a function to set date of birth, DOB in string format based on the date selected on the calendar
         final DatePickerDialog.OnDateSetListener dob = new DatePickerDialog.OnDateSetListener() {
 
             @Override
@@ -117,6 +119,7 @@ public class EditProfileFragment extends Fragment {
 
         };
 
+        // pop up a calendar when user wants to update date of birth, DOB
         DOBTextView.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -128,15 +131,15 @@ public class EditProfileFragment extends Fragment {
 
         });
 
-
+        // force user to input up to 3 digits before and up to 1 digit after the decimal place for height and weight fields
         heightTextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
         weightTextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
-        //BMITextView.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3, 1)});
 
+        // when user wants to edit profile photo, check for permissions to access external storage and camera
+        // if permissions are not checked, request user for permissions
         profilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (checkPermission()) {
                     requestPermission();
                     editPhoto();
@@ -146,6 +149,7 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
+        // display user profile information retrieved from Firebase
         displayProfile();
 
         updateProfileButton.setOnClickListener(new View.OnClickListener() {
@@ -159,8 +163,6 @@ public class EditProfileFragment extends Fragment {
                             getActivity().onBackPressed();
                             ((MapsActivity) getActivity()).displayProfile();
                             Toast.makeText(getContext(), "User Profile Updated", Toast.LENGTH_LONG).show();
-                            //DownloadFileManager.downloadFile(getContext(), "profilePhoto", ".jpg", Environment.DIRECTORY_DOWNLOADS, message[0]);
-                            //Toast.makeText(getContext(), message[0], Toast.LENGTH_SHORT).show();
                         }
                     }, "update", profilePhoto);
                 } else if (photoChange && !hasPhoto(profilePhoto)) {
@@ -180,11 +182,13 @@ public class EditProfileFragment extends Fragment {
         });
     }
 
+    // check for permission to read external storage
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
 
+    // request for permission to read external storage
     private void requestPermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Toast.makeText(getContext(), "Please allow in App Settings for additional functionality.", Toast.LENGTH_LONG).show();
@@ -196,17 +200,22 @@ public class EditProfileFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // switch statement for extension in case there are multiple permissions
         switch (requestCode) {
             case 225:
+                // if user grant permission
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getContext(), "Permission Granted, Now you can edit profile photo.", Toast.LENGTH_LONG).show();
-                } else {
+                }
+                // if user deny permission
+                else {
                     Toast.makeText(getContext(), "Permission Denied, You cannot edit profile photo.", Toast.LENGTH_LONG).show();
                 }
                 break;
         }
     }
 
+    // update user profile information to firebase database via Database Manager
     public void updateProfile() {
         String username = usernameTextView.getText().toString();
         String email = emailTextView.getText().toString();
@@ -225,23 +234,23 @@ public class EditProfileFragment extends Fragment {
             weight = Double.parseDouble(weightTextView.getEditableText().toString());
 
         if (height != 0 && weight != 0) {
-            BMI = calculateBMI(height, weight);
+            BMI = UserProfileController.calculateBMI(height, weight);
         }
-/*
-        if (!BMITextView.getEditableText().toString().equals(""))
-            BMI = Double.parseDouble(BMITextView.getEditableText().toString());*/
-
         DatabaseManager.updateProfileData(username, email, DOB, height, weight, BMI);
     }
 
+    // display user profile information based on data retrieved from Firebase
     public void displayProfile() {
         DatabaseManager.getProfileData(new DatabaseManager.ProfileDatabaseCallback() {
             @Override
             public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg) {
+                // Database read failed
                 if (errorMsg[0] != null)
                     Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                    // No data available for retrieval
                 else if (errorMsg[1] != null)
                     Toast.makeText(getContext(), errorMsg[1], Toast.LENGTH_LONG).show();
+                    // Data available for retrieval
                 else {
                     usernameTextView.setText(stringArgs.get(0));
                     emailTextView.setText(stringArgs.get(1));
@@ -256,9 +265,8 @@ public class EditProfileFragment extends Fragment {
                     if (doubleArgs[1] != 0)
                         weightTextView.setText("" + doubleArgs[1]);
                     weightTextView.setHint("Please input your weight in kg");
-/*                    if (doubleArgs[2] != 0)
-                        BMITextView.setText("" + doubleArgs[2]);
-                    BMITextView.setHint("Please input your BMI");*/
+
+                    // retrieve profile photo from Firebase Storage
                     ImageDatabaseManager.imageDatabase(new ImageDatabaseManager.ImageCallback() {
                         @Override
                         public void onCallback(String[] message, byte[] bytes) {
@@ -268,6 +276,8 @@ public class EditProfileFragment extends Fragment {
                             }
                         }
                     }, "retrieve", profilePhoto);
+
+                    // get goal data from Firebase to display total distance travelled by user and the daily target
                     DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
                         @Override
                         public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
@@ -280,6 +290,7 @@ public class EditProfileFragment extends Fragment {
                             for (Goal goal : goals) {
                                 totalDistance += goal.getDistance();
                                 if (goal.getDate().equals(date)) {
+                                    // if daily target is set, display daily target. Otherwise, display '-'
                                     if (goal.getTarget() > 0)
                                         todayTargetTextView.setText(Math.round(goal.getDistance() * 10) / 10.0 + "/" + goal.getTarget() + " km");
                                 }
@@ -293,14 +304,10 @@ public class EditProfileFragment extends Fragment {
         });
     }
 
-    /**
-     * This function checks if the image resource currently attached to an ImageView is the same as
-     * that set in the XML.
-     *
-     * @param profilePhoto The ImageView whose contents are to be checked
-     * @return returns true if the image resource inside the ImageView was replaced with another;
-     * else returns false
-     */
+
+    // this function checks if the image resource currently attached to an ImageView is the same as that set in the XML.
+    // returns true if the image resource inside the ImageView was replaced with another;
+    // else returns false
     private boolean hasPhoto(ImageView profilePhoto) {
         boolean result = true;
         Drawable.ConstantState constantState;
@@ -331,11 +338,7 @@ public class EditProfileFragment extends Fragment {
                 (hasPhoto(this.profilePhoto) ? items : Arrays.copyOfRange(items, 0, 2)),
                 new DialogInterface.OnClickListener() {
 
-                    /**
-                     * OnClick handler for each of the menu items
-                     * @param dialog the menu from which the user selected an item
-                     * @param item the menu item that the user clicked on
-                     */
+                    // OnClick handler for each of the menu items
                     @Override
                     public void onClick(DialogInterface dialog, int item) {
                         if (items[item].equals("Take Photo")) {
@@ -352,56 +355,37 @@ public class EditProfileFragment extends Fragment {
                         } else if (items[item].equals("Remove Photo")) {
                             profilePhoto.setImageResource(R.drawable.ic_profile_pic);
                             photoChange = true;
-                            dialog.dismiss(); //dismiss the dialog when an option is selected
+                            // dismiss the dialog when an option is selected
+                            dialog.dismiss();
                         }
                     }
                 });
-        builder.show(); //finally, show this dialog upon button click
+        // finally, show this dialog upon button click
+        builder.show();
     }
 
-    /**
-     * The function that is called when the user returns to EditProfile after having selected a
-     * file or taken a photo from the camera app.
-     *
-     * @param requestCode To determine if the user has returned from the camera app or selected a file
-     * @param resultCode  success or error
-     * @param data        data received from the activity
-     */
+    // the function that is called when the user returns to EditProfile
+    // after having selected a file or taken a photo from the camera app.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        /**if a bitmap was not fetched successfully, there's no point in attempting to
-         * parse the data.
-         */
+        // if a bitmap was not fetched successfully, there's no point in attempting to parse the data.
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CAMERA) {
-                //if the user took a photo using the camera, save that file to external storage and
-                //set that image to the profilePhoto ImageView
+                // if the user took a photo using the camera, set that image to the profilePhoto ImageView
                 Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 if (thumbnail != null) {
                     thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-                    /*File destination = new File(Environment.getExternalStorageDirectory(),
-                            System.currentTimeMillis() + ".jpg");
-                    FileOutputStream fo;
-                    try {
-                        destination.createNewFile();
-                        fo = new FileOutputStream(destination);
-                        fo.write(bytes.toByteArray());
-                        fo.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
                     profilePhoto.setImageBitmap(thumbnail);
                     photoChange = true;
                 } else {
                     Toast.makeText(getContext(), "Image capture error", Toast.LENGTH_SHORT).show();
                 }
-
-            } else if (requestCode == SELECT_FILE) {
+            }
+            // if the user select an image from external storage, set that image to the profilePhoto ImageView
+            else if (requestCode == SELECT_FILE) {
                 String state = Environment.getExternalStorageState();
                 if (Environment.MEDIA_MOUNTED.equals(state)) {
                     Uri selectedImageUri = data.getData();
@@ -431,11 +415,4 @@ public class EditProfileFragment extends Fragment {
             }
         }
     }
-
-    private double calculateBMI (double height, double weight) {
-        height = height/100.0;
-        double bmi = weight/(height * height);
-        return Math.round(bmi * 10)/10.0;
-    }
-
 }

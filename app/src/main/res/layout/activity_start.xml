@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
-        android:text="Name of App"
+        android:text="RuN.sg"
         android:textColor="#2196F3"
         android:textSize="96px"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -27,8 +27,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView mRegisterButton;
     private ProgressBar progressBar;
 
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,43 +40,35 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        /*mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser mFirebaseUser = mAuth.getCurrentUser();
-                if (mFirebaseUser != null) {
-                    Toast.makeText(LoginActivity.this, "You are Logged In", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, MapsActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(LoginActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
-                }
-            }
-        };*/
-
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // trim email and password to get rid of unnecessary spaces
                 String email = mEmail.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
+                // if email field is empty
                 if (TextUtils.isEmpty(email)) {
-                    mEmail.setError("Username is Required");
+                    mEmail.setError("Email is Required");
                     return;
                 }
+                // if password field is empty
                 if (TextUtils.isEmpty(password)) {
                     mPassword.setError("Password is Required");
                     return;
                 }
                 progressBar.setVisibility(View.VISIBLE);
 
+                // listen to firebase and wait till firebase has authenticate the user
                 mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        // upon unsuccessful login, display error message
                         if (!task.isSuccessful()) {
                             Toast.makeText(getApplicationContext(), "Error " + task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         }
+                        // upon successful login, direct user to Maps page
                         else {
                             startActivity(new Intent(getApplicationContext(), MapsActivity.class));
                             finish();
@@ -88,21 +78,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    startActivity(new Intent(getApplicationContext(), MapsActivity.class));
-                    finish();
-
-                } else {
-                    // User is signed out
-                    Toast.makeText(getApplicationContext(), "Please Log in", Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-
+        // direct user to sign up page when clicked
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,19 +86,5 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuth != null) {
-            mAuth.removeAuthStateListener(mAuthStateListener);
-        }
     }
 }

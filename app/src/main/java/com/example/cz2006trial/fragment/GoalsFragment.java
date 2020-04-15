@@ -23,8 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
-import com.example.cz2006trial.DatabaseManager;
-import com.example.cz2006trial.DecimalDigitsInputFilter;
+import com.example.cz2006trial.database.DatabaseManager;
 import com.example.cz2006trial.controller.GoalController;
 import com.example.cz2006trial.model.Goal;
 import com.example.cz2006trial.R;
@@ -45,6 +44,10 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * This fragment is used to display goals using a material calendar and
+ * update goal information to Firebase.
+ */
 public class GoalsFragment extends Fragment {
 
     private MaterialCalendarView calendarView;
@@ -57,8 +60,6 @@ public class GoalsFragment extends Fragment {
     private EditText newTargetView;
     private LinearLayout newTargetLayout;
     private double distance;
-
-
 
 
     @Override
@@ -150,6 +151,7 @@ public class GoalsFragment extends Fragment {
         });
     }
 
+    // instantiate calendar accordingly before displaying it on user interface
     private void instantiateCalendar() {
         //Set max and min date that can be shown on the calendar
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
@@ -182,6 +184,7 @@ public class GoalsFragment extends Fragment {
         calendarView.addDecorators(new GoalDecorator(Color.WHITE, true, currentDate));
     }
 
+    // decorate incomplete goals and completed goals by displaying a red dot and green dot respectively on affected dates
     public void decorateGoalDates() {
         DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
             @Override
@@ -208,24 +211,32 @@ public class GoalsFragment extends Fragment {
         }, null);
     }
 
+    // retrieve goal data from firebase database via Database Manager and display it
     public void displayGoal(final String date) {
         DatabaseManager.getGoalData(new DatabaseManager.GoalDatabaseCallback() {
             @Override
             public void onCallback(ArrayList<String> stringArgs, double[] doubleArgs, String[] errorMsg, ArrayList<Goal> goals) {
                 dateView.setText(date);
+                // database read failed
                 if (errorMsg[0] != null)
                     Toast.makeText(getContext(), errorMsg[0], Toast.LENGTH_LONG).show();
+                    // no data available for retrieval
                 else if (errorMsg[1] != null) {
                     distanceView.setText(R.string.zeroDistance);
                     targetView.setText(R.string.noTargetSet);
-                } else {
+                }
+                // data avilable for retrieval
+                else {
+                    // when daily target is not -1 or 0, display target distance value
                     if (doubleArgs[1] != -1 && doubleArgs[1] != 0) {
                         distance = doubleArgs[0];
                         distanceView.setText("" + Math.round(doubleArgs[0] * 10) / 10.0);
                         targetView.setText("" + doubleArgs[1]);
                         double progress = Math.max(0, Math.min(100 * doubleArgs[0] / doubleArgs[1], 100));
                         progressView.setText(Math.round(progress) + "%");
-                    } else {
+                    }
+                    // otherwise, display 'no daily target set'
+                    else {
                         distance = doubleArgs[0];
                         distanceView.setText("" + Math.round(doubleArgs[0] * 10) / 10.0);
                         targetView.setText(R.string.noTargetSet);
@@ -235,6 +246,7 @@ public class GoalsFragment extends Fragment {
         }, date);
     }
 
+    // to decorate selected day/days on the calendar
     private static class GoalDecorator implements DayViewDecorator {
 
         private final int color;
